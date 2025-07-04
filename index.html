@@ -2471,6 +2471,8 @@
     }
   }
 
+  
+
   async function getDashboardData(startDate, endDate) {
     const result = {
       totalSales: 0,
@@ -2514,6 +2516,54 @@
           revenue: 0
         });
       }
+
+      async function loadUserData() {
+  if (!currentUser) return;
+  
+  // Show/hide tabs based on user role
+  const isAdmin = currentUser.email === 'admin@campabeverages.com';
+  
+  // Get all tab elements
+  const invoiceTab = document.querySelector('[href="#invoiceTab"]').parentElement;
+  const stockTab = document.querySelector('[href="#stockTab"]').parentElement;
+  const adminTab = document.querySelector('[href="#adminTab"]').parentElement;
+  const dashboardTab = document.querySelector('[href="#dashboardTab"]').parentElement;
+  const operatorSalesTab = document.querySelector('[href="#operatorSalesTab"]').parentElement;
+  const historyTab = document.querySelector('[href="#historyTab"]').parentElement;
+  
+  // Show only Invoice and Stock for operators
+  if (!isAdmin) {
+    invoiceTab.classList.remove('hidden');
+    stockTab.classList.remove('hidden');
+    adminTab.classList.add('hidden');
+    dashboardTab.classList.add('hidden');
+    operatorSalesTab.classList.add('hidden');
+    historyTab.classList.add('hidden');
+    
+    // Make sure the first visible tab is active
+    document.querySelector('[href="#invoiceTab"]').classList.add('active');
+    document.getElementById('invoiceTab').classList.add('show', 'active');
+  } else {
+    // Show all tabs for admin
+    invoiceTab.classList.remove('hidden');
+    stockTab.classList.remove('hidden');
+    adminTab.classList.remove('hidden');
+    dashboardTab.classList.remove('hidden');
+    operatorSalesTab.classList.remove('hidden');
+    historyTab.classList.remove('hidden');
+  }
+  
+  // Generate invoice number
+  generateInvoiceNo();
+  
+  // Setup real-time listeners
+  setupRealTimeListeners();
+  
+  // Initialize dashboard if shown
+  if (document.getElementById('dashboardTab').classList.contains('active')) {
+    loadDashboardData();
+  }
+}
       
       // Update daily summary
       const dailySummary = result.dailySummaries.find(d => d.date === dayKey);
