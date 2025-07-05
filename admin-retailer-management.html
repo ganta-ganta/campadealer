@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Retailer Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background-color: #f8f9fa;
+    }
+    
+    .navbar-brand {
+      font-weight: bold;
+      color: var(--accent-color) !important;
+    }
+    
+    .card {
+      border: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+    
+    .status-pending { background-color: #fff3cd; color: #856404; }
+    .status-approved { background-color: #d1ecf1; color: #0c5460; }
+    .status-confirmed { background-color: #d4edda; color: #155724; }
+    .status-delivered { background-color: #d4edda; color: #155724; }
+    .status-cancelled { background-color: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <i class="bi bi-cup-hot-fill me-2"></i>
+      Campa Beverages - Admin
+    </a>
+    <div class="navbar-nav ms-auto">
+      <a href="index.html" class="btn btn-outline-light me-2">
+        <i class="bi bi-arrow-left"></i> Back to Main Admin
+      </a>
+      <button class="btn btn-outline-light" onclick="logout()">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mt-4">
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4" id="adminTabs">
+    <li class="nav-item">
+      <a class="nav-link active" data-bs-toggle="tab" href="#retailersTab">
+        <i class="bi bi-people"></i> Retailer Management
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#ordersTab">
+        <i class="bi bi-bag-check"></i> Retailer Orders
+      </a>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Retailers Tab -->
+    <div class="tab-pane fade show active" id="retailersTab">
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card text-white bg-primary">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-people fs-1 me-3"></i>
+                <div>
+                  <h5 class="card-title">Total Retailers</h5>
+                  <h2 id="totalRetailers">0</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-white bg-warning">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-clock fs-1 me-3"></i>
+                <div>
+                  <h5 class="card-title">Pending Approval</h5>
+                  <h2 id="pendingRetailers">0</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-white bg-success">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle fs-1 me-3"></i>
+                <div>
+                  <h5 class="card-title">Approved</h5>
+                  <h2 id="approvedRetailers">0</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Retailers List -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Retailer Applications</h5>
+        </div>
+        <div class="card-body">
+          <div id="retailersList">
+            <!-- Retailers will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div class="tab-pane fade" id="ordersTab">
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card text-white bg-info">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-bag fs-1 me-3"></i>
+                <div>
+                  <h5 class="card-title">Total Orders</h5>
+                  <h2 id="totalOrders">0</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-warning">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-clock fs-1 me-3"></i>
+                <div>
+                  <h5 class="card-title">Pending</h5>
+                  <h2 id="pendingOrders">0</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-primary">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-check fs-1 me-3"></i>
+                <div>
+                  <h5 class="card-title">Confirmed</h5>
+                  <h2 id="confirmedOrders">0</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-success">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-truck fs-1 me-3"></i>
+                <div>
+                  <h5 class="card-title">Delivered</h5>
+                  <h2 id="deliveredOrders">0</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders List -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Retailer Orders</h5>
+        </div>
+        <div class="card-body">
+          <div id="ordersList">
+            <!-- Orders will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Firebase SDK -->
+<script type="module">
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { 
+    getAuth, 
+    signOut,
+    onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { 
+    getFirestore,
+    collection,
+    doc,
+    updateDoc,
+    query,
+    orderBy,
+    getDocs,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBm2Y2-KaPh_9prtDyEh75ys9bOS_YivyU",
+    authDomain: "campacola-45a6c.firebaseapp.com",
+    projectId: "campacola-45a6c",
+    storageBucket: "campacola-45a6c.appspot.com",
+    messagingSenderId: "950062364838",
+    appId: "1:950062364838:web:c016c1c2b63d661dc09c67",
+    measurementId: "G-0F1FMP4D6X"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Global variables
+  let currentUser = null;
+
+  // Initialize app
+  function initApp() {
+    // Check if user is logged in and is admin
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.email === 'admin@campabeverages.com') {
+        currentUser = user;
+        loadRetailers();
+        loadOrders();
+        setupRealTimeListeners();
+      } else {
+        // Redirect to main admin login
+        window.location.href = 'index.html';
+      }
+    });
+  }
+
+  // Setup real-time listeners
+  function setupRealTimeListeners() {
+    // Listen for retailer changes
+    onSnapshot(collection(db, 'retailers'), () => {
+      loadRetailers();
+    });
+
+    // Listen for order changes
+    onSnapshot(collection(db, 'retailerOrders'), () => {
+      loadOrders();
+    });
+  }
+
+  // Load retailers
+  async function loadRetailers() {
+    try {
+      const q = query(collection(db, 'retailers'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      
+      let totalRetailers = 0;
+      let pendingRetailers = 0;
+      let approvedRetailers = 0;
+      
+      const retailersList = document.getElementById('retailersList');
+      retailersList.innerHTML = '';
+
+      if (querySnapshot.empty) {
+        retailersList.innerHTML = `
+          <div class="text-center py-5">
+            <i class="bi bi-people" style="font-size: 3rem; color: #ccc;"></i>
+            <h5 class="mt-3">No retailer applications</h5>
+            <p class="text-muted">Retailer applications will appear here.</p>
+          </div>
+        `;
+      } else {
+        querySnapshot.forEach(doc => {
+          const retailer = { id: doc.id, ...doc.data() };
+          totalRetailers++;
+          
+          if (retailer.isApproved) {
+            approvedRetailers++;
+          } else {
+            pendingRetailers++;
+          }
+          
+          const retailerCard = createRetailerCard(retailer);
+          retailersList.appendChild(retailerCard);
+        });
+      }
+
+      // Update counters
+      document.getElementById('totalRetailers').textContent = totalRetailers;
+      document.getElementById('pendingRetailers').textContent = pendingRetailers;
+      document.getElementById('approvedRetailers').textContent = approvedRetailers;
+
+    } catch (error) {
+      console.error('Error loading retailers:', error);
+    }
+  }
+
+  // Create retailer card
+  function createRetailerCard(retailer) {
+    const div = document.createElement('div');
+    div.className = 'card mb-3';
+    
+    const statusClass = retailer.isApproved ? 'status-approved' : 'status-pending';
+    const statusText = retailer.isApproved ? 'Approved' : 'Pending Approval';
+    
+    div.innerHTML = `
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">${retailer.businessName}</h6>
+        <span class="badge ${statusClass}">${statusText}</span>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-2"><strong>Owner:</strong> ${retailer.ownerName}</p>
+            <p class="mb-2"><strong>Email:</strong> ${retailer.email}</p>
+            <p class="mb-2"><strong>Phone:</strong> ${retailer.phone}</p>
+            <p class="mb-2"><strong>GST:</strong> ${retailer.gst || 'Not provided'}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-2"><strong>Address:</strong></p>
+            <p class="text-muted small">${retailer.address}</p>
+            <p class="mb-2"><strong>Applied:</strong> ${retailer.createdAt ? new Date(retailer.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+          </div>
+        </div>
+        ${!retailer.isApproved ? `
+          <div class="mt-3">
+            <button class="btn btn-success me-2" onclick="approveRetailer('${retailer.id}')">
+              <i class="bi bi-check-circle"></i> Approve
+            </button>
+            <button class="btn btn-danger" onclick="rejectRetailer('${retailer.id}')">
+              <i class="bi bi-x-circle"></i> Reject
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    
+    return div;
+  }
+
+  // Approve retailer
+  async function approveRetailer(retailerId) {
+    if (confirm('Are you sure you want to approve this retailer?')) {
+      try {
+        await updateDoc(doc(db, 'retailers', retailerId), {
+          isApproved: true,
+          approvedAt: new Date()
+        });
+        alert('Retailer approved successfully!');
+      } catch (error) {
+        console.error('Error approving retailer:', error);
+        alert('Failed to approve retailer. Please try again.');
+      }
+    }
+  }
+
+  // Reject retailer
+  async function rejectRetailer(retailerId) {
+    if (confirm('Are you sure you want to reject this retailer? This action cannot be undone.')) {
+      try {
+        await updateDoc(doc(db, 'retailers', retailerId), {
+          isApproved: false,
+          rejectedAt: new Date()
+        });
+        alert('Retailer rejected.');
+      } catch (error) {
+        console.error('Error rejecting retailer:', error);
+        alert('Failed to reject retailer. Please try again.');
+      }
+    }
+  }
+
+  // Load orders
+  async function loadOrders() {
+    try {
+      const q = query(collection(db, 'retailerOrders'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      
+      let totalOrders = 0;
+      let pendingOrders = 0;
+      let confirmedOrders = 0;
+      let deliveredOrders = 0;
+      
+      const ordersList = document.getElementById('ordersList');
+      ordersList.innerHTML = '';
+
+      if (querySnapshot.empty) {
+        ordersList.innerHTML = `
+          <div class="text-center py-5">
+            <i class="bi bi-bag-x" style="font-size: 3rem; color: #ccc;"></i>
+            <h5 class="mt-3">No orders yet</h5>
+            <p class="text-muted">Retailer orders will appear here.</p>
+          </div>
+        `;
+      } else {
+        querySnapshot.forEach(doc => {
+          const order = { id: doc.id, ...doc.data() };
+          totalOrders++;
+          
+          switch (order.status) {
+            case 'pending':
+              pendingOrders++;
+              break;
+            case 'confirmed':
+              confirmedOrders++;
+              break;
+            case 'delivered':
+              deliveredOrders++;
+              break;
+          }
+          
+          const orderCard = createOrderCard(order);
+          ordersList.appendChild(orderCard);
+        });
+      }
+
+      // Update counters
+      document.getElementById('totalOrders').textContent = totalOrders;
+      document.getElementById('pendingOrders').textContent = pendingOrders;
+      document.getElementById('confirmedOrders').textContent = confirmedOrders;
+      document.getElementById('deliveredOrders').textContent = deliveredOrders;
+
+    } catch (error) {
+      console.error('Error loading orders:', error);
+    }
+  }
+
+  // Create order card
+  function createOrderCard(order) {
+    const div = document.createElement('div');
+    div.className = 'card mb-3';
+    
+    const statusClass = `status-${order.status}`;
+    const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+    
+    div.innerHTML = `
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Order #${order.invoiceNumber}</h6>
+        <span class="badge ${statusClass}">${statusText}</span>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-2"><strong>Retailer:</strong> ${order.retailerName}</p>
+            <p class="mb-2"><strong>Email:</strong> ${order.retailerEmail}</p>
+            <p class="mb-2"><strong>Phone:</strong> ${order.retailerPhone}</p>
+            <p class="mb-2"><strong>Date:</strong> ${order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-2"><strong>Items:</strong> ${order.items.length} products</p>
+            <p class="mb-2"><strong>Quantity:</strong> ${order.items.reduce((sum, item) => sum + item.quantity, 0)} units</p>
+            <p class="mb-2"><strong>Total:</strong> ₹${order.total.toFixed(2)}</p>
+            ${order.includeGST ? '<p class="mb-2 small text-muted">Includes GST</p>' : ''}
+          </div>
+        </div>
+        
+        <div class="mt-3">
+          <h6>Order Items:</h6>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Size</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.items.map(item => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td>${item.size}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${item.price.toFixed(2)}</td>
+                    <td>₹${(item.price * item.quantity).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="mt-3">
+          ${order.status === 'pending' ? `
+            <button class="btn btn-success me-2" onclick="confirmOrder('${order.id}')">
+              <i class="bi bi-check-circle"></i> Confirm Order
+            </button>
+            <button class="btn btn-danger" onclick="cancelOrder('${order.id}')">
+              <i class="bi bi-x-circle"></i> Cancel Order
+            </button>
+          ` : ''}
+          
+          ${order.status === 'confirmed' ? `
+            <button class="btn btn-primary me-2" onclick="markDelivered('${order.id}')">
+              <i class="bi bi-truck"></i> Mark as Delivered
+            </button>
+          ` : ''}
+          
+          <button class="btn btn-outline-primary" onclick="viewOrderDetails('${order.id}', ${JSON.stringify(order).replace(/"/g, '&quot;')})">
+            <i class="bi bi-eye"></i> View Details
+          </button>
+        </div>
+      </div>
+    `;
+    
+    return div;
+  }
+
+  // Confirm order
+  async function confirmOrder(orderId) {
+    if (confirm('Are you sure you want to confirm this order?')) {
+      try {
+        await updateDoc(doc(db, 'retailerOrders', orderId), {
+          status: 'confirmed',
+          confirmedAt: new Date()
+        });
+        alert('Order confirmed successfully!');
+      } catch (error) {
+        console.error('Error confirming order:', error);
+        alert('Failed to confirm order. Please try again.');
+      }
+    }
+  }
+
+  // Cancel order
+  async function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order?')) {
+      try {
+        await updateDoc(doc(db, 'retailerOrders', orderId), {
+          status: 'cancelled',
+          cancelledAt: new Date()
+        });
+        alert('Order cancelled.');
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+        alert('Failed to cancel order. Please try again.');
+      }
+    }
+  }
+
+  // Mark as delivered
+  async function markDelivered(orderId) {
+    if (confirm('Are you sure you want to mark this order as delivered?')) {
+      try {
+        await updateDoc(doc(db, 'retailerOrders', orderId), {
+          status: 'delivered',
+          deliveredAt: new Date()
+        });
+        alert('Order marked as delivered!');
+      } catch (error) {
+        console.error('Error marking order as delivered:', error);
+        alert('Failed to update order status. Please try again.');
+      }
+    }
+  }
+
+  // View order details
+  function viewOrderDetails(orderId, orderData) {
+    const order = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
+    
+    // Create a modal or new window to show detailed order information
+    const detailWindow = window.open('', '', 'width=800,height=600');
+    const detailHTML = `
+      <html>
+        <head>
+          <title>Order Details - ${order.invoiceNumber}</title>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+          <style>
+            body { padding: 20px; }
+            .company-header { text-align: center; margin-bottom: 30px; }
+            .company-name { font-size: 24px; font-weight: bold; color: #2c3e50; }
+          </style>
+        </head>
+        <body>
+          <div class="company-header">
+            <div class="company-name">Campa Beverages Pvt. Ltd.</div>
+            <p>Order Details</p>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <h5>Order Information</h5>
+              <p><strong>Order Number:</strong> ${order.invoiceNumber}</p>
+              <p><strong>Date:</strong> ${order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+              <p><strong>Status:</strong> ${order.status.toUpperCase()}</p>
+            </div>
+            <div class="col-md-6">
+              <h5>Retailer Information</h5>
+              <p><strong>Business:</strong> ${order.retailerName}</p>
+              <p><strong>Email:</strong> ${order.retailerEmail}</p>
+              <p><strong>Phone:</strong> ${order.retailerPhone}</p>
+              <p><strong>Address:</strong> ${order.retailerAddress}</p>
+            </div>
+          </div>
+          
+          <h5 class="mt-4">Order Items</h5>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Quantity</th>
+                <th>Rate (₹)</th>
+                <th>Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map(item => `
+                <tr>
+                  <td>${item.name}</td>
+                  <td>${item.size}</td>
+                  <td>${item.quantity}</td>
+                  <td>${item.price.toFixed(2)}</td>
+                  <td>${(item.price * item.quantity).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          
+          <div class="text-end mt-4">
+            <p>Subtotal: ₹${order.subtotal.toFixed(2)}</p>
+            ${order.includeGST ? `<p>GST (18%): ₹${order.gstAmount.toFixed(2)}</p>` : ''}
+            <h5>Total: ₹${order.total.toFixed(2)}</h5>
+          </div>
+          
+          <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="window.print()">Print</button>
+            <button class="btn btn-secondary ms-2" onclick="window.close()">Close</button>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    detailWindow.document.write(detailHTML);
+    detailWindow.document.close();
+  }
+
+  // Logout function
+  async function logout() {
+    await signOut(auth);
+    window.location.href = 'index.html';
+  }
+
+  // Expose functions to global scope
+  window.approveRetailer = approveRetailer;
+  window.rejectRetailer = rejectRetailer;
+  window.confirmOrder = confirmOrder;
+  window.cancelOrder = cancelOrder;
+  window.markDelivered = markDelivered;
+  window.viewOrderDetails = viewOrderDetails;
+  window.logout = logout;
+
+  // Initialize app when page loads
+  window.addEventListener('load', initApp);
+</script>
+</body>
+</html>
