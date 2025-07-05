@@ -912,9 +912,9 @@ async function login(event) {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
 
-  // Only allow admin@campabeverages.com to login
-  if (email !== 'admin@campabeverages.com') {
-    alert('Only admin users can access this portal');
+  // Only allow ramakrishnasaiganta@gmail.com to login
+  if (email !== 'ramakrishnasaiganta@gmail.com') {
+    alert('Only authorized admin can access this portal');
     return;
   }
 
@@ -968,7 +968,6 @@ async function login(event) {
     loginBtn.innerHTML = 'Login';
   }
 }
-
   // Dashboard functions
   async function loadDashboard() {
     // Load counts
