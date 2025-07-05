@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campa Beverages - Admin Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    
+    .navbar-brand {
+      font-weight: bold;
+      color: var(--accent-color) !important;
+    }
+    
+    .card {
+      transition: all 0.3s ease;
+      border: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .btn-primary {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+    
+    .btn-success {
+      background-color: var(--success-color);
+      border-color: var(--success-color);
+    }
+    
+    .btn-warning {
+      background-color: var(--warning-color);
+      border-color: var(--warning-color);
+    }
+    
+    .btn-danger {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+    
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .login-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      overflow: hidden;
+      width: 400px;
+    }
+    
+    .status-pending { background-color: #fff3cd; color: #856404; }
+    .status-approved { background-color: #d4edda; color: #155724; }
+    .status-rejected { background-color: #f8d7da; color: #721c24; }
+    
+    .order-status-pending { background-color: #fff3cd; color: #856404; }
+    .order-status-confirmed { background-color: #d1ecf1; color: #0c5460; }
+    .order-status-delivered { background-color: #d4edda; color: #155724; }
+    .order-status-cancelled { background-color: #f8d7da; color: #721c24; }
+    
+    .hidden { display: none !important; }
+    
+    .table-responsive {
+      overflow-x: auto;
+    }
+    
+    .product-image {
+      height: 100px;
+      object-fit: contain;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Page -->
+<div id="loginPage" class="login-container">
+  <div class="login-card">
+    <div class="p-4">
+      <div class="text-center mb-4">
+        <i class="bi bi-shield-lock" style="font-size: 3rem; color: var(--primary-color);"></i>
+        <h2 class="mt-2">Admin Portal</h2>
+        <p class="text-muted">Campa Beverages Management System</p>
+      </div>
+      
+      <div id="loginForm">
+        <form onsubmit="login(event)">
+          <div class="mb-3">
+            <label class="form-label">Admin Email</label>
+            <input type="email" id="loginEmail" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" id="loginPassword" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="mainApp" class="hidden">
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="bi bi-shield-lock me-2"></i>
+        Campa Admin
+      </a>
+      <div class="navbar-nav ms-auto">
+        <span class="navbar-text me-3">Welcome, <span id="userName"></span></span>
+        <button class="btn btn-outline-light" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i>
+          Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="mainTabs">
+      <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#dashboardTab">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#retailersTab">
+          <i class="bi bi-shop"></i> Retailers
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#productsTab">
+          <i class="bi bi-box-seam"></i> Products
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#ordersTab">
+          <i class="bi bi-bag-check"></i> Orders
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#adminsTab">
+          <i class="bi bi-people"></i> Admins
+        </a>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Dashboard Tab -->
+      <div class="tab-pane fade show active" id="dashboardTab">
+        <div class="row">
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                <h1 class="display-4" id="totalRetailers">0</h1>
+                <p class="text-muted">Total Retailers</p>
+                <a href="#" class="btn btn-sm btn-outline-primary" onclick="showRetailersTab()">View All</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                <h1 class="display-4" id="totalProducts">0</h1>
+                <p class="text-muted">Total Products</p>
+                <a href="#" class="btn btn-sm btn-outline-primary" onclick="showProductsTab()">View All</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                <h1 class="display-4" id="totalOrders">0</h1>
+                <p class="text-muted">Total Orders</p>
+                <a href="#" class="btn btn-sm btn-outline-primary" onclick="showOrdersTab()">View All</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <h5>Recent Orders</h5>
+              </div>
+              <div class="card-body">
+                <div id="recentOrders">
+                  <!-- Recent orders will be loaded here -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <h5>Pending Approvals</h5>
+              </div>
+              <div class="card-body">
+                <div id="pendingApprovals">
+                  <!-- Pending approvals will be loaded here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Retailers Tab -->
+      <div class="tab-pane fade" id="retailersTab">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" id="retailerSearch" class="form-control" placeholder="Search retailers..." onkeyup="filterRetailers()">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select id="retailerStatusFilter" class="form-select" onchange="filterRetailers()">
+              <option value="">All Status</option>
+              <option value="approved">Approved</option>
+              <option value="pending">Pending</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-primary w-100" onclick="showAddRetailerModal()">
+              <i class="bi bi-plus-circle"></i> Add Retailer
+            </button>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Business Name</th>
+                <th>Owner</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="retailersList">
+              <!-- Retailers will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Products Tab -->
+      <div class="tab-pane fade" id="productsTab">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" id="productSearch" class="form-control" placeholder="Search products..." onkeyup="filterProducts()">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select id="productCategoryFilter" class="form-select" onchange="filterProducts()">
+              <option value="">All Categories</option>
+              <option value="Cola">Cola</option>
+              <option value="Fruit Drinks">Fruit Drinks</option>
+              <option value="Energy Drinks">Energy Drinks</option>
+              <option value="Soda">Soda</option>
+              <option value="Water">Water</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-primary w-100" onclick="showAddProductModal()">
+              <i class="bi bi-plus-circle"></i> Add Product
+            </button>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsList">
+              <!-- Products will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Orders Tab -->
+      <div class="tab-pane fade" id="ordersTab">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" id="orderSearch" class="form-control" placeholder="Search orders..." onkeyup="filterOrders()">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select id="orderStatusFilter" class="form-select" onchange="filterOrders()">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select id="orderDateFilter" class="form-select" onchange="filterOrders()">
+              <option value="">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Retailer</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersList">
+              <!-- Orders will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Admins Tab -->
+      <div class="tab-pane fade" id="adminsTab">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" id="adminSearch" class="form-control" placeholder="Search admins..." onkeyup="filterAdmins()">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select id="adminRoleFilter" class="form-select" onchange="filterAdmins()">
+              <option value="">All Roles</option>
+              <option value="super">Super Admin</option>
+              <option value="admin">Admin</option>
+              <option value="support">Support</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-primary w-100" onclick="showAddAdminModal()">
+              <i class="bi bi-plus-circle"></i> Add Admin
+            </button>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Last Login</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminsList">
+              <!-- Admins will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Retailer Modal -->
+<div class="modal fade" id="addRetailerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Retailer</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addRetailerForm">
+          <div class="mb-3">
+            <label class="form-label">Business Name</label>
+            <input type="text" id="retailerBusinessName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Owner Name</label>
+            <input type="text" id="retailerOwnerName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="retailerEmail" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" id="retailerPhone" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Business Address</label>
+            <textarea id="retailerAddress" class="form-control" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">GST Number (Optional)</label>
+            <input type="text" id="retailerGST" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" id="retailerPassword" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select id="retailerStatus" class="form-select">
+              <option value="approved">Approved</option>
+              <option value="pending">Pending</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="addRetailer()">Save Retailer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Retailer Modal -->
+<div class="modal fade" id="editRetailerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Retailer</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editRetailerForm">
+          <input type="hidden" id="editRetailerId">
+          <div class="mb-3">
+            <label class="form-label">Business Name</label>
+            <input type="text" id="editRetailerBusinessName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Owner Name</label>
+            <input type="text" id="editRetailerOwnerName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="editRetailerEmail" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" id="editRetailerPhone" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Business Address</label>
+            <textarea id="editRetailerAddress" class="form-control" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">GST Number (Optional)</label>
+            <input type="text" id="editRetailerGST" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select id="editRetailerStatus" class="form-select">
+              <option value="approved">Approved</option>
+              <option value="pending">Pending</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="updateRetailer()">Update Retailer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addProductForm">
+          <div class="mb-3">
+            <label class="form-label">Product Name</label>
+            <input type="text" id="productName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select id="productCategory" class="form-select" required>
+              <option value="Cola">Cola</option>
+              <option value="Fruit Drinks">Fruit Drinks</option>
+              <option value="Energy Drinks">Energy Drinks</option>
+              <option value="Soda">Soda</option>
+              <option value="Water">Water</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Size</label>
+            <input type="text" id="productSize" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Price (₹)</label>
+            <input type="number" id="productPrice" class="form-control" min="0" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Stock Quantity</label>
+            <input type="number" id="productStock" class="form-control" min="0" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Image URL</label>
+            <input type="url" id="productImage" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea id="productDescription" class="form-control" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select id="productStatus" class="form-select">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="addProduct()">Add Product</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editProductForm">
+          <input type="hidden" id="editProductId">
+          <div class="mb-3">
+            <label class="form-label">Product Name</label>
+            <input type="text" id="editProductName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select id="editProductCategory" class="form-select" required>
+              <option value="Cola">Cola</option>
+              <option value="Fruit Drinks">Fruit Drinks</option>
+              <option value="Energy Drinks">Energy Drinks</option>
+              <option value="Soda">Soda</option>
+              <option value="Water">Water</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Size</label>
+            <input type="text" id="editProductSize" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Price (₹)</label>
+            <input type="number" id="editProductPrice" class="form-control" min="0" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Stock Quantity</label>
+            <input type="number" id="editProductStock" class="form-control" min="0" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Image URL</label>
+            <input type="url" id="editProductImage" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea id="editProductDescription" class="form-control" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select id="editProductStatus" class="form-select">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="updateProduct()">Update Product</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Order Details - <span id="orderDetailsId"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h6>Retailer Information</h6>
+            <p><strong>Name:</strong> <span id="orderRetailerName"></span></p>
+            <p><strong>Email:</strong> <span id="orderRetailerEmail"></span></p>
+            <p><strong>Phone:</strong> <span id="orderRetailerPhone"></span></p>
+            <p><strong>Address:</strong> <span id="orderRetailerAddress"></span></p>
+          </div>
+          <div class="col-md-6">
+            <h6>Order Information</h6>
+            <p><strong>Date:</strong> <span id="orderDate"></span></p>
+            <p><strong>Status:</strong> <span id="orderStatus" class="badge"></span></p>
+            <p><strong>Total Items:</strong> <span id="orderTotalItems"></span></p>
+            <p><strong>Total Amount:</strong> ₹<span id="orderTotalAmount"></span></p>
+          </div>
+        </div>
+        
+        <h6>Order Items</h6>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="orderItemsList">
+              <!-- Order items will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="form-floating">
+              <select class="form-select" id="updateOrderStatus">
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <label for="updateOrderStatus">Update Status</label>
+            </div>
+          </div>
+          <div class="col-md-6 text-end">
+            <button class="btn btn-primary" onclick="printOrderInvoice()">
+              <i class="bi bi-printer"></i> Print Invoice
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" onclick="updateOrderStatus()">Update Status</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Admin Modal -->
+<div class="modal fade" id="addAdminModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Admin</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addAdminForm">
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="adminName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="adminEmail" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" id="adminPassword" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <select id="adminRole" class="form-select" required>
+              <option value="super">Super Admin</option>
+              <option value="admin">Admin</option>
+              <option value="support">Support</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="addAdmin()">Add Admin</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Admin Modal -->
+<div class="modal fade" id="editAdminModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Admin</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editAdminForm">
+          <input type="hidden" id="editAdminId">
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="editAdminName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="editAdminEmail" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <select id="editAdminRole" class="form-select" required>
+              <option value="super">Super Admin</option>
+              <option value="admin">Admin</option>
+              <option value="support">Support</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="updateAdmin()">Update Admin</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Firebase SDK -->
+<script type="module">
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { 
+    getFirestore,
+    collection,
+    doc,
+    setDoc,
+    getDoc,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    query,
+    where,
+    orderBy,
+    limit,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBm2Y2-KaPh_9prtDyEh75ys9bOS_YivyU",
+    authDomain: "campacola-45a6c.firebaseapp.com",
+    projectId: "campacola-45a6c",
+    storageBucket: "campacola-45a6c.appspot.com",
+    messagingSenderId: "950062364838",
+    appId: "1:950062364838:web:c016c1c2b63d661dc09c67",
+    measurementId: "G-0F1FMP4D6X"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Global variables
+  let currentUser = null;
+  let currentAdmin = null;
+  let retailers = [];
+  let products = [];
+  let orders = [];
+  let admins = [];
+  let currentOrder = null;
+
+  // Initialize app
+  function initApp() {
+    // Check if user is logged in
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        await checkAdminStatus();
+      } else {
+        showLoginPage();
+      }
+    });
+  }
+
+  // Show/Hide pages
+  function showLoginPage() {
+    document.getElementById('loginPage').classList.remove('hidden');
+    document.getElementById('mainApp').classList.add('hidden');
+  }
+
+  function showMainApp() {
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('mainApp').classList.remove('hidden');
+    loadDashboard();
+    loadRetailers();
+    loadProducts();
+    loadOrders();
+    loadAdmins();
+  }
+
+  // Check if user is admin
+  async function checkAdminStatus() {
+    const adminDoc = await getDoc(doc(db, 'admins', currentUser.uid));
+    if (adminDoc.exists()) {
+      currentAdmin = adminDoc.data();
+      document.getElementById('userName').textContent = currentAdmin.name;
+      
+      // Hide admin management tab if not super admin
+      if (currentAdmin.role !== 'super') {
+        document.querySelector('[href="#adminsTab"]').parentElement.classList.add('hidden');
+      }
+      
+      showMainApp();
+    } else {
+      alert('You are not authorized to access this portal');
+      await signOut(auth);
+      showLoginPage();
+    }
+  }
+
+  // Authentication functions
+  async function login(event) {
+    event.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      alert('Login failed: ' + error.message);
+    }
+  }
+
+  async function logout() {
+    await signOut(auth);
+    currentUser = null;
+    currentAdmin = null;
+    showLoginPage();
+  }
+
+  // Dashboard functions
+  async function loadDashboard() {
+    // Load counts
+    const retailerCount = (await getDocs(collection(db, 'retailers'))).size;
+    const productCount = (await getDocs(collection(db, 'products'))).size;
+    const orderCount = (await getDocs(collection(db, 'retailerOrders'))).size;
+    
+    document.getElementById('totalRetailers').textContent = retailerCount;
+    document.getElementById('totalProducts').textContent = productCount;
+    document.getElementById('totalOrders').textContent = orderCount;
+    
+    // Load recent orders
+    const recentOrdersQuery = query(
+      collection(db, 'retailerOrders'),
+      orderBy('createdAt', 'desc'),
+      limit(5)
+    );
+    
+    const recentOrdersSnapshot = await getDocs(recentOrdersQuery);
+    const recentOrdersList = document.getElementById('recentOrders');
+    recentOrdersList.innerHTML = '';
+    
+    recentOrdersSnapshot.forEach(doc => {
+      const order = doc.data();
+      const orderItem = createRecentOrderItem(order);
+      recentOrdersList.appendChild(orderItem);
+    });
+    
+    // Load pending approvals
+    const pendingApprovalsQuery = query(
+      collection(db, 'retailers'),
+      where('isApproved', '==', false),
+      limit(5)
+    );
+    
+    const pendingApprovalsSnapshot = await getDocs(pendingApprovalsQuery);
+    const pendingApprovalsList = document.getElementById('pendingApprovals');
+    pendingApprovalsList.innerHTML = '';
+    
+    pendingApprovalsSnapshot.forEach(doc => {
+      const retailer = doc.data();
+      retailer.id = doc.id;
+      const retailerItem = createPendingApprovalItem(retailer);
+      pendingApprovalsList.appendChild(retailerItem);
+    });
+  }
+
+  function createRecentOrderItem(order) {
+    const div = document.createElement('div');
+    div.className = 'd-flex justify-content-between align-items-center mb-3 p-2 border-bottom';
+    
+    const statusClass = `order-status-${order.status}`;
+    const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+    
+    div.innerHTML = `
+      <div>
+        <h6 class="mb-1">${order.invoiceNumber}</h6>
+        <small class="text-muted">${order.retailerName}</small>
+      </div>
+      <div class="text-end">
+        <div class="fw-bold">₹${order.total.toFixed(2)}</div>
+        <span class="badge ${statusClass}">${statusText}</span>
+      </div>
+    `;
+    
+    div.addEventListener('click', () => viewOrderDetails(order));
+    return div;
+  }
+
+  function createPendingApprovalItem(retailer) {
+    const div = document.createElement('div');
+    div.className = 'd-flex justify-content-between align-items-center mb-3 p-2 border-bottom';
+    
+    div.innerHTML = `
+      <div>
+        <h6 class="mb-1">${retailer.businessName}</h6>
+        <small class="text-muted">${retailer.ownerName}</small>
+      </div>
+      <div>
+        <button class="btn btn-sm btn-success me-1" onclick="approveRetailer('${retailer.id}', event)">
+          <i class="bi bi-check"></i>
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="rejectRetailer('${retailer.id}', event)">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    `;
+    
+    return div;
+  }
+
+  // Retailer functions
+  async function loadRetailers() {
+    const querySnapshot = await getDocs(collection(db, 'retailers'));
+    retailers = [];
+    querySnapshot.forEach(doc => {
+      const retailer = doc.data();
+      retailer.id = doc.id;
+      retailers.push(retailer);
+    });
+    
+    renderRetailers();
+  }
+
+  function renderRetailers(filteredRetailers = null) {
+    const retailersToRender = filteredRetailers || retailers;
+    const retailersList = document.getElementById('retailersList');
+    retailersList.innerHTML = '';
+    
+    retailersToRender.forEach(retailer => {
+      const statusClass = retailer.isApproved ? 'status-approved' : 
+                         retailer.status === 'rejected' ? 'status-rejected' : 'status-pending';
+      const statusText = retailer.isApproved ? 'Approved' : 
+                        retailer.status === 'rejected' ? 'Rejected' : 'Pending';
+      
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${retailer.businessName}</td>
+        <td>${retailer.ownerName}</td>
+        <td>${retailer.email}</td>
+        <td>${retailer.phone}</td>
+        <td><span class="badge ${statusClass}">${statusText}</span></td>
+        <td>
+          <button class="btn btn-sm btn-primary me-1" onclick="editRetailer('${retailer.id}')">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRetailer('${retailer.id}')">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      retailersList.appendChild(tr);
+    });
+  }
+
+  function filterRetailers() {
+    const searchTerm = document.getElementById('retailerSearch').value.toLowerCase();
+    const statusFilter = document.getElementById('retailerStatusFilter').value;
+    
+    const filtered = retailers.filter(retailer => {
+      const matchesSearch = retailer.businessName.toLowerCase().includes(searchTerm) || 
+                          retailer.ownerName.toLowerCase().includes(searchTerm) ||
+                          retailer.email.toLowerCase().includes(searchTerm);
+      
+      let matchesStatus = true;
+      if (statusFilter) {
+        if (statusFilter === 'approved') {
+          matchesStatus = retailer.isApproved === true;
+        } else if (statusFilter === 'pending') {
+          matchesStatus = retailer.isApproved === false && retailer.status !== 'rejected';
+        } else if (statusFilter === 'rejected') {
+          matchesStatus = retailer.status === 'rejected';
+        }
+      }
+      
+      return matchesSearch && matchesStatus;
+    });
+    
+    renderRetailers(filtered);
+  }
+
+  function showAddRetailerModal() {
+    document.getElementById('addRetailerForm').reset();
+    const modal = new bootstrap.Modal(document.getElementById('addRetailerModal'));
+    modal.show();
+  }
+
+  async function addRetailer() {
+    const businessName = document.getElementById('retailerBusinessName').value;
+    const ownerName = document.getElementById('retailerOwnerName').value;
+    const email = document.getElementById('retailerEmail').value;
+    const phone = document.getElementById('retailerPhone').value;
+    const address = document.getElementById('retailerAddress').value;
+    const gst = document.getElementById('retailerGST').value;
+    const password = document.getElementById('retailerPassword').value;
+    const status = document.getElementById('retailerStatus').value;
+
+    try {
+      // Create auth user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Save retailer data
+      await setDoc(doc(db, 'retailers', user.uid), {
+        businessName,
+        ownerName,
+        email,
+        phone,
+        address,
+        gst,
+        isApproved: status === 'approved',
+        status,
+        createdAt: serverTimestamp()
+      });
+
+      alert('Retailer added successfully!');
+      document.getElementById('addRetailerModal').querySelector('.btn-close').click();
+      loadRetailers();
+      loadDashboard();
+    } catch (error) {
+      console.error('Error adding retailer:', error);
+      alert('Failed to add retailer: ' + error.message);
+    }
+  }
+
+  async function editRetailer(retailerId) {
+    const retailerDoc = await getDoc(doc(db, 'retailers', retailerId));
+    if (retailerDoc.exists()) {
+      const retailer = retailerDoc.data();
+      
+      document.getElementById('editRetailerId').value = retailerId;
+      document.getElementById('editRetailerBusinessName').value = retailer.businessName || '';
+      document.getElementById('editRetailerOwnerName').value = retailer.ownerName || '';
+      document.getElementById('editRetailerEmail').value = retailer.email || '';
+      document.getElementById('editRetailerPhone').value = retailer.phone || '';
+      document.getElementById('editRetailerAddress').value = retailer.address || '';
+      document.getElementById('editRetailerGST').value = retailer.gst || '';
+      document.getElementById('editRetailerStatus').value = retailer.status || 'pending';
+      
+      const modal = new bootstrap.Modal(document.getElementById('editRetailerModal'));
+      modal.show();
+    }
+  }
+
+  async function updateRetailer() {
+    const retailerId = document.getElementById('editRetailerId').value;
+    const businessName = document.getElementById('editRetailerBusinessName').value;
+    const ownerName = document.getElementById('editRetailerOwnerName').value;
+    const email = document.getElementById('editRetailerEmail').value;
+    const phone = document.getElementById('editRetailerPhone').value;
+    const address = document.getElementById('editRetailerAddress').value;
+    const gst = document.getElementById('editRetailerGST').value;
+    const status = document.getElementById('editRetailerStatus').value;
+
+    try {
+      await updateDoc(doc(db, 'retailers', retailerId), {
+        businessName,
+        ownerName,
+        email,
+        phone,
+        address,
+        gst,
+        isApproved: status === 'approved',
+        status
+      });
+
+      alert('Retailer updated successfully!');
+      document.getElementById('editRetailerModal').querySelector('.btn-close').click();
+      loadRetailers();
+      loadDashboard();
+    } catch (error) {
+      console.error('Error updating retailer:', error);
+      alert('Failed to update retailer: ' + error.message);
+    }
+  }
+
+  async function approveRetailer(retailerId, event) {
+    event.stopPropagation();
+    try {
+      await updateDoc(doc(db, 'retailers', retailerId), {
+        isApproved: true,
+        status: 'approved'
+      });
+      alert('Retailer approved successfully!');
+      loadRetailers();
+      loadDashboard();
+    } catch (error) {
+      console.error('Error approving retailer:', error);
+      alert('Failed to approve retailer: ' + error.message);
+    }
+  }
+
+  async function rejectRetailer(retailerId, event) {
+    event.stopPropagation();
+    try {
+      await updateDoc(doc(db, 'retailers', retailerId), {
+        isApproved: false,
+        status: 'rejected'
+      });
+      alert('Retailer rejected successfully!');
+      loadRetailers();
+      loadDashboard();
+    } catch (error) {
+      console.error('Error rejecting retailer:', error);
+      alert('Failed to reject retailer: ' + error.message);
+    }
+  }
+
+  async function deleteRetailer(retailerId) {
+    if (confirm('Are you sure you want to delete this retailer?')) {
+      try {
+        await deleteDoc(doc(db, 'retailers', retailerId));
+        alert('Retailer deleted successfully!');
+        loadRetailers();
+        loadDashboard();
+      } catch (error) {
+        console.error('Error deleting retailer:', error);
+        alert('Failed to delete retailer: ' + error.message);
+      }
+    }
+  }
+
+  // Product functions
+  async function loadProducts() {
+    const querySnapshot = await getDocs(collection(db, 'products'));
+    products = [];
+    querySnapshot.forEach(doc => {
+      const product = doc.data();
+      product.id = doc.id;
+      products.push(product);
+    });
+    
+    renderProducts();
+  }
+
+  function renderProducts(filteredProducts = null) {
+    const productsToRender = filteredProducts || products;
+    const productsList = document.getElementById('productsList');
+    productsList.innerHTML = '';
+    
+    productsToRender.forEach(product => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><img src="${product.image}" class="product-image" alt="${product.name}"></td>
+        <td>${product.name}</td>
+        <td>${product.category}</td>
+        <td>${product.size}</td>
+        <td>₹${product.price.toFixed(2)}</td>
+        <td>${product.stockQuantity}</td>
+        <td>
+          <span class="badge ${product.status === 'active' ? 'bg-success' : 'bg-secondary'}">
+            ${product.status === 'active' ? 'Active' : 'Inactive'}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-primary me-1" onclick="editProduct('${product.id}')">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product.id}')">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      productsList.appendChild(tr);
+    });
+  }
+
+  function filterProducts() {
+    const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+    const categoryFilter = document.getElementById('productCategoryFilter').value;
+    
+    const filtered = products.filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
+                          product.description.toLowerCase().includes(searchTerm);
+      const matchesCategory = !categoryFilter || product.category === categoryFilter;
+      
+      return matchesSearch && matchesCategory;
+    });
+    
+    renderProducts(filtered);
+  }
+
+  function showAddProductModal() {
+    document.getElementById('addProductForm').reset();
+    const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+    modal.show();
+  }
+
+  async function addProduct() {
+    const name = document.getElementById('productName').value;
+    const category = document.getElementById('productCategory').value;
+    const size = document.getElementById('productSize').value;
+    const price = parseFloat(document.getElementById('productPrice').value);
+    const stockQuantity = parseInt(document.getElementById('productStock').value);
+    const image = document.getElementById('productImage').value;
+    const description = document.getElementById('productDescription').value;
+    const status = document.getElementById('productStatus').value;
+
+    try {
+      await addDoc(collection(db, 'products'), {
+        name,
+        category,
+        size,
+        price,
+        stockQuantity,
+        image,
+        description,
+        status,
+        createdAt: serverTimestamp()
+      });
+
+      alert('Product added successfully!');
+      document.getElementById('addProductModal').querySelector('.btn-close').click();
+      loadProducts();
+      loadDashboard();
+    } catch (error) {
+      console.error('Error adding product:', error);
+      alert('Failed to add product: ' + error.message);
+    }
+  }
+
+  async function editProduct(productId) {
+    const productDoc = await getDoc(doc(db, 'products', productId));
+    if (productDoc.exists()) {
+      const product = productDoc.data();
+      
+      document.getElementById('editProductId').value = productId;
+      document.getElementById('editProductName').value = product.name || '';
+      document.getElementById('editProductCategory').value = product.category || 'Cola';
+      document.getElementById('editProductSize').value = product.size || '';
+      document.getElementById('editProductPrice').value = product.price || 0;
+      document.getElementById('editProductStock').value = product.stockQuantity || 0;
+      document.getElementById('editProductImage').value = product.image || '';
+      document.getElementById('editProductDescription').value = product.description || '';
+      document.getElementById('editProductStatus').value = product.status || 'active';
+      
+      const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+      modal.show();
+    }
+  }
+
+  async function updateProduct() {
+    const productId = document.getElementById('editProductId').value;
+    const name = document.getElementById('editProductName').value;
+    const category = document.getElementById('editProductCategory').value;
+    const size = document.getElementById('editProductSize').value;
+    const price = parseFloat(document.getElementById('editProductPrice').value);
+    const stockQuantity = parseInt(document.getElementById('editProductStock').value);
+    const image = document.getElementById('editProductImage').value;
+    const description = document.getElementById('editProductDescription').value;
+    const status = document.getElementById('editProductStatus').value;
+
+    try {
+      await updateDoc(doc(db, 'products', productId), {
+        name,
+        category,
+        size,
+        price,
+        stockQuantity,
+        image,
+        description,
+        status
+      });
+
+      alert('Product updated successfully!');
+      document.getElementById('editProductModal').querySelector('.btn-close').click();
+      loadProducts();
+      loadDashboard();
+    } catch (error) {
+      console.error('Error updating product:', error);
+      alert('Failed to update product: ' + error.message);
+    }
+  }
+
+  async function deleteProduct(productId) {
+    if (confirm('Are you sure you want to delete this product?')) {
+      try {
+        await deleteDoc(doc(db, 'products', productId));
+        alert('Product deleted successfully!');
+        loadProducts();
+        loadDashboard();
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product: ' + error.message);
+      }
+    }
+  }
+
+  // Order functions
+  async function loadOrders() {
+    const querySnapshot = await getDocs(collection(db, 'retailerOrders'));
+    orders = [];
+    querySnapshot.forEach(doc => {
+      const order = doc.data();
+      order.id = doc.id;
+      orders.push(order);
+    });
+    
+    renderOrders();
+  }
+
+  function renderOrders(filteredOrders = null) {
+    const ordersToRender = filteredOrders || orders;
+    const ordersList = document.getElementById('ordersList');
+    ordersList.innerHTML = '';
+    
+    ordersToRender.forEach(order => {
+      const statusClass = `order-status-${order.status}`;
+      const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+      
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${order.invoiceNumber}</td>
+        <td>${order.retailerName}</td>
+        <td>${order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString() : 'N/A'}</td>
+        <td>${order.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+        <td>₹${order.total.toFixed(2)}</td>
+        <td><span class="badge ${statusClass}">${statusText}</span></td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="viewOrderDetails('${order.id}')">
+            <i class="bi bi-eye"></i> View
+          </button>
+        </td>
+      `;
+      ordersList.appendChild(tr);
+    });
+  }
+
+  function filterOrders() {
+    const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
+    const statusFilter = document.getElementById('orderStatusFilter').value;
+    const dateFilter = document.getElementById('orderDateFilter').value;
+    
+    const filtered = orders.filter(order => {
+      const matchesSearch = order.invoiceNumber.toLowerCase().includes(searchTerm) || 
+                          order.retailerName.toLowerCase().includes(searchTerm);
+      
+      const matchesStatus = !statusFilter || order.status === statusFilter;
+      
+      let matchesDate = true;
+      if (dateFilter && order.createdAt) {
+        const orderDate = order.createdAt.toDate();
+        const today = new Date();
+        
+        if (dateFilter === 'today') {
+          matchesDate = orderDate.getDate() === today.getDate() && 
+                       orderDate.getMonth() === today.getMonth() && 
+                       orderDate.getFullYear() === today.getFullYear();
+        } else if (dateFilter === 'week') {
+          const oneWeekAgo = new Date(today);
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+          matchesDate = orderDate >= oneWeekAgo;
+        } else if (dateFilter === 'month') {
+          matchesDate = orderDate.getMonth() === today.getMonth() && 
+                       orderDate.getFullYear() === today.getFullYear();
+        }
+      }
+      
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+    
+    renderOrders(filtered);
+  }
+
+  async function viewOrderDetails(orderId) {
+    const orderDoc = await getDoc(doc(db, 'retailerOrders', orderId));
+    if (orderDoc.exists()) {
+      currentOrder = orderDoc.data();
+      currentOrder.id = orderId;
+      
+      document.getElementById('orderDetailsId').textContent = currentOrder.invoiceNumber;
+      document.getElementById('orderRetailerName').textContent = currentOrder.retailerName;
+      document.getElementById('orderRetailerEmail').textContent = currentOrder.retailerEmail;
+      document.getElementById('orderRetailerPhone').textContent = currentOrder.retailerPhone;
+      document.getElementById('orderRetailerAddress').textContent = currentOrder.retailerAddress;
+      
+      document.getElementById('orderDate').textContent = 
+        currentOrder.createdAt ? new Date(currentOrder.createdAt.toDate()).toLocaleString() : 'N/A';
+      
+      const statusClass = `order-status-${currentOrder.status}`;
+      const statusText = currentOrder.status.charAt(0).toUpperCase() + currentOrder.status.slice(1);
+      document.getElementById('orderStatus').textContent = statusText;
+      document.getElementById('orderStatus').className = `badge ${statusClass}`;
+      
+      document.getElementById('orderTotalItems').textContent = 
+        currentOrder.items.reduce((sum, item) => sum + item.quantity, 0);
+      
+      document.getElementById('orderTotalAmount').textContent = currentOrder.total.toFixed(2);
+      
+      // Load order items
+      const orderItemsList = document.getElementById('orderItemsList');
+      orderItemsList.innerHTML = '';
+      
+      currentOrder.items.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.size}</td>
+          <td>${item.quantity}</td>
+          <td>₹${item.price.toFixed(2)}</td>
+          <td>₹${(item.price * item.quantity).toFixed(2)}</td>
+        `;
+        orderItemsList.appendChild(tr);
+      });
+      
+      // Set current status in dropdown
+      document.getElementById('updateOrderStatus').value = currentOrder.status;
+      
+      const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+      modal.show();
+    }
+  }
+
+  async function updateOrderStatus() {
+    const newStatus = document.getElementById('updateOrderStatus').value;
+    
+    try {
+      await updateDoc(doc(db, 'retailerOrders', currentOrder.id), {
+        status: newStatus
+      });
+      
+      alert('Order status updated successfully!');
+      document.getElementById('orderDetailsModal').querySelector('.btn-close').click();
+      loadOrders();
+      loadDashboard();
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      alert('Failed to update order status: ' + error.message);
+    }
+  }
+
+  function printOrderInvoice() {
+    const printWindow = window.open('', '', 'width=800,height=600');
+    const invoiceHTML = `
+      <html>
+        <head>
+          <title>Invoice - ${currentOrder.invoiceNumber}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .company-name { font-size: 24px; font-weight: bold; color: #2c3e50; }
+            .invoice-details { margin-bottom: 20px; }
+            .customer-details { margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            .total-section { text-align: right; margin-top: 20px; }
+            .total-row { font-weight: bold; font-size: 18px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="company-name">Campa Beverages Pvt. Ltd.</div>
+            <p>Premium Quality Beverages</p>
+          </div>
+          
+          <div class="invoice-details">
+            <h3>Invoice Details</h3>
+            <p><strong>Invoice Number:</strong> ${currentOrder.invoiceNumber}</p>
+            <p><strong>Order Date:</strong> ${currentOrder.createdAt ? new Date(currentOrder.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+            <p><strong>Status:</strong> ${currentOrder.status.toUpperCase()}</p>
+          </div>
+          
+          <div class="customer-details">
+            <h3>Customer Details</h3>
+            <p><strong>Business Name:</strong> ${currentOrder.retailerName}</p>
+            <p><strong>Email:</strong> ${currentOrder.retailerEmail}</p>
+            <p><strong>Phone:</strong> ${currentOrder.retailerPhone}</p>
+            <p><strong>Address:</strong> ${currentOrder.retailerAddress}</p>
+          </div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Quantity</th>
+                <th>Rate (₹)</th>
+                <th>Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${currentOrder.items.map(item => `
+                <tr>
+                  <td>${item.name}</td>
+                  <td>${item.size}</td>
+                  <td>${item.quantity}</td>
+                  <td>${item.price.toFixed(2)}</td>
+                  <td>${(item.price * item.quantity).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          
+          <div class="total-section">
+            <p>Subtotal: ₹${currentOrder.subtotal.toFixed(2)}</p>
+            ${currentOrder.includeGST ? `<p>GST (18%): ₹${currentOrder.gstAmount.toFixed(2)}</p>` : ''}
+            <p class="total-row">Total: ₹${currentOrder.total.toFixed(2)}</p>
+          </div>
+          
+          <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #666;">
+            <p>Thank you for your business!</p>
+            <p>This is a computer generated invoice.</p>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(invoiceHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+  }
+
+  // Admin management functions
+  async function loadAdmins() {
+    if (currentAdmin.role !== 'super') return;
+    
+    const querySnapshot = await getDocs(collection(db, 'admins'));
+    admins = [];
+    querySnapshot.forEach(doc => {
+      const admin = doc.data();
+      admin.id = doc.id;
+      admins.push(admin);
+    });
+    
+    renderAdmins();
+  }
+
+  function renderAdmins(filteredAdmins = null) {
+    const adminsToRender = filteredAdmins || admins;
+    const adminsList = document.getElementById('adminsList');
+    adminsList.innerHTML = '';
+    
+    adminsToRender.forEach(admin => {
+      let roleBadgeClass = 'bg-primary';
+      if (admin.role === 'super') roleBadgeClass = 'bg-danger';
+      if (admin.role === 'support') roleBadgeClass = 'bg-secondary';
+      
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${admin.name}</td>
+        <td>${admin.email}</td>
+        <td><span class="badge ${roleBadgeClass}">${admin.role.toUpperCase()}</span></td>
+        <td>${admin.lastLogin ? new Date(admin.lastLogin.toDate()).toLocaleString() : 'Never'}</td>
+        <td>
+          ${admin.id !== currentUser.uid ? `
+            <button class="btn btn-sm btn-primary me-1" onclick="editAdmin('${admin.id}')">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteAdmin('${admin.id}')">
+              <i class="bi bi-trash"></i>
+            </button>
+          ` : '<span class="text-muted">Current User</span>'}
+        </td>
+      `;
+      adminsList.appendChild(tr);
+    });
+  }
+
+  function filterAdmins() {
+    const searchTerm = document.getElementById('adminSearch').value.toLowerCase();
+    const roleFilter = document.getElementById('adminRoleFilter').value;
+    
+    const filtered = admins.filter(admin => {
+      const matchesSearch = admin.name.toLowerCase().includes(searchTerm) || 
+                          admin.email.toLowerCase().includes(searchTerm);
+      const matchesRole = !roleFilter || admin.role === roleFilter;
+      
+      return matchesSearch && matchesRole;
+    });
+    
+    renderAdmins(filtered);
+  }
+
+  function showAddAdminModal() {
+    document.getElementById('addAdminForm').reset();
+    const modal = new bootstrap.Modal(document.getElementById('addAdminModal'));
+    modal.show();
+  }
+
+  async function addAdmin() {
+    const name = document.getElementById('adminName').value;
+    const email = document.getElementById('adminEmail').value;
+    const password = document.getElementById('adminPassword').value;
+    const role = document.getElementById('adminRole').value;
+
+    try {
+      // Create auth user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Save admin data
+      await setDoc(doc(db, 'admins', user.uid), {
+        name,
+        email,
+        role,
+        createdAt: serverTimestamp()
+      });
+
+      alert('Admin added successfully!');
+      document.getElementById('addAdminModal').querySelector('.btn-close').click();
+      loadAdmins();
+    } catch (error) {
+      console.error('Error adding admin:', error);
+      alert('Failed to add admin: ' + error.message);
+    }
+  }
+
+  async function editAdmin(adminId) {
+    const adminDoc = await getDoc(doc(db, 'admins', adminId));
+    if (adminDoc.exists()) {
+      const admin = adminDoc.data();
+      
+      document.getElementById('editAdminId').value = adminId;
+      document.getElementById('editAdminName').value = admin.name || '';
+      document.getElementById('editAdminEmail').value = admin.email || '';
+      document.getElementById('editAdminRole').value = admin.role || 'admin';
+      
+      const modal = new bootstrap.Modal(document.getElementById('editAdminModal'));
+      modal.show();
+    }
+  }
+
+  async function updateAdmin() {
+    const adminId = document.getElementById('editAdminId').value;
+    const name = document.getElementById('editAdminName').value;
+    const email = document.getElementById('editAdminEmail').value;
+    const role = document.getElementById('editAdminRole').value;
+
+    try {
+      await updateDoc(doc(db, 'admins', adminId), {
+        name,
+        email,
+        role
+      });
+
+      alert('Admin updated successfully!');
+      document.getElementById('editAdminModal').querySelector('.btn-close').click();
+      loadAdmins();
+    } catch (error) {
+      console.error('Error updating admin:', error);
+      alert('Failed to update admin: ' + error.message);
+    }
+  }
+
+  async function deleteAdmin(adminId) {
+    if (confirm('Are you sure you want to delete this admin?')) {
+      try {
+        await deleteDoc(doc(db, 'admins', adminId));
+        alert('Admin deleted successfully!');
+        loadAdmins();
+      } catch (error) {
+        console.error('Error deleting admin:', error);
+        alert('Failed to delete admin: ' + error.message);
+      }
+    }
+  }
+
+  // Tab navigation functions
+  function showRetailersTab() {
+    const retailersTab = new bootstrap.Tab(document.querySelector('[href="#retailersTab"]'));
+    retailersTab.show();
+  }
+
+  function showProductsTab() {
+    const productsTab = new bootstrap.Tab(document.querySelector('[href="#productsTab"]'));
+    productsTab.show();
+  }
+
+  function showOrdersTab() {
+    const ordersTab = new bootstrap.Tab(document.querySelector('[href="#ordersTab"]'));
+    ordersTab.show();
+  }
+
+  // Expose functions to global scope
+  window.login = login;
+  window.logout = logout;
+  window.addRetailer = addRetailer;
+  window.editRetailer = editRetailer;
+  window.updateRetailer = updateRetailer;
+  window.approveRetailer = approveRetailer;
+  window.rejectRetailer = rejectRetailer;
+  window.deleteRetailer = deleteRetailer;
+  window.addProduct = addProduct;
+  window.editProduct = editProduct;
+  window.updateProduct = updateProduct;
+  window.deleteProduct = deleteProduct;
+  window.viewOrderDetails = viewOrderDetails;
+  window.updateOrderStatus = updateOrderStatus;
+  window.printOrderInvoice = printOrderInvoice;
+  window.showRetailersTab = showRetailersTab;
+  window.showProductsTab = showProductsTab;
+  window.showOrdersTab = showOrdersTab;
+  window.showAddRetailerModal = showAddRetailerModal;
+  window.showAddProductModal = showAddProductModal;
+  window.showAddAdminModal = showAddAdminModal;
+  window.filterRetailers = filterRetailers;
+  window.filterProducts = filterProducts;
+  window.filterOrders = filterOrders;
+  window.filterAdmins = filterAdmins;
+  window.addAdmin = addAdmin;
+  window.editAdmin = editAdmin;
+  window.updateAdmin = updateAdmin;
+  window.deleteAdmin = deleteAdmin;
+
+  // Initialize app when page loads
+  window.addEventListener('load', initApp);
+</script>
+</body>
+</html>
