@@ -906,68 +906,6 @@
     }
   }
 
-  // Authentication functions
-async function login(event) {
-  event.preventDefault();
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
-
-  // Only allow ramakrishnasaiganta@gmail.com to login
-  if (email !== 'ramakrishnasaiganta@gmail.com') {
-    alert('Only authorized admin can access this portal');
-    return;
-  }
-
-  try {
-    // Show loading state
-    const loginBtn = event.target.querySelector('button[type="submit"]');
-    const originalBtnText = loginBtn.innerHTML;
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Authenticating...';
-
-    // Sign in with Firebase Auth
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    currentUser = userCredential.user;
-
-    // Verify this is an admin in Firestore
-    const adminDoc = await getDoc(doc(db, 'admins', currentUser.uid));
-    
-    if (!adminDoc.exists()) {
-      await signOut(auth);
-      alert('You are not authorized as an admin');
-      loginBtn.disabled = false;
-      loginBtn.innerHTML = originalBtnText;
-      return;
-    }
-
-    // Success - proceed to admin dashboard
-    currentAdmin = adminDoc.data();
-    document.getElementById('userName').textContent = currentAdmin.name;
-    showMainApp();
-
-  } catch (error) {
-    console.error('Login error:', error);
-    
-    // User-friendly error messages
-    let errorMessage = 'Login failed. Please try again.';
-    switch (error.code) {
-      case 'auth/wrong-password':
-        errorMessage = 'Incorrect password for admin account';
-        break;
-      case 'auth/user-not-found':
-        errorMessage = 'Admin account not found';
-        break;
-      case 'auth/too-many-requests':
-        errorMessage = 'Account temporarily locked due to too many attempts';
-        break;
-    }
-    
-    alert(errorMessage);
-    const loginBtn = event.target.querySelector('button[type="submit"]');
-    loginBtn.disabled = false;
-    loginBtn.innerHTML = 'Login';
-  }
-}
   // Dashboard functions
   async function loadDashboard() {
     // Load counts
