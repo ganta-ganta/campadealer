@@ -249,19 +249,18 @@
 
   // Initialize app
   function initApp() {
-    // Check if user is logged in and is admin
-    onAuthStateChanged(auth, (user) => {
-      if (user && user.email === 'admin@campabeverages.com') {
-        currentUser = user;
-        loadRetailers();
-        loadOrders();
-        setupRealTimeListeners();
-      } else {
-        // Redirect to main admin login
-        window.location.href = 'index.html';
-      }
-    });
+  // Check if user is logged in and is admin
+onAuthStateChanged(auth, (user) => {
+  if (user && (user.email === 'supremeenterprise79@gmail.com' || user.email === 'admin@gantasolutions.com')) {
+    currentUser = user;
+    loadRetailers();
+    loadOrders();
+    setupRealTimeListeners();
+  } else {
+    // Redirect to main admin login
+    window.location.href = 'index.html';
   }
+});
 
   // Setup real-time listeners
   function setupRealTimeListeners() {
