@@ -373,17 +373,17 @@
         <i class="bi bi-shield-lock"></i> Admin
       </a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item" id="dashboardTabItem">
       <a class="nav-link" data-bs-toggle="tab" href="#dashboardTab">
         <i class="bi bi-graph-up"></i> Dashboard
       </a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item" id="operatorSalesTabItem">
       <a class="nav-link" data-bs-toggle="tab" href="#operatorSalesTab">
         <i class="bi bi-people"></i> Operator Sales
       </a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item" id="historyTabItem">
       <a class="nav-link" data-bs-toggle="tab" href="#historyTab">
        <i class="bi bi-clock-history"></i> History
       </a>
@@ -445,18 +445,25 @@
                 <label for="productSelect" class="form-label">Product</label>
                 <select id="productSelect" class="form-select">
                   <option value="">-- Select Product --</option>
-                  <option value="Campa Cola|600 ml|28">Campa Cola - 600 ml</option>
-                  <option value="Campa Orange|600 ml|28">Campa Orange - 600 ml</option>
-                  <option value="Campa Lemon|600 ml|28">Campa Lemon - 600 ml</option>
-                  <option value="Campa Cloudy Lemon|600 ml|30">Cloudy Lemon - 600 ml</option>
-                  <option value="Power-Up Cola|500 ml|32">Power-Up - 500 ml</option>
-                  <option value="Campa Soda|500 ml|25">Campa Soda - 500 ml</option>
-                  <option value="Bubbles Soda|750 ml|28">Bubbles - 750 ml</option>
-                  <option value="Spinner Energy|200 ml|35">Spinner - 200 ml</option>
-                  <option value="Runner Energy|250 ml|38">Runner - 250 ml</option>
-                  <option value="Joos Mango|200 ml|22">Joos Mango - 200 ml</option>
-                  <option value="Independence Water|1.5 L|20">Water - 1.5 L</option>
-                  <option value="Sure Water|1 L|18">Water - 1 L</option>
+                  <option value="Campa Cola|200ml|220">Campa Cola - 200ml</option>
+                  <option value="Power Up|200ml|220">Power Up - 200ml</option>
+                  <option value="Orange|200ml|220">Orange - 200ml</option>
+                  <option value="Campa Soda|500ml|260">Campa Soda - 500ml</option>
+                  <option value="Campa Cola|500ml|360">Campa Cola - 500ml</option>
+                  <option value="Orange|500ml|360">Orange - 500ml</option>
+                  <option value="Gold Boost Tin|Can|580">Gold Boost Tin</option>
+                  <option value="Berry Kick|200ml|220">Berry Kick - 200ml</option>
+                  <option value="Lemon|200ml|220">Lemon - 200ml</option>
+                  <option value="Raskik Tetra Mango|125ml|280">Raskik Tetra Mango - 125ml</option>
+                  <option value="Raskik Mango|150ml|220">Raskik Mango - 150ml</option>
+                  <option value="Raskik Nimbu Pani|150ml|220">Raskik Nimbu Pani - 150ml</option>
+                  <option value="Raskik Apple Drink|150ml|220">Raskik Apple Drink - 150ml</option>
+                  <option value="Raskik Mixed Fruit|150ml|220">Raskik Mixed Fruit - 150ml</option>
+                  <option value="Raskik Glucose|150ml|220">Raskik Glucose - 150ml</option>
+                  <option value="Spinner Lemon|150ml|220">Spinner Lemon - 150ml</option>
+                  <option value="Spinner Orange|150ml|220">Spinner Orange - 150ml</option>
+                  <option value="Spinner Nitro|150ml|220">Spinner Nitro - 150ml</option>
+                  <option value="Independence Water|750ml|150">Independence Water - 750ml</option>
                 </select>
               </div>
               <div class="mb-2">
@@ -556,18 +563,25 @@
                   <label for="stockProductSelect" class="form-label">Product</label>
                   <select id="stockProductSelect" class="form-select mb-2">
                     <option value="">-- Select Product --</option>
-                    <option value="Campa Cola|600 ml">Campa Cola - 600 ml</option>
-                    <option value="Campa Orange|600 ml">Campa Orange - 600 ml</option>
-                    <option value="Campa Lemon|600 ml">Campa Lemon - 600 ml</option>
-                    <option value="Campa Cloudy Lemon|600 ml">Cloudy Lemon - 600 ml</option>
-                    <option value="Power-Up Cola|500 ml">Power-Up - 500 ml</option>
-                    <option value="Campa Soda|500 ml">Campa Soda - 500 ml</option>
-                    <option value="Bubbles Soda|750 ml">Bubbles - 750 ml</option>
-                    <option value="Spinner Energy|200 ml">Spinner - 200 ml</option>
-                    <option value="Runner Energy|250 ml">Runner - 250 ml</option>
-                    <option value="Joos Mango|200 ml">Joos Mango - 200 ml</option>
-                    <option value="Independence Water|1.5 L">Water - 1.5 L</option>
-                    <option value="Sure Water|1 L">Water - 1 L</option>
+                    <option value="Campa Cola|200ml">Campa Cola - 200ml</option>
+                    <option value="Power Up|200ml">Power Up - 200ml</option>
+                    <option value="Orange|200ml">Orange - 200ml</option>
+                    <option value="Campa Soda|500ml">Campa Soda - 500ml</option>
+                    <option value="Campa Cola|500ml">Campa Cola - 500ml</option>
+                    <option value="Orange|500ml">Orange - 500ml</option>
+                    <option value="Gold Boost Tin|Can">Gold Boost Tin</option>
+                    <option value="Berry Kick|200ml">Berry Kick - 200ml</option>
+                    <option value="Lemon|200ml">Lemon - 200ml</option>
+                    <option value="Raskik Tetra Mango|125ml">Raskik Tetra Mango - 125ml</option>
+                    <option value="Raskik Mango|150ml">Raskik Mango - 150ml</option>
+                    <option value="Raskik Nimbu Pani|150ml">Raskik Nimbu Pani - 150ml</option>
+                    <option value="Raskik Apple Drink|150ml">Raskik Apple Drink - 150ml</option>
+                    <option value="Raskik Mixed Fruit|150ml">Raskik Mixed Fruit - 150ml</option>
+                    <option value="Raskik Glucose|150ml">Raskik Glucose - 150ml</option>
+                    <option value="Spinner Lemon|150ml">Spinner Lemon - 150ml</option>
+                    <option value="Spinner Orange|150ml">Spinner Orange - 150ml</option>
+                    <option value="Spinner Nitro|150ml">Spinner Nitro - 150ml</option>
+                    <option value="Independence Water|750ml">Independence Water - 750ml</option>
                   </select>
                 </div>
                 <div class="col-md-4">
@@ -679,18 +693,25 @@
               <label for="warehouseProductSelect" class="form-label">Product</label>
               <select id="warehouseProductSelect" class="form-select">
                 <option value="">-- Select Product --</option>
-                <option value="Campa Cola|600 ml">Campa Cola - 600 ml</option>
-                <option value="Campa Orange|600 ml">Campa Orange - 600 ml</option>
-                <option value="Campa Lemon|600 ml">Campa Lemon - 600 ml</option>
-                <option value="Campa Cloudy Lemon|600 ml">Cloudy Lemon - 600 ml</option>
-                <option value="Power-Up Cola|500 ml">Power-Up - 500 ml</option>
-                <option value="Campa Soda|500 ml">Campa Soda - 500 ml</option>
-                <option value="Bubbles Soda|750 ml">Bubbles - 750 ml</option>
-                <option value="Spinner Energy|200 ml">Spinner - 200 ml</option>
-                <option value="Runner Energy|250 ml">Runner - 250 ml</option>
-                <option value="Joos Mango|200 ml">Joos Mango - 200 ml</option>
-                <option value="Independence Water|1.5 L">Water - 1.5 L</option>
-                <option value="Sure Water|1 L">Water - 1 L</option>
+                <option value="Campa Cola|200ml">Campa Cola - 200ml</option>
+                <option value="Power Up|200ml">Power Up - 200ml</option>
+                <option value="Orange|200ml">Orange - 200ml</option>
+                <option value="Campa Soda|500ml">Campa Soda - 500ml</option>
+                <option value="Campa Cola|500ml">Campa Cola - 500ml</option>
+                <option value="Orange|500ml">Orange - 500ml</option>
+                <option value="Gold Boost Tin|Can">Gold Boost Tin</option>
+                <option value="Berry Kick|200ml">Berry Kick - 200ml</option>
+                <option value="Lemon|200ml">Lemon - 200ml</option>
+                <option value="Raskik Tetra Mango|125ml">Raskik Tetra Mango - 125ml</option>
+                <option value="Raskik Mango|150ml">Raskik Mango - 150ml</option>
+                <option value="Raskik Nimbu Pani|150ml">Raskik Nimbu Pani - 150ml</option>
+                <option value="Raskik Apple Drink|150ml">Raskik Apple Drink - 150ml</option>
+                <option value="Raskik Mixed Fruit|150ml">Raskik Mixed Fruit - 150ml</option>
+                <option value="Raskik Glucose|150ml">Raskik Glucose - 150ml</option>
+                <option value="Spinner Lemon|150ml">Spinner Lemon - 150ml</option>
+                <option value="Spinner Orange|150ml">Spinner Orange - 150ml</option>
+                <option value="Spinner Nitro|150ml">Spinner Nitro - 150ml</option>
+                <option value="Independence Water|750ml">Independence Water - 750ml</option>
               </select>
             </div>
             <div class="col-md-3">
@@ -1078,60 +1099,60 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-  <!-- Add this as a new tab pane in the tab-content div -->
-<div class="tab-pane fade" id="historyTab">
-  <h3><i class="bi bi-graph-up"></i> Historical Data Analysis</h3>
-  
-  <div class="card mb-3">
-    <div class="card-header">
-      <i class="bi bi-funnel"></i> Filters
-    </div>
-    <div class="card-body">
-      <div class="row mb-3">
-        <div class="col-md-4">
-          <label class="form-label"><i class="bi bi-calendar"></i> Start Date</label>
-          <input type="date" id="historyStartDate" class="form-control">
+    <!-- History Tab -->
+    <div class="tab-pane fade" id="historyTab">
+      <h3><i class="bi bi-graph-up"></i> Historical Data Analysis</h3>
+      
+      <div class="card mb-3">
+        <div class="card-header">
+          <i class="bi bi-funnel"></i> Filters
         </div>
-        <div class="col-md-4">
-          <label class="form-label"><i class="bi bi-calendar"></i> End Date</label>
-          <input type="date" id="historyEndDate" class="form-control">
-        </div>
-        <div class="col-md-4">
-          <label class="form-label"><i class="bi bi-filter"></i> Filter Type</label>
-          <select id="historyFilterType" class="form-select">
-            <option value="invoices"><i class="bi bi-receipt"></i> Invoices</option>
-            <option value="products"><i class="bi bi-box-seam"></i> Product Turnover</option>
-            <option value="warehouse"><i class="bi bi-building"></i> Warehouse History</option>
-            <option value="operators"><i class="bi bi-people"></i> Operator History</option>
-          </select>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label"><i class="bi bi-calendar"></i> Start Date</label>
+              <input type="date" id="historyStartDate" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label"><i class="bi bi-calendar"></i> End Date</label>
+              <input type="date" id="historyEndDate" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label"><i class="bi bi-filter"></i> Filter Type</label>
+              <select id="historyFilterType" class="form-select">
+                <option value="invoices"><i class="bi bi-receipt"></i> Invoices</option>
+                <option value="products"><i class="bi bi-box-seam"></i> Product Turnover</option>
+                <option value="warehouse"><i class="bi bi-building"></i> Warehouse History</option>
+                <option value="operators"><i class="bi bi-people"></i> Operator History</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-primary" onclick="loadHistoryData()">
+              <i class="bi bi-arrow-down-circle"></i> Load Data
+            </button>
+            <button class="btn btn-success" onclick="exportHistoryData()">
+              <i class="bi bi-download"></i> Export
+            </button>
+          </div>
         </div>
       </div>
       
-      <div class="d-flex justify-content-between">
-        <button class="btn btn-primary" onclick="loadHistoryData()">
-          <i class="bi bi-arrow-down-circle"></i> Load Data
-        </button>
-        <button class="btn btn-success" onclick="exportHistoryData()">
-          <i class="bi bi-download"></i> Export
-        </button>
-      </div>
-    </div>
-  </div>
-  
-  <div id="historyResults">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0"><i class="bi bi-table"></i> Historical Data</h5>
-      </div>
-      <div class="card-body p-0">
-        <div style="overflow-x: auto;">
-          <table class="table mb-0">
-            <thead id="historyTableHeader"></thead>
-            <tbody id="historyTableBody"></tbody>
-          </table>
+      <div id="historyResults">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-table"></i> Historical Data</h5>
+          </div>
+          <div class="card-body p-0">
+            <div style="overflow-x: auto;">
+              <table class="table mb-0">
+                <thead id="historyTableHeader"></thead>
+                <tbody id="historyTableBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1652,13 +1673,18 @@
     }
     
     // Reload data after sync
-    if (currentUser.email === 'admin@campabeverages.com') {
+    if (isSupermanAdmin(currentUser.email)) {
       loadPendingApprovals();
       loadPendingStockApprovals();
       loadWarehouseStock();
     } else {
       loadPendingStockRequests();
     }
+  }
+
+  // Check if user is super admin
+  function isSupermanAdmin(email) {
+    return email === 'supremeenterprise79@gmail.com' || email === 'admin@gantasolutions.com';
   }
 
   // Create invoice modal for detailed view
@@ -1718,11 +1744,14 @@
   async function loadUserData() {
     if (!currentUser) return;
     
-    // Show/hide admin tab based on user role
-    const isAdmin = currentUser.email === 'admin@campabeverages.com';
-    document.getElementById('adminTabItem').classList.toggle('hidden', !isAdmin);
+    // Show/hide tabs based on user role
+    const isSuperAdmin = isSupermanAdmin(currentUser.email);
+    document.getElementById('adminTabItem').classList.toggle('hidden', !isSuperAdmin);
+    document.getElementById('dashboardTabItem').classList.toggle('hidden', !isSuperAdmin);
+    document.getElementById('operatorSalesTabItem').classList.toggle('hidden', !isSuperAdmin);
+    document.getElementById('historyTabItem').classList.toggle('hidden', !isSuperAdmin);
     
-    if (isAdmin) {
+    if (isSuperAdmin) {
       loadAdminData();
       loadWarehouseStock();
     } else {
@@ -1743,7 +1772,7 @@
 
   // Setup real-time listeners
   function setupRealTimeListeners() {
-    if (currentUser.email === 'admin@campabeverages.com') {
+    if (isSupermanAdmin(currentUser.email)) {
       // Invoices
       onSnapshot(query(collection(db, 'invoices'), where('status', '==', 'pending')), 
         () => loadPendingApprovals());
@@ -1852,7 +1881,7 @@
     const productKey = `${name}|${size}`;
     
     // Check stock if operator
-    if (currentUser.email !== 'admin@campabeverages.com') {
+    if (!isSupermanAdmin(currentUser.email)) {
       if (!vanStock[productKey] || vanStock[productKey].remaining < qty) {
         return alert('Not enough stock in van for this product!');
       }
@@ -1876,7 +1905,7 @@
     updateInvoiceTable();
     
     // Update van stock (preliminary - will be finalized on save)
-    if (currentUser.email !== 'admin@campabeverages.com') {
+    if (!isSupermanAdmin(currentUser.email)) {
       vanStock[productKey].sold = (vanStock[productKey].sold || 0) + qty;
       vanStock[productKey].remaining = vanStock[productKey].loaded - vanStock[productKey].sold;
       updateVanStockDisplay();
@@ -1918,7 +1947,7 @@
     const removedItem = invoiceItems.splice(index, 1)[0];
     
     // Update van stock if needed
-    if (currentUser.email !== 'admin@campabeverages.com') {
+    if (!isSupermanAdmin(currentUser.email)) {
       const productKey = `${removedItem.name}|${removedItem.size}`;
       if (vanStock[productKey]) {
         vanStock[productKey].sold -= removedItem.qty;
@@ -1955,7 +1984,7 @@
       subtotal,
       gst,
       total,
-      status: currentUser.email === 'admin@campabeverages.com' ? 'approved' : 'pending',
+      status: isSupermanAdmin(currentUser.email) ? 'approved' : 'pending',
       createdBy: currentUser.email,
       createdByUid: currentUser.uid,
       createdAt: serverTimestamp(),
@@ -1972,7 +2001,7 @@
         await setDoc(doc(db, 'counters', 'invoiceCounter'), { value: invoiceCounter });
         
         // Update van stock if operator
-        if (currentUser.email !== 'admin@campabeverages.com') {
+        if (!isSupermanAdmin(currentUser.email)) {
           await setDoc(doc(db, 'vanStock', currentUser.uid), {
             stock: vanStock,
             lastUpdated: serverTimestamp()
@@ -1997,7 +2026,7 @@
     localStorage.setItem('offlineInvoices', JSON.stringify(offlineInvoices));
     
     // Update van stock locally
-    if (currentUser.email !== 'admin@campabeverages.com') {
+    if (!isSupermanAdmin(currentUser.email)) {
       localStorage.setItem(`vanStock_${currentUser.uid}`, JSON.stringify(vanStock));
     }
     
@@ -3185,357 +3214,359 @@
       tbody.appendChild(row);
     });
   }
-// Add these functions to your JavaScript
-async function loadHistoryData() {
-  try {
-    const startDate = new Date(document.getElementById('historyStartDate').value);
-    const endDate = new Date(document.getElementById('historyEndDate').value);
-    const filterType = document.getElementById('historyFilterType').value;
+
+  // Add these functions to your JavaScript
+  async function loadHistoryData() {
+    try {
+      const startDate = new Date(document.getElementById('historyStartDate').value);
+      const endDate = new Date(document.getElementById('historyEndDate').value);
+      const filterType = document.getElementById('historyFilterType').value;
+      
+      if (!startDate || !endDate) {
+        alert('Please select both start and end dates');
+        return;
+      }
+      
+      endDate.setHours(23, 59, 59, 999);
+      
+      let data, headers;
+      
+      switch(filterType) {
+        case 'invoices':
+          [data, headers] = await loadInvoiceHistory(startDate, endDate);
+          break;
+        case 'products':
+          [data, headers] = await loadProductTurnover(startDate, endDate);
+          break;
+        case 'warehouse':
+          [data, headers] = await loadWarehouseHistory(startDate, endDate);
+          break;
+        case 'operators':
+          [data, headers] = await loadOperatorHistory(startDate, endDate);
+          break;
+      }
+      
+      updateHistoryTable(headers, data);
+      
+    } catch (error) {
+      console.error("Error loading history data:", error);
+      alert('Error loading history: ' + error.message);
+    }
+  }
+
+  async function loadInvoiceHistory(startDate, endDate) {
+    const q = query(
+      collection(db, 'invoices'),
+      where('invoiceDate', '>=', startDate),
+      where('invoiceDate', '<=', endDate),
+      orderBy('invoiceDate', 'desc')
+    );
     
-    if (!startDate || !endDate) {
-      alert('Please select both start and end dates');
+    const querySnapshot = await getDocs(q);
+    const invoices = [];
+    
+    querySnapshot.forEach(doc => {
+      const invoice = doc.data();
+      invoices.push({
+        id: doc.id,
+        invoiceNo: invoice.invoiceNo,
+        date: invoice.invoiceDate.toDate().toLocaleDateString(),
+        dealer: invoice.dealer.name,
+        operator: invoice.createdBy,
+        items: invoice.items.length,
+        quantity: invoice.items.reduce((sum, item) => sum + item.qty, 0),
+        amount: invoice.total,
+        status: invoice.status
+      });
+    });
+    
+    const headers = [
+      'Invoice No', 'Date', 'Dealer', 'Operator', 
+      'Items', 'Quantity', 'Amount', 'Status'
+    ];
+    
+    return [invoices, headers];
+  }
+
+  async function loadProductTurnover(startDate, endDate) {
+    // Get all invoices in period
+    const invoicesQuery = query(
+      collection(db, 'invoices'),
+      where('invoiceDate', '>=', startDate),
+      where('invoiceDate', '<=', endDate),
+      where('status', '==', 'approved')
+    );
+    
+    const invoicesSnapshot = await getDocs(invoicesQuery);
+    const productData = {};
+    
+    // Process each invoice
+    invoicesSnapshot.forEach(doc => {
+      const invoice = doc.data();
+      invoice.items.forEach(item => {
+        const key = `${item.name}|${item.size}`;
+        if (!productData[key]) {
+          productData[key] = {
+            name: item.name,
+            size: item.size,
+            quantity: 0,
+            amount: 0,
+            invoices: 0
+          };
+        }
+        productData[key].quantity += item.qty;
+        productData[key].amount += item.amount;
+        productData[key].invoices += 1;
+      });
+    });
+    
+    
+    // Get warehouse movements
+    const movementsQuery = query(
+      collection(db, 'stockTransactions'),
+      where('timestamp', '>=', startDate),
+      where('timestamp', '<=', endDate)
+    );
+    
+    const movementsSnapshot = await getDocs(movementsQuery);
+    movementsSnapshot.forEach(doc => {
+      const movement = doc.data();
+      const key = `${movement.product.name}|${movement.product.size}`;
+      
+      if (!productData[key]) {
+        productData[key] = {
+          name: movement.product.name,
+          size: movement.product.size,
+          quantity: 0,
+          amount: 0,
+          invoices: 0,
+          loaded: 0,
+          unloaded: 0
+        };
+      }
+      
+      if (movement.type === 'load') {
+        productData[key].loaded = (productData[key].loaded || 0) + movement.quantity;
+      } else {
+        productData[key].unloaded = (productData[key].unloaded || 0) + movement.quantity;
+      }
+    });
+    
+    const results = Object.values(productData).map(item => ({
+      product: `${item.name} (${item.size})`,
+      sold: item.quantity,
+      revenue: item.amount,
+      invoices: item.invoices,
+      loaded: item.loaded || 0,
+      unloaded: item.unloaded || 0,
+      turnover: item.quantity / ((item.loaded || 0) + (item.unloaded || 0)) * 100 || 0
+    }));
+    
+    const headers = [
+      'Product', 'Sold', 'Revenue', 'Invoices', 
+      'Loaded', 'Unloaded', 'Turnover %'
+    ];
+    
+    return [results, headers];
+  }
+
+  async function loadWarehouseHistory(startDate, endDate) {
+    const q = query(
+      collection(db, 'stockTransactions'),
+      where('timestamp', '>=', startDate),
+      where('timestamp', '<=', endDate),
+      orderBy('timestamp', 'desc')
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const movements = [];
+    
+    querySnapshot.forEach(doc => {
+      const movement = doc.data();
+      movements.push({
+        date: movement.timestamp.toDate().toLocaleDateString(),
+        type: movement.type,
+        product: `${movement.product.name} (${movement.product.size})`,
+        quantity: movement.quantity,
+        operator: movement.operatorEmail || 'System',
+        actionBy: movement.approvedBy || 'System'
+      });
+    });
+    
+    const headers = [
+      'Date', 'Type', 'Product', 'Quantity', 'Operator', 'Action By'
+    ];
+    
+    return [movements, headers];
+  }
+
+  async function loadOperatorHistory(startDate, endDate) {
+    // Get operator invoices
+    const invoicesQuery = query(
+      collection(db, 'invoices'),
+      where('invoiceDate', '>=', startDate),
+      where('invoiceDate', '<=', endDate),
+      orderBy('invoiceDate', 'desc')
+    );
+    
+    const invoicesSnapshot = await getDocs(invoicesQuery);
+    const operatorData = {};
+    
+    invoicesSnapshot.forEach(doc => {
+      const invoice = doc.data();
+      const operatorKey = invoice.createdBy;
+      
+      if (!operatorData[operatorKey]) {
+        operatorData[operatorKey] = {
+          email: invoice.createdBy,
+          invoices: 0,
+          items: 0,
+          amount: 0,
+          stockRequests: 0,
+          stockLoaded: 0
+        };
+      }
+      
+      operatorData[operatorKey].invoices += 1;
+      operatorData[operatorKey].items += invoice.items.length;
+      operatorData[operatorKey].amount += invoice.total;
+    });
+    
+    // Get stock requests
+    const requestsQuery = query(
+      collection(db, 'stockRequests'),
+      where('timestamp', '>=', startDate),
+      where('timestamp', '<=', endDate)
+    );
+    
+    const requestsSnapshot = await getDocs(requestsQuery);
+    requestsSnapshot.forEach(doc => {
+      const request = doc.data();
+      const operatorKey = request.operatorEmail;
+      
+      if (!operatorData[operatorKey]) {
+        operatorData[operatorKey] = {
+          email: request.operatorEmail,
+          invoices: 0,
+          items: 0,
+          amount: 0,
+          stockRequests: 0,
+          stockLoaded: 0
+        };
+      }
+      
+      operatorData[operatorKey].stockRequests += 1;
+      if (request.status === 'approved') {
+        operatorData[operatorKey].stockLoaded += request.quantity;
+      }
+    });
+    
+    const results = Object.values(operatorData).map(op => ({
+      operator: op.email,
+      invoices: op.invoices,
+      items: op.items,
+      amount: op.amount,
+      requests: op.stockRequests,
+      loaded: op.stockLoaded,
+      avgInvoice: op.invoices > 0 ? op.amount / op.invoices : 0
+    }));
+    
+    const headers = [
+      'Operator', 'Invoices', 'Items', 'Amount', 
+      'Stock Requests', 'Stock Loaded', 'Avg. Invoice'
+    ];
+    
+    return [results, headers];
+  }
+
+  function updateHistoryTable(headers, data) {
+    const headerRow = document.getElementById('historyTableHeader');
+    const body = document.getElementById('historyTableBody');
+    
+    // Clear existing content
+    headerRow.innerHTML = '';
+    body.innerHTML = '';
+    
+    // Add headers
+    headers.forEach(header => {
+      const th = document.createElement('th');
+      th.textContent = header;
+      headerRow.appendChild(th);
+    });
+    
+    // Add data rows
+    if (data.length === 0) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = headers.length;
+      cell.textContent = 'No data found for selected filters';
+      cell.className = 'text-center';
+      row.appendChild(cell);
+      body.appendChild(row);
       return;
     }
     
-    endDate.setHours(23, 59, 59, 999);
-    
-    let data, headers;
-    
-    switch(filterType) {
-      case 'invoices':
-        [data, headers] = await loadInvoiceHistory(startDate, endDate);
-        break;
-      case 'products':
-        [data, headers] = await loadProductTurnover(startDate, endDate);
-        break;
-      case 'warehouse':
-        [data, headers] = await loadWarehouseHistory(startDate, endDate);
-        break;
-      case 'operators':
-        [data, headers] = await loadOperatorHistory(startDate, endDate);
-        break;
-    }
-    
-    updateHistoryTable(headers, data);
-    
-  } catch (error) {
-    console.error("Error loading history data:", error);
-    alert('Error loading history: ' + error.message);
-  }
-}
-
-async function loadInvoiceHistory(startDate, endDate) {
-  const q = query(
-    collection(db, 'invoices'),
-    where('invoiceDate', '>=', startDate),
-    where('invoiceDate', '<=', endDate),
-    orderBy('invoiceDate', 'desc')
-  );
-  
-  const querySnapshot = await getDocs(q);
-  const invoices = [];
-  
-  querySnapshot.forEach(doc => {
-    const invoice = doc.data();
-    invoices.push({
-      id: doc.id,
-      invoiceNo: invoice.invoiceNo,
-      date: invoice.invoiceDate.toDate().toLocaleDateString(),
-      dealer: invoice.dealer.name,
-      operator: invoice.createdBy,
-      items: invoice.items.length,
-      quantity: invoice.items.reduce((sum, item) => sum + item.qty, 0),
-      amount: invoice.total,
-      status: invoice.status
-    });
-  });
-  
-  const headers = [
-    'Invoice No', 'Date', 'Dealer', 'Operator', 
-    'Items', 'Quantity', 'Amount', 'Status'
-  ];
-  
-  return [invoices, headers];
-}
-
-async function loadProductTurnover(startDate, endDate) {
-  // Get all invoices in period
-  const invoicesQuery = query(
-    collection(db, 'invoices'),
-    where('invoiceDate', '>=', startDate),
-    where('invoiceDate', '<=', endDate),
-    where('status', '==', 'approved')
-  );
-  
-  const invoicesSnapshot = await getDocs(invoicesQuery);
-  const productData = {};
-  
-  // Process each invoice
-  invoicesSnapshot.forEach(doc => {
-    const invoice = doc.data();
-    invoice.items.forEach(item => {
-      const key = `${item.name}|${item.size}`;
-      if (!productData[key]) {
-        productData[key] = {
-          name: item.name,
-          size: item.size,
-          quantity: 0,
-          amount: 0,
-          invoices: 0
-        };
-      }
-      productData[key].quantity += item.qty;
-      productData[key].amount += item.amount;
-      productData[key].invoices += 1;
-    });
-  });
-  
-  
-  // Get warehouse movements
-  const movementsQuery = query(
-    collection(db, 'stockTransactions'),
-    where('timestamp', '>=', startDate),
-    where('timestamp', '<=', endDate)
-  );
-  
-  const movementsSnapshot = await getDocs(movementsQuery);
-  movementsSnapshot.forEach(doc => {
-    const movement = doc.data();
-    const key = `${movement.product.name}|${movement.product.size}`;
-    
-    if (!productData[key]) {
-      productData[key] = {
-        name: movement.product.name,
-        size: movement.product.size,
-        quantity: 0,
-        amount: 0,
-        invoices: 0,
-        loaded: 0,
-        unloaded: 0
-      };
-    }
-    
-    if (movement.type === 'load') {
-      productData[key].loaded = (productData[key].loaded || 0) + movement.quantity;
-    } else {
-      productData[key].unloaded = (productData[key].unloaded || 0) + movement.quantity;
-    }
-  });
-  
-  const results = Object.values(productData).map(item => ({
-    product: `${item.name} (${item.size})`,
-    sold: item.quantity,
-    revenue: item.amount,
-    invoices: item.invoices,
-    loaded: item.loaded || 0,
-    unloaded: item.unloaded || 0,
-    turnover: item.quantity / ((item.loaded || 0) + (item.unloaded || 0)) * 100 || 0
-  }));
-  
-  const headers = [
-    'Product', 'Sold', 'Revenue', 'Invoices', 
-    'Loaded', 'Unloaded', 'Turnover %'
-  ];
-  
-  return [results, headers];
-}
-
-async function loadWarehouseHistory(startDate, endDate) {
-  const q = query(
-    collection(db, 'stockTransactions'),
-    where('timestamp', '>=', startDate),
-    where('timestamp', '<=', endDate),
-    orderBy('timestamp', 'desc')
-  );
-  
-  const querySnapshot = await getDocs(q);
-  const movements = [];
-  
-  querySnapshot.forEach(doc => {
-    const movement = doc.data();
-    movements.push({
-      date: movement.timestamp.toDate().toLocaleDateString(),
-      type: movement.type,
-      product: `${movement.product.name} (${movement.product.size})`,
-      quantity: movement.quantity,
-      operator: movement.operatorEmail || 'System',
-      actionBy: movement.approvedBy || 'System'
-    });
-  });
-  
-  const headers = [
-    'Date', 'Type', 'Product', 'Quantity', 'Operator', 'Action By'
-  ];
-  
-  return [movements, headers];
-}
-
-async function loadOperatorHistory(startDate, endDate) {
-  // Get operator invoices
-  const invoicesQuery = query(
-    collection(db, 'invoices'),
-    where('invoiceDate', '>=', startDate),
-    where('invoiceDate', '<=', endDate),
-    orderBy('invoiceDate', 'desc')
-  );
-  
-  const invoicesSnapshot = await getDocs(invoicesQuery);
-  const operatorData = {};
-  
-  invoicesSnapshot.forEach(doc => {
-    const invoice = doc.data();
-    const operatorKey = invoice.createdBy;
-    
-    if (!operatorData[operatorKey]) {
-      operatorData[operatorKey] = {
-        email: invoice.createdBy,
-        invoices: 0,
-        items: 0,
-        amount: 0,
-        stockRequests: 0,
-        stockLoaded: 0
-      };
-    }
-    
-    operatorData[operatorKey].invoices += 1;
-    operatorData[operatorKey].items += invoice.items.length;
-    operatorData[operatorKey].amount += invoice.total;
-  });
-  
-  // Get stock requests
-  const requestsQuery = query(
-    collection(db, 'stockRequests'),
-    where('timestamp', '>=', startDate),
-    where('timestamp', '<=', endDate)
-  );
-  
-  const requestsSnapshot = await getDocs(requestsQuery);
-  requestsSnapshot.forEach(doc => {
-    const request = doc.data();
-    const operatorKey = request.operatorEmail;
-    
-    if (!operatorData[operatorKey]) {
-      operatorData[operatorKey] = {
-        email: request.operatorEmail,
-        invoices: 0,
-        items: 0,
-        amount: 0,
-        stockRequests: 0,
-        stockLoaded: 0
-      };
-    }
-    
-    operatorData[operatorKey].stockRequests += 1;
-    if (request.status === 'approved') {
-      operatorData[operatorKey].stockLoaded += request.quantity;
-    }
-  });
-  
-  const results = Object.values(operatorData).map(op => ({
-    operator: op.email,
-    invoices: op.invoices,
-    items: op.items,
-    amount: op.amount,
-    requests: op.stockRequests,
-    loaded: op.stockLoaded,
-    avgInvoice: op.invoices > 0 ? op.amount / op.invoices : 0
-  }));
-  
-  const headers = [
-    'Operator', 'Invoices', 'Items', 'Amount', 
-    'Stock Requests', 'Stock Loaded', 'Avg. Invoice'
-  ];
-  
-  return [results, headers];
-}
-
-function updateHistoryTable(headers, data) {
-  const headerRow = document.getElementById('historyTableHeader');
-  const body = document.getElementById('historyTableBody');
-  
-  // Clear existing content
-  headerRow.innerHTML = '';
-  body.innerHTML = '';
-  
-  // Add headers
-  headers.forEach(header => {
-    const th = document.createElement('th');
-    th.textContent = header;
-    headerRow.appendChild(th);
-  });
-  
-  // Add data rows
-  if (data.length === 0) {
-    const row = document.createElement('tr');
-    const cell = document.createElement('td');
-    cell.colSpan = headers.length;
-    cell.textContent = 'No data found for selected filters';
-    cell.className = 'text-center';
-    row.appendChild(cell);
-    body.appendChild(row);
-    return;
-  }
-  
-  data.forEach(item => {
-    const row = document.createElement('tr');
-    Object.values(item).forEach(value => {
-      const cell = document.createElement('td');
-      
-      // Format numbers and currency
-      if (typeof value === 'number') {
-        if (value % 1 !== 0) {
-          cell.textContent = value.toFixed(2);
+    data.forEach(item => {
+      const row = document.createElement('tr');
+      Object.values(item).forEach(value => {
+        const cell = document.createElement('td');
+        
+        // Format numbers and currency
+        if (typeof value === 'number') {
+          if (value % 1 !== 0) {
+            cell.textContent = value.toFixed(2);
+          } else {
+            cell.textContent = value;
+          }
+          
+          if (headers.includes('Amount') || headers.includes('Revenue')) {
+            cell.textContent = '₹' + cell.textContent;
+          }
         } else {
           cell.textContent = value;
         }
         
-        if (headers.includes('Amount') || headers.includes('Revenue')) {
-          cell.textContent = '₹' + cell.textContent;
-        }
-      } else {
-        cell.textContent = value;
-      }
-      
-      row.appendChild(cell);
+        row.appendChild(cell);
+      });
+      body.appendChild(row);
     });
-    body.appendChild(row);
-  });
-}
+  }
 
-function exportHistoryData() {
-  const headers = Array.from(document.getElementById('historyTableHeader').querySelectorAll('th'))
-    .map(th => th.textContent);
-  
-  const rows = Array.from(document.getElementById('historyTableBody').querySelectorAll('tr'))
-    .map(tr => Array.from(tr.querySelectorAll('td')).map(td => {
-      // Remove ₹ symbol if present
-      return td.textContent.replace('₹', '');
-    }));
-  
-  const csvContent = [headers, ...rows]
-    .map(row => row.join(','))
-    .join('\n');
-  
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  
-  const filterType = document.getElementById('historyFilterType').value;
-  const startDate = document.getElementById('historyStartDate').value;
-  const endDate = document.getElementById('historyEndDate').value;
-  
-  a.download = `campa_${filterType}_${startDate}_to_${endDate}.csv`;
-  a.click();
-}
+  function exportHistoryData() {
+    const headers = Array.from(document.getElementById('historyTableHeader').querySelectorAll('th'))
+      .map(th => th.textContent);
+    
+    const rows = Array.from(document.getElementById('historyTableBody').querySelectorAll('tr'))
+      .map(tr => Array.from(tr.querySelectorAll('td')).map(td => {
+        // Remove ₹ symbol if present
+        return td.textContent.replace('₹', '');
+      }));
+    
+    const csvContent = [headers, ...rows]
+      .map(row => row.join(','))
+      .join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    
+    const filterType = document.getElementById('historyFilterType').value;
+    const startDate = document.getElementById('historyStartDate').value;
+    const endDate = document.getElementById('historyEndDate').value;
+    
+    a.download = `campa_${filterType}_${startDate}_to_${endDate}.csv`;
+    a.click();
+  }
 
-// Add to your window.onload function to set default dates
-const today = new Date();
-const oneMonthAgo = new Date();
-oneMonthAgo.setMonth(today.getMonth() - 1);
+  // Add to your window.onload function to set default dates
+  const today = new Date();
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(today.getMonth() - 1);
 
-document.getElementById('historyStartDate').valueAsDate = oneMonthAgo;
-document.getElementById('historyEndDate').valueAsDate = today;
+  document.getElementById('historyStartDate').valueAsDate = oneMonthAgo;
+  document.getElementById('historyEndDate').valueAsDate = today;
+
   async function updateStockAlerts() {
     try {
       const tbody = document.getElementById('stockAlerts');
@@ -3597,26 +3628,6 @@ document.getElementById('historyEndDate').valueAsDate = today;
         default:
           startDate = new Date(0); // All time
       }
-      // Define the function first
-async function loadHistoryData() {
-  try {
-    const startDate = document.getElementById('historyStartDate').value;
-    const endDate = document.getElementById('historyEndDate').value;
-    const filterType = document.getElementById('historyFilterType').value;
-    
-    if (!startDate || !endDate) {
-      alert('Please select both start and end dates');
-      return;
-    }
-    
-    // Rest of your history loading logic
-    // ...
-    
-  } catch (error) {
-    console.error("Error loading history data:", error);
-    alert("Error loading history: " + error.message);
-  }
-}
 
       // Get data
       const data = await getDashboardData(startDate, endDate);
@@ -3705,11 +3716,11 @@ async function loadHistoryData() {
   window.loadOperatorSales = loadOperatorSales;
   window.exportOperatorSales = exportOperatorSales;
   window.exportDashboardData = exportDashboardData;
-  // Then expose it to window
-window.loadHistoryData = loadHistoryData;
+  window.loadHistoryData = loadHistoryData;
+  window.exportHistoryData = exportHistoryData;
 
   // Initialize the app when page loads
   window.onload = initApp;
 </script>
 </body>
-</html>   
+</html>
