@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SUPREME ENTERPRISES - Retailer Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+      --info-color: #17a2b8;
+      --dark-color: #343a40;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .main-content {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin: 20px;
+      padding: 30px;
+    }
+    
+    .navbar-brand {
+      font-weight: bold;
+      color: var(--accent-color) !important;
+      font-size: 1.5rem;
+    }
+    
+    .card {
+      border: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card {
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border-radius: 20px;
+      padding: 25px;
+      margin: 10px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+      transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover::before {
+      top: -25%;
+      right: -25%;
+    }
+    
+    .stat-icon {
+      font-size: 3rem;
+      opacity: 0.8;
+      margin-right: 20px;
+    }
+    
+    .status-pending { 
+      background: linear-gradient(45deg, #fff3cd, #ffeaa7); 
+      color: #856404; 
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-weight: 600;
+    }
+    
+    .status-approved { 
+      background: linear-gradient(45deg, #d1ecf1, #74b9ff); 
+      color: #0c5460; 
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-weight: 600;
+    }
+    
+    .status-confirmed { 
+      background: linear-gradient(45deg, #d4edda, #00b894); 
+      color: #155724; 
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-weight: 600;
+    }
+    
+    .status-delivered { 
+      background: linear-gradient(45deg, #d4edda, #00b894); 
+      color: #155724; 
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-weight: 600;
+    }
+    
+    .status-cancelled { 
+      background: linear-gradient(45deg, #f8d7da, #e17055); 
+      color: #721c24; 
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-weight: 600;
+    }
+    
+    .nav-tabs .nav-link {
+      background: none;
+      border: none;
+      color: var(--dark-color);
+      font-weight: 600;
+      padding: 15px 30px;
+      margin-right: 10px;
+      border-radius: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-tabs .nav-link:hover {
+      background: rgba(52, 152, 219, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .nav-tabs .nav-link.active {
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+    }
+    
+    .btn-group-modern {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-modern {
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    
+    .btn-modern:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .table-modern {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .table-modern thead th {
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      font-weight: 600;
+      border: none;
+      padding: 15px;
+    }
+    
+    .table-modern tbody tr {
+      transition: background 0.3s ease;
+    }
+    
+    .table-modern tbody tr:hover {
+      background: rgba(52, 152, 219, 0.1);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 5rem;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+    
+    .modal-modern .modal-content {
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    
+    .modal-modern .modal-header {
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border-radius: 20px 20px 0 0;
+      border: none;
+    }
+    
+    .product-detail-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 20px;
+      margin: 10px 0;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .invoice-header {
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .print-section {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+      .print-section { box-shadow: none !important; }
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      z-index: 9999;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background: var(--success-color);
+    }
+    
+    .notification.error {
+      background: var(--accent-color);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <i class="bi bi-cup-hot-fill me-2"></i>
+      SUPREME ENTERPRISES - Admin
+    </a>
+    <div class="navbar-nav ms-auto">
+      <a href="index.html" class="btn btn-outline-light me-3">
+        <i class="bi bi-arrow-left-circle"></i> Back to Main Admin
+      </a>
+      <button class="btn btn-outline-light" onclick="logout()">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4" id="adminTabs">
+    <li class="nav-item">
+      <a class="nav-link active" data-bs-toggle="tab" href="#retailersTab">
+        <i class="bi bi-people-fill"></i> Retailer Management
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#ordersTab">
+        <i class="bi bi-bag-check-fill"></i> Retailer Orders
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#analyticsTab">
+        <i class="bi bi-graph-up"></i> Analytics
+      </a>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Retailers Tab -->
+    <div class="tab-pane fade show active" id="retailersTab">
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-people-fill stat-icon"></i>
+              <div>
+                <h5 class="mb-1">Total Retailers</h5>
+                <h2 class="mb-0" id="totalRetailers">0</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card" style="background: linear-gradient(45deg, var(--warning-color), #f39c12);">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-clock-fill stat-icon"></i>
+              <div>
+                <h5 class="mb-1">Pending Approval</h5>
+                <h2 class="mb-0" id="pendingRetailers">0</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card" style="background: linear-gradient(45deg, var(--success-color), #00b894);">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-check-circle-fill stat-icon"></i>
+              <div>
+                <h5 class="mb-1">Approved</h5>
+                <h2 class="mb-0" id="approvedRetailers">0</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="btn-group-modern">
+            <button class="btn btn-primary btn-modern" onclick="downloadAllRetailers()">
+              <i class="bi bi-download"></i> Download All Retailers
+            </button>
+            <button class="btn btn-success btn-modern" onclick="exportRetailersCSV()">
+              <i class="bi bi-file-earmark-spreadsheet"></i> Export to CSV
+            </button>
+            <button class="btn btn-info btn-modern" onclick="refreshRetailers()">
+              <i class="bi bi-arrow-clockwise"></i> Refresh Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Retailers List -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-person-lines-fill"></i> Retailer Applications
+          </h5>
+        </div>
+        <div class="card-body">
+          <div id="retailersList">
+            <div class="text-center py-5">
+              <div class="loading-spinner"></div>
+              <p class="mt-3">Loading retailers...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div class="tab-pane fade" id="ordersTab">
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="stat-card" style="background: linear-gradient(45deg, var(--info-color), #74b9ff);">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-bag-fill stat-icon"></i>
+              <div>
+                <h5 class="mb-1">Total Orders</h5>
+                <h2 class="mb-0" id="totalOrders">0</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card" style="background: linear-gradient(45deg, var(--warning-color), #f39c12);">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-clock-fill stat-icon"></i>
+              <div>
+                <h5 class="mb-1">Pending</h5>
+                <h2 class="mb-0" id="pendingOrders">0</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-check-circle-fill stat-icon"></i>
+              <div>
+                <h5 class="mb-1">Confirmed</h5>
+                <h2 class="mb-0" id="confirmedOrders">0</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card" style="background: linear-gradient(45deg, var(--success-color), #00b894);">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-truck stat-icon"></i>
+              <div>
+                <h5 class="mb-1">Delivered</h5>
+                <h2 class="mb-0" id="deliveredOrders">0</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="btn-group-modern">
+            <button class="btn btn-primary btn-modern" onclick="downloadAllOrders()">
+              <i class="bi bi-download"></i> Download All Orders
+            </button>
+            <button class="btn btn-success btn-modern" onclick="exportOrdersCSV()">
+              <i class="bi bi-file-earmark-spreadsheet"></i> Export to CSV
+            </button>
+            <button class="btn btn-warning btn-modern" onclick="generateSalesReport()">
+              <i class="bi bi-file-earmark-pdf"></i> Sales Report
+            </button>
+            <button class="btn btn-info btn-modern" onclick="refreshOrders()">
+              <i class="bi bi-arrow-clockwise"></i> Refresh Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders List -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-list-check"></i> Retailer Orders
+          </h5>
+        </div>
+        <div class="card-body">
+          <div id="ordersList">
+            <div class="text-center py-5">
+              <div class="loading-spinner"></div>
+              <p class="mt-3">Loading orders...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div class="tab-pane fade" id="analyticsTab">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="bi bi-pie-chart-fill"></i> Order Status Distribution
+              </h5>
+            </div>
+            <div class="card-body">
+              <canvas id="orderStatusChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="bi bi-graph-up"></i> Sales Trend
+              </h5>
+            </div>
+            <div class="card-body">
+              <canvas id="salesTrendChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="modal fade modal-modern" id="orderDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-file-earmark-text"></i> Order Details
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="orderDetailContent">
+        <!-- Order details will be loaded here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Print Modal -->
+<div class="modal fade modal-modern" id="invoicePrintModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-printer"></i> Invoice Print Preview
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center mb-3 no-print">
+          <button class="btn btn-primary btn-modern me-2" onclick="printInvoice()">
+            <i class="bi bi-printer"></i> Print Invoice
+          </button>
+          <button class="btn btn-success btn-modern" onclick="downloadInvoicePDF()">
+            <i class="bi bi-file-pdf"></i> Download PDF
+          </button>
+        </div>
+        <div id="invoiceContent" class="print-section">
+          <!-- Invoice content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Firebase SDK -->
+<script type="module">
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { 
+    getAuth, 
+    signOut,
+    onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { 
+    getFirestore,
+    collection,
+    doc,
+    updateDoc,
+    query,
+    orderBy,
+    getDocs,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBm2Y2-KaPh_9prtDyEh75ys9bOS_YivyU",
+    authDomain: "campacola-45a6c.firebaseapp.com",
+    projectId: "campacola-45a6c",
+    storageBucket: "campacola-45a6c.appspot.com",
+    messagingSenderId: "950062364838",
+    appId: "1:950062364838:web:c016c1c2b63d661dc09c67",
+    measurementId: "G-0F1FMP4D6X"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Global variables
+  let currentUser = null;
+  let retailersData = [];
+  let ordersData = [];
+
+  // Initialize app
+  function initApp() {
+    // Check if user is logged in and is admin
+    onAuthStateChanged(auth, (user) => {
+      if (user && (user.email === 'supremeenterprise79@gmail.com' || user.email === 'admin@gantasolutions.com')) {
+        currentUser = user;
+        loadRetailers();
+        loadOrders();
+        setupRealTimeListeners();
+      } else {
+        // Redirect to main admin login
+        window.location.href = 'index.html';
+      }
+    });
+  }
+
+  // Setup real-time listeners
+  function setupRealTimeListeners() {
+    // Listen for retailer changes
+    onSnapshot(collection(db, 'retailers'), () => {
+      loadRetailers();
+    });
+
+    // Listen for order changes
+    onSnapshot(collection(db, 'retailerOrders'), () => {
+      loadOrders();
+    });
+  }
+
+  // Show notification
+  function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+      <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+      ${message}
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.classList.add('show'), 100);
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => document.body.removeChild(notification), 300);
+    }, 3000);
+  }
+
+  // Load retailers
+  async function loadRetailers() {
+    try {
+      const q = query(collection(db, 'retailers'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      
+      retailersData = [];
+      let totalRetailers = 0;
+      let pendingRetailers = 0;
+      let approvedRetailers = 0;
+      
+      const retailersList = document.getElementById('retailersList');
+      retailersList.innerHTML = '';
+
+      if (querySnapshot.empty) {
+        retailersList.innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <h5>No retailer applications</h5>
+            <p class="text-muted">Retailer applications will appear here when submitted.</p>
+          </div>
+        `;
+      } else {
+        querySnapshot.forEach(doc => {
+          const retailer = { id: doc.id, ...doc.data() };
+          retailersData.push(retailer);
+          totalRetailers++;
+          
+          if (retailer.isApproved) {
+            approvedRetailers++;
+          } else {
+            pendingRetailers++;
+          }
+          
+          const retailerCard = createRetailerCard(retailer);
+          retailersList.appendChild(retailerCard);
+        });
+      }
+
+      // Update counters
+      document.getElementById('totalRetailers').textContent = totalRetailers;
+      document.getElementById('pendingRetailers').textContent = pendingRetailers;
+      document.getElementById('approvedRetailers').textContent = approvedRetailers;
+
+    } catch (error) {
+      console.error('Error loading retailers:', error);
+      showNotification('Error loading retailers data', 'error');
+    }
+  }
+
+  // Create retailer card
+  function createRetailerCard(retailer) {
+    const div = document.createElement('div');
+    div.className = 'card mb-3';
+    
+    const statusClass = retailer.isApproved ? 'status-approved' : 'status-pending';
+    const statusText = retailer.isApproved ? 'Approved' : 'Pending Approval';
+    
+    div.innerHTML = `
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+          <i class="bi bi-building"></i> ${retailer.businessName}
+        </h6>
+        <span class="badge ${statusClass}">${statusText}</span>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="product-detail-card">
+              <p class="mb-2"><i class="bi bi-person"></i> <strong>Owner:</strong> ${retailer.ownerName}</p>
+              <p class="mb-2"><i class="bi bi-envelope"></i> <strong>Email:</strong> ${retailer.email}</p>
+              <p class="mb-2"><i class="bi bi-telephone"></i> <strong>Phone:</strong> ${retailer.phone}</p>
+              <p class="mb-2"><i class="bi bi-receipt"></i> <strong>GST:</strong> ${retailer.gst || 'Not provided'}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="product-detail-card">
+              <p class="mb-2"><i class="bi bi-geo-alt"></i> <strong>Address:</strong></p>
+              <p class="text-muted small">${retailer.address}</p>
+              <p class="mb-2"><i class="bi bi-calendar"></i> <strong>Applied:</strong> ${retailer.createdAt ? new Date(retailer.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-3 btn-group-modern">
+          ${!retailer.isApproved ? `
+            <button class="btn btn-success btn-modern" onclick="approveRetailer('${retailer.id}')">
+              <i class="bi bi-check-circle"></i> Approve
+            </button>
+            <button class="btn btn-danger btn-modern" onclick="rejectRetailer('${retailer.id}')">
+              <i class="bi bi-x-circle"></i> Reject
+            </button>
+          ` : `
+            <button class="btn btn-secondary btn-modern" disabled>
+              <i class="bi bi-check-circle"></i> Approved
+            </button>
+          `}
+          <button class="btn btn-outline-primary btn-modern" onclick="viewRetailerDetails('${retailer.id}')">
+            <i class="bi bi-eye"></i> View Details
+          </button>
+          <button class="btn btn-outline-info btn-modern" onclick="downloadRetailerData('${retailer.id}')">
+            <i class="bi bi-download"></i> Download
+          </button>
+        </div>
+      </div>
+    `;
+    
+    return div;
+  }
+
+  // Approve retailer
+  async function approveRetailer(retailerId) {
+    if (confirm('Are you sure you want to approve this retailer?')) {
+      try {
+        await updateDoc(doc(db, 'retailers', retailerId), {
+          isApproved: true,
+          approvedAt: new Date()
+        });
+        showNotification('Retailer approved successfully!');
+      } catch (error) {
+        console.error('Error approving retailer:', error);
+        showNotification('Failed to approve retailer', 'error');
+      }
+    }
+  }
+
+  // Reject retailer
+  async function rejectRetailer(retailerId) {
+    if (confirm('Are you sure you want to reject this retailer? This action cannot be undone.')) {
+      try {
+        await updateDoc(doc(db, 'retailers', retailerId), {
+          isApproved: false,
+          rejectedAt: new Date()
+        });
+        showNotification('Retailer rejected');
+      } catch (error) {
+        console.error('Error rejecting retailer:', error);
+        showNotification('Failed to reject retailer', 'error');
+      }
+    }
+  }
+
+  // Load orders
+  async function loadOrders() {
+    try {
+      const q = query(collection(db, 'retailerOrders'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      
+      ordersData = [];
+      let totalOrders = 0;
+      let pendingOrders = 0;
+      let confirmedOrders = 0;
+      let deliveredOrders = 0;
+      
+      const ordersList = document.getElementById('ordersList');
+      ordersList.innerHTML = '';
+
+      if (querySnapshot.empty) {
+        ordersList.innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-bag-x"></i>
+            <h5>No orders yet</h5>
+            <p class="text-muted">Retailer orders will appear here when placed.</p>
+          </div>
+        `;
+      } else {
+        querySnapshot.forEach(doc => {
+          const order = { id: doc.id, ...doc.data() };
+          ordersData.push(order);
+          totalOrders++;
+          
+          switch (order.status) {
+            case 'pending':
+              pendingOrders++;
+              break;
+            case 'confirmed':
+              confirmedOrders++;
+              break;
+            case 'delivered':
+              deliveredOrders++;
+              break;
+          }
+          
+          const orderCard = createOrderCard(order);
+          ordersList.appendChild(orderCard);
+        });
+      }
+
+      // Update counters
+      document.getElementById('totalOrders').textContent = totalOrders;
+      document.getElementById('pendingOrders').textContent = pendingOrders;
+      document.getElementById('confirmedOrders').textContent = confirmedOrders;
+      document.getElementById('deliveredOrders').textContent = deliveredOrders;
+
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      showNotification('Error loading orders data', 'error');
+    }
+  }
+
+  // Create order card
+  function createOrderCard(order) {
+    const div = document.createElement('div');
+    div.className = 'card mb-3';
+    
+    const statusClass = `status-${order.status}`;
+    const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+    
+    div.innerHTML = `
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+          <i class="bi bi-receipt"></i> Order #${order.invoiceNumber}
+        </h6>
+        <span class="badge ${statusClass}">${statusText}</span>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="product-detail-card">
+              <p class="mb-2"><i class="bi bi-building"></i> <strong>Retailer:</strong> ${order.retailerName}</p>
+              <p class="mb-2"><i class="bi bi-envelope"></i> <strong>Email:</strong> ${order.retailerEmail}</p>
+              <p class="mb-2"><i class="bi bi-telephone"></i> <strong>Phone:</strong> ${order.retailerPhone}</p>
+              <p class="mb-2"><i class="bi bi-calendar"></i> <strong>Date:</strong> ${order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="product-detail-card">
+              <p class="mb-2"><i class="bi bi-box"></i> <strong>Items:</strong> ${order.items.length} products</p>
+              <p class="mb-2"><i class="bi bi-stack"></i> <strong>Quantity:</strong> ${order.items.reduce((sum, item) => sum + item.quantity, 0)} units</p>
+              <p class="mb-2"><i class="bi bi-currency-rupee"></i> <strong>Total:</strong> ₹${order.total.toFixed(2)}</p>
+              ${order.includeGST ? '<p class="mb-2 small text-muted"><i class="bi bi-percent"></i> Includes GST</p>' : ''}
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-3">
+          <h6><i class="bi bi-list-ul"></i> Order Items:</h6>
+          <div class="table-responsive">
+            <table class="table table-modern table-sm">
+              <thead>
+                <tr>
+                  <th><i class="bi bi-box"></i> Product</th>
+                  <th><i class="bi bi-rulers"></i> Size</th>
+                  <th><i class="bi bi-stack"></i> Qty</th>
+                  <th><i class="bi bi-currency-rupee"></i> Price</th>
+                  <th><i class="bi bi-calculator"></i> Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.items.map(item => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td>${item.size}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${item.price.toFixed(2)}</td>
+                    <td>₹${(item.price * item.quantity).toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="mt-3 btn-group-modern">
+          ${order.status === 'pending' ? `
+            <button class="btn btn-success btn-modern" onclick="confirmOrder('${order.id}')">
+              <i class="bi bi-check-circle"></i> Confirm Order
+            </button>
+            <button class="btn btn-danger btn-modern" onclick="cancelOrder('${order.id}')">
+              <i class="bi bi-x-circle"></i> Cancel Order
+            </button>
+          ` : ''}
+          
+          ${order.status === 'confirmed' ? `
+            <button class="btn btn-primary btn-modern" onclick="markDelivered('${order.id}')">
+              <i class="bi bi-truck"></i> Mark as Delivered
+            </button>
+          ` : ''}
+          
+          <button class="btn btn-outline-primary btn-modern" onclick="viewOrderDetails('${order.id}')">
+            <i class="bi bi-eye"></i> View Details
+          </button>
+          <button class="btn btn-outline-success btn-modern" onclick="printOrderInvoice('${order.id}')">
+            <i class="bi bi-printer"></i> Print Invoice
+          </button>
+          <button class="btn btn-outline-info btn-modern" onclick="downloadOrderData('${order.id}')">
+            <i class="bi bi-download"></i> Download
+          </button>
+        </div>
+      </div>
+    `;
+    
+    return div;
+  }
+
+  // Confirm order
+  async function confirmOrder(orderId) {
+    if (confirm('Are you sure you want to confirm this order?')) {
+      try {
+        await updateDoc(doc(db, 'retailerOrders', orderId), {
+          status: 'confirmed',
+          confirmedAt: new Date()
+        });
+        showNotification('Order confirmed successfully!');
+      } catch (error) {
+        console.error('Error confirming order:', error);
+        showNotification('Failed to confirm order', 'error');
+      }
+    }
+  }
+
+  // Cancel order
+  async function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order?')) {
+      try {
+        await updateDoc(doc(db, 'retailerOrders', orderId), {
+          status: 'cancelled',
+          cancelledAt: new Date()
+        });
+        showNotification('Order cancelled');
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+        showNotification('Failed to cancel order', 'error');
+      }
+    }
+  }
+
+  // Mark as delivered
+  async function markDelivered(orderId) {
+    if (confirm('Are you sure you want to mark this order as delivered?')) {
+      try {
+        await updateDoc(doc(db, 'retailerOrders', orderId), {
+          status: 'delivered',
+          deliveredAt: new Date()
+        });
+        showNotification('Order marked as delivered!');
+      } catch (error) {
+        console.error('Error marking order as delivered:', error);
+        showNotification('Failed to update order status', 'error');
+      }
+    }
+  }
+
+  // View order details
+  function viewOrderDetails(orderId) {
+    const order = ordersData.find(o => o.id === orderId);
+    if (!order) return;
+    
+    const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+    const content = document.getElementById('orderDetailContent');
+    
+    content.innerHTML = `
+      <div class="row">
+        <div class="col-md-6">
+          <div class="invoice-header">
+            <h4><i class="bi bi-receipt"></i> Order Information</h4>
+            <div class="mt-3">
+              <p><strong>Order Number:</strong> ${order.invoiceNumber}</p>
+              <p><strong>Date:</strong> ${order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+              <p><strong>Status:</strong> <span class="badge status-${order.status}">${order.status.toUpperCase()}</span></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="invoice-header">
+            <h4><i class="bi bi-building"></i> Retailer Information</h4>
+            <div class="mt-3">
+              <p><strong>Business:</strong> ${order.retailerName}</p>
+              <p><strong>Email:</strong> ${order.retailerEmail}</p>
+              <p><strong>Phone:</strong> ${order.retailerPhone}</p>
+              <p><strong>Address:</strong> ${order.retailerAddress}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <h5><i class="bi bi-list-ul"></i> Order Items</h5>
+        <div class="table-responsive">
+          <table class="table table-modern">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Quantity</th>
+                <th>Rate (₹)</th>
+                <th>Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map(item => `
+                <tr>
+                  <td>${item.name}</td>
+                  <td>${item.size}</td>
+                  <td>${item.quantity}</td>
+                  <td>₹${item.price.toFixed(2)}</td>
+                  <td>₹${(item.price * item.quantity).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="text-end mt-4">
+        <div class="product-detail-card" style="display: inline-block;">
+          <p><strong>Subtotal:</strong> ₹${order.subtotal.toFixed(2)}</p>
+          ${order.includeGST ? `<p><strong>GST (18%):</strong> ₹${order.gstAmount.toFixed(2)}</p>` : ''}
+          <h4><strong>Total:</strong> ₹${order.total.toFixed(2)}</h4>
+        </div>
+      </div>
+    `;
+    
+    modal.show();
+  }
+
+  // Print order invoice
+  function printOrderInvoice(orderId) {
+    const order = ordersData.find(o => o.id === orderId);
+    if (!order) return;
+    
+    const modal = new bootstrap.Modal(document.getElementById('invoicePrintModal'));
+    const content = document.getElementById('invoiceContent');
+    
+    content.innerHTML = `
+      <div class="text-center mb-4">
+        <h2 style="color: var(--primary-color);">SUPREME ENTERPRISES</h2>
+        <p class="text-muted">Beverages Distribution</p>
+        <hr>
+      </div>
+      
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h5>Bill To:</h5>
+          <p><strong>${order.retailerName}</strong></p>
+          <p>${order.retailerEmail}</p>
+          <p>${order.retailerPhone}</p>
+          <p>${order.retailerAddress}</p>
+        </div>
+        <div class="col-md-6 text-end">
+          <h5>Invoice Details:</h5>
+          <p><strong>Invoice #:</strong> ${order.invoiceNumber}</p>
+          <p><strong>Date:</strong> ${order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+          <p><strong>Status:</strong> ${order.status.toUpperCase()}</p>
+        </div>
+      </div>
+      
+      <table class="table table-bordered">
+        <thead style="background-color: #f8f9fa;">
+          <tr>
+            <th>Product</th>
+            <th>Size</th>
+            <th>Quantity</th>
+            <th>Rate (₹)</th>
+            <th>Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${order.items.map(item => `
+            <tr>
+              <td>${item.name}</td>
+              <td>${item.size}</td>
+              <td>${item.quantity}</td>
+              <td>₹${item.price.toFixed(2)}</td>
+              <td>₹${(item.price * item.quantity).toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <p><strong>Terms & Conditions:</strong></p>
+          <ul style="font-size: 0.9em;">
+            <li>Payment due within 30 days</li>
+            <li>Goods once sold cannot be returned</li>
+            <li>Subject to local jurisdiction</li>
+          </ul>
+        </div>
+        <div class="col-md-6 text-end">
+          <p><strong>Subtotal:</strong> ₹${order.subtotal.toFixed(2)}</p>
+          ${order.includeGST ? `<p><strong>GST (18%):</strong> ₹${order.gstAmount.toFixed(2)}</p>` : ''}
+          <h4><strong>Total:</strong> ₹${order.total.toFixed(2)}</h4>
+        </div>
+      </div>
+      
+      <div class="text-center mt-5">
+        <p><strong>Thank you for your business!</strong></p>
+        <p style="font-size: 0.9em; color: #666;">For any queries, contact us at supremeenterprise79@gmail.com</p>
+      </div>
+    `;
+    
+    modal.show();
+  }
+
+  // Print invoice
+  function printInvoice() {
+    window.print();
+  }
+
+  // Download invoice as PDF
+  function downloadInvoicePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    const content = document.getElementById('invoiceContent');
+    doc.html(content, {
+      callback: function (doc) {
+        doc.save('invoice.pdf');
+      },
+      x: 10,
+      y: 10,
+      width: 190,
+      windowWidth: 800
+    });
+  }
+
+  // Download all retailers
+  function downloadAllRetailers() {
+    const csvContent = convertToCSV(retailersData.map(r => ({
+      'Business Name': r.businessName,
+      'Owner Name': r.ownerName,
+      'Email': r.email,
+      'Phone': r.phone,
+      'Address': r.address,
+      'GST': r.gst || 'N/A',
+      'Status': r.isApproved ? 'Approved' : 'Pending',
+      'Applied Date': r.createdAt ? new Date(r.createdAt.toDate()).toLocaleDateString() : 'N/A'
+    })));
+    
+    downloadCSV(csvContent, 'retailers.csv');
+    showNotification('Retailers data downloaded successfully!');
+  }
+
+  // Download all orders
+  function downloadAllOrders() {
+    const csvContent = convertToCSV(ordersData.map(o => ({
+      'Order Number': o.invoiceNumber,
+      'Retailer': o.retailerName,
+      'Email': o.retailerEmail,
+      'Phone': o.retailerPhone,
+      'Items Count': o.items.length,
+      'Total Quantity': o.items.reduce((sum, item) => sum + item.quantity, 0),
+      'Total Amount': o.total.toFixed(2),
+      'Status': o.status,
+      'Order Date': o.createdAt ? new Date(o.createdAt.toDate()).toLocaleDateString() : 'N/A'
+    })));
+    
+    downloadCSV(csvContent, 'orders.csv');
+    showNotification('Orders data downloaded successfully!');
+  }
+
+  // Export retailers to CSV
+  function exportRetailersCSV() {
+    downloadAllRetailers();
+  }
+
+  // Export orders to CSV
+  function exportOrdersCSV() {
+    downloadAllOrders();
+  }
+
+  // Generate sales report
+  function generateSalesReport() {
+    const totalSales = ordersData.reduce((sum, order) => sum + order.total, 0);
+    const avgOrderValue = ordersData.length > 0 ? totalSales / ordersData.length : 0;
+    
+    const reportData = [{
+      'Total Orders': ordersData.length,
+      'Total Sales': totalSales.toFixed(2),
+      'Average Order Value': avgOrderValue.toFixed(2),
+      'Pending Orders': ordersData.filter(o => o.status === 'pending').length,
+      'Confirmed Orders': ordersData.filter(o => o.status === 'confirmed').length,
+      'Delivered Orders': ordersData.filter(o => o.status === 'delivered').length,
+      'Report Date': new Date().toLocaleDateString()
+    }];
+    
+    const csvContent = convertToCSV(reportData);
+    downloadCSV(csvContent, 'sales-report.csv');
+    showNotification('Sales report generated successfully!');
+  }
+
+  // Convert array to CSV
+  function convertToCSV(array) {
+    if (array.length === 0) return '';
+    
+    const headers = Object.keys(array[0]);
+    const csvRows = [];
+    
+    csvRows.push(headers.join(','));
+    
+    for (const row of array) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+    
+    return csvRows.join('\n');
+  }
+
+  // Download CSV file
+  function downloadCSV(csvContent, filename) {
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', filename);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  // Refresh retailers
+  function refreshRetailers() {
+    loadRetailers();
+    showNotification('Retailers data refreshed!');
+  }
+
+  // Refresh orders
+  function refreshOrders() {
+    loadOrders();
+    showNotification('Orders data refreshed!');
+  }
+
+  // View retailer details
+  function viewRetailerDetails(retailerId) {
+    const retailer = retailersData.find(r => r.id === retailerId);
+    if (!retailer) return;
+    
+    alert(`Retailer Details:\n\nBusiness: ${retailer.businessName}\nOwner: ${retailer.ownerName}\nEmail: ${retailer.email}\nPhone: ${retailer.phone}\nAddress: ${retailer.address}\nGST: ${retailer.gst || 'N/A'}\nStatus: ${retailer.isApproved ? 'Approved' : 'Pending'}`);
+  }
+
+  // Download retailer data
+  function downloadRetailerData(retailerId) {
+    const retailer = retailersData.find(r => r.id === retailerId);
+    if (!retailer) return;
+    
+    const csvContent = convertToCSV([{
+      'Business Name': retailer.businessName,
+      'Owner Name': retailer.ownerName,
+      'Email': retailer.email,
+      'Phone': retailer.phone,
+      'Address': retailer.address,
+      'GST': retailer.gst || 'N/A',
+      'Status': retailer.isApproved ? 'Approved' : 'Pending',
+      'Applied Date': retailer.createdAt ? new Date(retailer.createdAt.toDate()).toLocaleDateString() : 'N/A'
+    }]);
+    
+    downloadCSV(csvContent, `retailer-${retailer.businessName}.csv`);
+    showNotification(`${retailer.businessName} data downloaded!`);
+  }
+
+  // Download order data
+  function downloadOrderData(orderId) {
+    const order = ordersData.find(o => o.id === orderId);
+    if (!order) return;
+    
+    const csvContent = convertToCSV([{
+      'Order Number': order.invoiceNumber,
+      'Retailer': order.retailerName,
+      'Email': order.retailerEmail,
+      'Phone': order.retailerPhone,
+      'Items': order.items.map(item => `${item.name} (${item.size}) x ${item.quantity}`).join('; '),
+      'Total Amount': order.total.toFixed(2),
+      'Status': order.status,
+      'Order Date': order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString() : 'N/A'
+    }]);
+    
+    downloadCSV(csvContent, `order-${order.invoiceNumber}.csv`);
+    showNotification(`Order ${order.invoiceNumber} data downloaded!`);
+  }
+
+  // Logout function
+  async function logout() {
+    try {
+      await signOut(auth);
+      showNotification('Logged out successfully!');
+      window.location.href = 'index.html';
+    } catch (error) {
+      console.error('Error logging out:', error);
+      showNotification('Error logging out', 'error');
+    }
+  }
+
+  // Expose functions to global scope
+  window.approveRetailer = approveRetailer;
+  window.rejectRetailer = rejectRetailer;
+  window.confirmOrder = confirmOrder;
+  window.cancelOrder = cancelOrder;
+  window.markDelivered = markDelivered;
+  window.viewOrderDetails = viewOrderDetails;
+  window.printOrderInvoice = printOrderInvoice;
+  window.printInvoice = printInvoice;
+  window.downloadInvoicePDF = downloadInvoicePDF;
+  window.downloadAllRetailers = downloadAllRetailers;
+  window.downloadAllOrders = downloadAllOrders;
+  window.exportRetailersCSV = exportRetailersCSV;
+  window.exportOrdersCSV = exportOrdersCSV;
+  window.generateSalesReport = generateSalesReport;
+  window.refreshRetailers = refreshRetailers;
+  window.refreshOrders = refreshOrders;
+  window.viewRetailerDetails = viewRetailerDetails;
+  window.downloadRetailerData = downloadRetailerData;
+  window.downloadOrderData = downloadOrderData;
+  window.logout = logout;
+
+  // Initialize app when page loads
+  window.addEventListener('load', initApp);
+</script>
+</body>
+</html>
