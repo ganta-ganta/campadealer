@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SUPREME ENTERPRISES - Operator Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+      --info-color: #17a2b8;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .main-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+      overflow: hidden;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .header-section {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .company-logo {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .company-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .company-subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .nav-tabs {
+      background: var(--light-color);
+      border-bottom: none;
+      padding: 0 30px;
+    }
+    
+    .nav-link {
+      border: none;
+      color: var(--dark-color);
+      font-weight: 600;
+      padding: 20px 25px;
+      margin: 0 5px;
+      border-radius: 15px 15px 0 0;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .nav-link:hover {
+      background: rgba(52, 152, 219, 0.1);
+      color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+    
+    .nav-link.active {
+      background: white;
+      color: var(--primary-color);
+      box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .tab-content {
+      padding: 30px;
+      min-height: 600px;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .card-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      border: none;
+      padding: 20px 25px;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    
+    .card-body {
+      padding: 25px;
+    }
+    
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .login-card {
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+      overflow: hidden;
+      max-width: 400px;
+      width: 100%;
+    }
+    
+    .login-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+    
+    .login-body {
+      padding: 40px 30px;
+    }
+    
+    .btn {
+      border-radius: 10px;
+      font-weight: 600;
+      padding: 12px 25px;
+      border: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .btn-primary { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); }
+    .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .btn-warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .btn-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .btn-danger { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); }
+    
+    .table {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .table thead th {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      font-weight: 600;
+      padding: 15px;
+    }
+    
+    .table tbody tr {
+      transition: all 0.3s ease;
+    }
+    
+    .table tbody tr:hover {
+      background: rgba(52, 152, 219, 0.05);
+      transform: scale(1.01);
+    }
+    
+    .table tbody td {
+      padding: 15px;
+      border-color: rgba(0,0,0,0.05);
+    }
+    
+    .form-control, .form-select {
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .modal-content {
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .modal-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      border: none;
+      border-radius: 20px 20px 0 0;
+    }
+    
+    .badge {
+      border-radius: 20px;
+      padding: 8px 15px;
+      font-weight: 600;
+    }
+    
+    .alert {
+      border-radius: 15px;
+      border: none;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .hidden { display: none !important; }
+    
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      .main-container { border-radius: 15px; }
+      .header-section { padding: 20px; }
+      .company-title { font-size: 2rem; }
+      .tab-content { padding: 20px; }
+      .nav-link { padding: 15px 20px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Operator Login Page -->
+<div id="operatorLoginPage" class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <i class="bi bi-truck" style="font-size: 3rem; margin-bottom: 15px;"></i>
+      <h2>SUPREME ENTERPRISES</h2>
+      <p class="mb-0">Operator Portal</p>
+    </div>
+    <div class="login-body">
+      <form onsubmit="operatorLogin(event)">
+        <div class="mb-3">
+          <label class="form-label">Operator ID</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            <input type="email" id="operatorEmail" class="form-control" placeholder="operator@supremeenterprises.com" required>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Password</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            <input type="password" id="operatorPassword" class="form-control" placeholder="Enter password" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-box-arrow-in-right"></i> Login
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Operator Dashboard -->
+<div id="operatorApp" class="main-container hidden">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="company-logo">
+      <i class="bi bi-truck"></i>
+    </div>
+    <h1 class="company-title">SUPREME ENTERPRISES</h1>
+    <p class="company-subtitle">Operator Sales Portal</p>
+    <div class="mt-3">
+      <span class="badge bg-light text-dark me-2">
+        <i class="bi bi-person-circle"></i> Operator: <span id="operatorName"></span>
+      </span>
+      <button onclick="operatorLogout()" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <ul class="nav nav-tabs" id="operatorTabs">
+    <li class="nav-item">
+      <a class="nav-link active" data-bs-toggle="tab" href="#salesTab">
+        <i class="bi bi-cart"></i> Create Sale
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#stockTab">
+        <i class="bi bi-box-seam"></i> View Stock
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#requestTab">
+        <i class="bi bi-box-arrow-in-down"></i> Request Stock
+      </a>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Sales Tab -->
+    <div class="tab-pane fade show active" id="salesTab">
+      <div class="card mt-4">
+        <div class="card-header">
+          <i class="bi bi-cart-plus"></i> Create New Invoice
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5>Retailer Information</h5>
+              <div class="mb-3">
+                <label class="form-label">Retailer Name*</label>
+                <input type="text" id="retailerName" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Retailer Phone</label>
+                <input type="tel" id="retailerPhone" class="form-control">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h5>GST Information (Optional)</h5>
+              <div class="mb-3">
+                <label class="form-label">GST Number</label>
+                <input type="text" id="retailerGST" class="form-control" placeholder="22AAAAA0000A1Z5">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Billing Address</label>
+                <textarea id="retailerAddress" class="form-control" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <h5>Add Products</h5>
+          <div class="row mb-3">
+            <div class="col-md-5">
+              <select id="productSelect" class="form-select">
+                <option value="">Select Product</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <input type="number" id="productQty" class="form-control" placeholder="Qty" min="1" value="1">
+            </div>
+            <div class="col-md-3">
+              <input type="number" id="productRate" class="form-control" placeholder="Rate" readonly>
+            </div>
+            <div class="col-md-2">
+              <button onclick="addToCart()" class="btn btn-primary w-100">
+                <i class="bi bi-plus"></i> Add
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive mb-4">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Size</th>
+                  <th>Qty</th>
+                  <th>Rate</th>
+                  <th>Amount</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="cartItems">
+                <!-- Cart items will be added here -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Payment Method</label>
+                <select id="paymentMethod" class="form-select">
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                  <option value="card">Card</option>
+                  <option value="credit">Credit</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Notes</label>
+                <textarea id="saleNotes" class="form-control" rows="2"></textarea>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="table-responsive">
+                <table class="table">
+                  <tr>
+                    <td><strong>Subtotal:</strong></td>
+                    <td class="text-end">₹<span id="subtotalAmount">0.00</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>GST (18%):</strong></td>
+                    <td class="text-end">₹<span id="gstAmount">0.00</span></td>
+                  </tr>
+                  <tr class="table-primary">
+                    <td><strong>Total:</strong></td>
+                    <td class="text-end"><strong>₹<span id="totalAmount">0.00</span></strong></td>
+                  </tr>
+                </table>
+              </div>
+              <button onclick="createInvoice()" class="btn btn-success w-100">
+                <i class="bi bi-receipt"></i> Create Invoice
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Tab -->
+    <div class="tab-pane fade" id="stockTab">
+      <div class="card mt-4">
+        <div class="card-header">
+          <i class="bi bi-box-seam"></i> Current Stock
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Size</th>
+                  <th>Available</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="operatorStockTable">
+                <!-- Stock data will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request Stock Tab -->
+    <div class="tab-pane fade" id="requestTab">
+      <div class="card mt-4">
+        <div class="card-header">
+          <i class="bi bi-box-arrow-in-down"></i> Request Stock from Warehouse
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <select id="requestProduct" class="form-select">
+                <option value="">Select Product</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <input type="number" id="requestQty" class="form-control" placeholder="Quantity" min="1">
+            </div>
+            <div class="col-md-3">
+              <button onclick="submitStockRequest()" class="btn btn-primary w-100">
+                <i class="bi bi-send"></i> Submit Request
+              </button>
+            </div>
+          </div>
+          
+          <h5>Pending Requests</h5>
+          <div id="pendingRequests">
+            <!-- Pending requests will be shown here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Modal -->
+<div class="modal fade" id="invoiceModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-receipt"></i> Invoice Created
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="invoiceModalBody">
+        <!-- Invoice content will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="printInvoice()">
+          <i class="bi bi-printer"></i> Print
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Firebase SDK -->
+<script type="module">
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    signOut,
+    onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { 
+    getFirestore,
+    collection,
+    doc,
+    setDoc,
+    getDoc,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    query,
+    where,
+    orderBy,
+    limit,
+    getDocs,
+    serverTimestamp,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+  // Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBm2Y2-KaPh_9prtDyEh75ys9bOS_YivyU",
+  authDomain: "campacola-45a6c.firebaseapp.com",
+  projectId: "campacola-45a6c",
+  storageBucket: "campacola-45a6c.appspot.com",
+  messagingSenderId: "950062364838",
+  appId: "1:950062364838:web:c016c1c2b63d661dc09c67",
+  measurementId: "G-0F1FMP4D6X"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Global variables
+let operatorCart = [];
+let currentOperator = null;
+let operatorStock = [];
+
+// Complete product list
+const products = [
+  { name: 'Campa Cola', size: '200ml', price: 220 },
+  { name: 'Power Up', size: '200ml', price: 220 },
+  { name: 'Orange', size: '200ml', price: 220 },
+  { name: 'Campa Soda', size: '500ml', price: 260 },
+  { name: 'Campa Cola', size: '500ml', price: 360 },
+  { name: 'Orange', size: '500ml', price: 360 },
+  { name: 'Gold Boost Tin', size: 'Can', price: 580 },
+  { name: 'Berry Kick', size: '200ml', price: 220 },
+  { name: 'Lemon', size: '200ml', price: 220 },
+  { name: 'Raskik Tetra Mango', size: '125ml', price: 280 },
+  { name: 'Raskik Mango', size: '150ml', price: 220 },
+  { name: 'Raskik Nimbu Pani', size: '150ml', price: 220 },
+  { name: 'Raskik Apple Drink', size: '150ml', price: 220 },
+  { name: 'Raskik Mixed Fruit', size: '150ml', price: 220 },
+  { name: 'Raskik Glucose', size: '150ml', price: 220 },
+  { name: 'Spinner Lemon', size: '150ml', price: 220 },
+  { name: 'Spinner Orange', size: '150ml', price: 220 },
+  { name: 'Spinner Nitro', size: '150ml', price: 220 },
+  { name: 'Independence Water', size: '750ml', price: 150 }
+];
+
+// Admin check function
+function isAdmin(email) {
+  return email === 'supremeenterprise79@gmail.com' || email === 'admin@gantasolutions.com';
+}
+
+// Initialize application
+function initApp() {
+  // Check authentication state
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      if (isAdmin(user.email)) {
+        // Show admin dashboard if admin
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+      } else {
+        // Treat as operator
+        currentOperator = {
+          id: user.uid,
+          email: user.email,
+          name: user.email.split('@')[0] // Use email prefix as name
+        };
+        showOperatorApp();
+        loadOperatorStock();
+        populateProductDropdowns();
+        document.getElementById('operatorName').textContent = currentOperator.name;
+      }
+    } else {
+      // Show login page if not authenticated
+      showLoginPage();
+    }
+  });
+}
+
+// Show login page
+function showLoginPage() {
+  document.getElementById('operatorLoginPage').classList.remove('hidden');
+  document.getElementById('operatorApp').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('mainApp').classList.add('hidden');
+}
+
+// Show operator app
+function showOperatorApp() {
+  document.getElementById('operatorLoginPage').classList.add('hidden');
+  document.getElementById('operatorApp').classList.remove('hidden');
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('mainApp').classList.add('hidden');
+}
+
+// Login function
+async function operatorLogin(event) {
+  event.preventDefault();
+  const email = document.getElementById('operatorEmail').value;
+  const password = document.getElementById('operatorPassword').value;
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged will handle the redirect
+  } catch (error) {
+    alert('Login failed: ' + error.message);
+  }
+}
+
+// Logout function
+async function operatorLogout() {
+  try {
+    await signOut(auth);
+    currentOperator = null;
+    operatorCart = [];
+    showLoginPage();
+  } catch (error) {
+    console.error('Logout error:', error);
+    alert('Logout failed. Please try again.');
+  }
+}
+
+// Populate product dropdowns
+function populateProductDropdowns() {
+  const productSelect = document.getElementById('productSelect');
+  const requestProduct = document.getElementById('requestProduct');
+  
+  // Clear existing options
+  productSelect.innerHTML = '<option value="">Select Product</option>';
+  requestProduct.innerHTML = '<option value="">Select Product</option>';
+  
+  // Add all products to dropdowns
+  products.forEach(product => {
+    // For sales product select
+    const option1 = document.createElement('option');
+    option1.value = `${product.name}|${product.size}`;
+    option1.textContent = `${product.name} - ${product.size} (₹${product.price})`;
+    option1.dataset.price = product.price;
+    productSelect.appendChild(option1);
+    
+    // For stock request product select
+    const option2 = document.createElement('option');
+    option2.value = `${product.name}|${product.size}`;
+    option2.textContent = `${product.name} - ${product.size}`;
+    requestProduct.appendChild(option2);
+  });
+  
+  // Add event listener for product selection
+  productSelect.addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    document.getElementById('productRate').value = selectedOption.dataset.price || '';
+  });
+}
+
+// Cart management functions
+function addToCart() {
+  const productSelect = document.getElementById('productSelect');
+  const qtyInput = document.getElementById('productQty');
+  const rateInput = document.getElementById('productRate');
+  
+  // Validate inputs
+  if (!productSelect.value || !qtyInput.value || !rateInput.value) {
+    alert('Please select a product and enter quantity');
+    return;
+  }
+  
+  const [name, size] = productSelect.value.split('|');
+  const qty = parseInt(qtyInput.value);
+  const rate = parseFloat(rateInput.value);
+  const amount = qty * rate;
+  
+  // Check if product already in cart
+  const existingItem = operatorCart.find(item => 
+    item.name === name && item.size === size && item.rate === rate);
+  
+  if (existingItem) {
+    // Update existing item
+    existingItem.qty += qty;
+    existingItem.amount += amount;
+  } else {
+    // Add new item to cart
+    operatorCart.push({
+      name,
+      size,
+      qty,
+      rate,
+      amount
+    });
+  }
+  
+  updateCartDisplay();
+  calculateTotals();
+  
+  // Reset inputs
+  productSelect.selectedIndex = 0;
+  qtyInput.value = 1;
+  rateInput.value = '';
+}
+
+function updateCartDisplay() {
+  const cartBody = document.getElementById('cartItems');
+  cartBody.innerHTML = '';
+  
+  operatorCart.forEach((item, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${item.name}</td>
+      <td>${item.size}</td>
+      <td>${item.qty}</td>
+      <td>₹${item.rate.toFixed(2)}</td>
+      <td>₹${item.amount.toFixed(2)}</td>
+      <td>
+        <button onclick="removeCartItem(${index})" class="btn btn-danger btn-sm">
+          <i class="bi bi-trash"></i>
+        </button>
+      </td>
+    `;
+    cartBody.appendChild(row);
+  });
+}
+
+function removeCartItem(index) {
+  operatorCart.splice(index, 1);
+  updateCartDisplay();
+  calculateTotals();
+}
+
+function calculateTotals() {
+  const subtotal = operatorCart.reduce((sum, item) => sum + item.amount, 0);
+  const gst = subtotal * 0.18;
+  const total = subtotal + gst;
+  
+  document.getElementById('subtotalAmount').textContent = subtotal.toFixed(2);
+  document.getElementById('gstAmount').textContent = gst.toFixed(2);
+  document.getElementById('totalAmount').textContent = total.toFixed(2);
+}
+
+// Invoice creation
+async function createInvoice() {
+  if (operatorCart.length === 0) {
+    alert('Please add products to the cart');
+    return;
+  }
+  
+  const retailerName = document.getElementById('retailerName').value;
+  if (!retailerName) {
+    alert('Please enter retailer name');
+    return;
+  }
+  
+  // Prepare retailer data
+  const retailer = {
+    name: retailerName,
+    phone: document.getElementById('retailerPhone').value || '',
+    gstin: document.getElementById('retailerGST').value || '',
+    address: document.getElementById('retailerAddress').value || ''
+  };
+  
+  const paymentMethod = document.getElementById('paymentMethod').value;
+  const notes = document.getElementById('saleNotes').value;
+  
+  // Calculate totals
+  const subtotal = operatorCart.reduce((sum, item) => sum + item.amount, 0);
+  const gst = subtotal * 0.18;
+  const total = subtotal + gst;
+  
+  // Generate invoice number
+  const invoiceCount = await getDocs(collection(db, 'invoices'));
+  const invoiceNo = `INV-${(invoiceCount.size + 1).toString().padStart(5, '0')}`;
+  
+  // Create invoice data
+  const invoiceData = {
+    invoiceNo,
+    invoiceDate: new Date(),
+    dealer: retailer,
+    items: operatorCart,
+    subtotal,
+    gst,
+    total,
+    paymentMethod,
+    notes,
+    status: 'pending',
+    createdAt: serverTimestamp(),
+    createdBy: currentOperator.email,
+    operatorId: currentOperator.id
+  };
+  
+  try {
+    // Add invoice to Firestore
+    await addDoc(collection(db, 'invoices'), invoiceData);
+    
+    // Update operator's stock
+    await updateOperatorStockAfterSale();
+    
+    // Show invoice
+    showInvoice(invoiceNo, invoiceData);
+    
+    // Reset form
+    resetInvoiceForm();
+    
+  } catch (error) {
+    console.error('Error creating invoice:', error);
+    alert('Error creating invoice');
+  }
+}
+
+async function updateOperatorStockAfterSale() {
+  const vanStockRef = doc(db, 'vanStock', currentOperator.id);
+  const vanStockDoc = await getDoc(vanStockRef);
+  
+  if (vanStockDoc.exists()) {
+    const stockData = vanStockDoc.data().stock || {};
+    
+    // Update stock for each item in cart
+    operatorCart.forEach(item => {
+      const productKey = `${item.name}|${item.size}`;
+      if (stockData[productKey]) {
+        stockData[productKey].remaining -= item.qty;
+        stockData[productKey].sold += item.qty;
+      }
+    });
+    
+    // Update in database
+    await updateDoc(vanStockRef, {
+      stock: stockData,
+      lastUpdated: serverTimestamp()
+    });
+    
+    // Reload stock display
+    loadOperatorStock();
+  }
+}
+
+function resetInvoiceForm() {
+  operatorCart = [];
+  updateCartDisplay();
+  calculateTotals();
+  document.getElementById('retailerName').value = '';
+  document.getElementById('retailerPhone').value = '';
+  document.getElementById('retailerGST').value = '';
+  document.getElementById('retailerAddress').value = '';
+  document.getElementById('saleNotes').value = '';
+}
+
+// Stock management
+async function loadOperatorStock() {
+  try {
+    const vanStockRef = doc(db, 'vanStock', currentOperator.id);
+    const vanStockDoc = await getDoc(vanStockRef);
+    
+    const tbody = document.getElementById('operatorStockTable');
+    tbody.innerHTML = '';
+    operatorStock = [];
+    
+    if (vanStockDoc.exists() && vanStockDoc.data().stock) {
+      const stockData = vanStockDoc.data().stock;
+      
+      for (const [key, item] of Object.entries(stockData)) {
+        operatorStock.push({
+          name: item.name,
+          size: item.size,
+          remaining: item.remaining || 0,
+          loaded: item.loaded || 0,
+          sold: item.sold || 0
+        });
+        
+        // Determine status
+        const statusClass = item.remaining === 0 ? 'danger' : 
+                          item.remaining < 5 ? 'warning' : 'success';
+        const statusText = item.remaining === 0 ? 'Out of Stock' : 
+                         item.remaining < 5 ? 'Low Stock' : 'In Stock';
+        
+        // Create table row
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.size}</td>
+          <td>${item.remaining}</td>
+          <td><span class="badge bg-${statusClass}">${statusText}</span></td>
+        `;
+        tbody.appendChild(row);
+      }
+    } else {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center">No stock data available</td></tr>';
+    }
+  } catch (error) {
+    console.error('Error loading operator stock:', error);
+    document.getElementById('operatorStockTable').innerHTML = 
+      '<tr><td colspan="4" class="text-center text-danger">Error loading stock</td></tr>';
+  }
+}
+
+// Stock request functions
+async function submitStockRequest() {
+  const productSelect = document.getElementById('requestProduct');
+  const qtyInput = document.getElementById('requestQty');
+  
+  if (!productSelect.value || !qtyInput.value) {
+    alert('Please select a product and enter quantity');
+    return;
+  }
+  
+  const [name, size] = productSelect.value.split('|');
+  const qty = parseInt(qtyInput.value);
+  
+  try {
+    await addDoc(collection(db, 'stockRequests'), {
+      product: { name, size },
+      quantity: qty,
+      operatorId: currentOperator.id,
+      operatorEmail: currentOperator.email,
+      status: 'pending',
+      timestamp: serverTimestamp()
+    });
+    
+    alert('Stock request submitted successfully!');
+    productSelect.selectedIndex = 0;
+    qtyInput.value = '';
+    loadPendingRequests();
+    
+  } catch (error) {
+    console.error('Error submitting stock request:', error);
+    alert('Error submitting request');
+  }
+}
+
+async function loadPendingRequests() {
+  try {
+    const requestsQuery = query(
+      collection(db, 'stockRequests'),
+      where('operatorId', '==', currentOperator.id),
+      where('status', '==', 'pending'),
+      orderBy('timestamp', 'desc')
+    );
+    
+    const requestsSnapshot = await getDocs(requestsQuery);
+    const requestsDiv = document.getElementById('pendingRequests');
+    
+    let html = '';
+    requestsSnapshot.forEach(doc => {
+      const request = doc.data();
+      
+      html += `
+        <div class="alert alert-info p-2 mb-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              ${request.product.name} (${request.product.size}) - Qty: ${request.quantity}
+              <br>
+              <small>Requested: ${request.timestamp?.toDate().toLocaleString() || ''}</small>
+            </div>
+            <button onclick="cancelRequest('${doc.id}')" class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-x"></i> Cancel
+            </button>
+          </div>
+        </div>
+      `;
+    });
+    
+    requestsDiv.innerHTML = html || '<p class="text-muted">No pending requests</p>';
+    
+  } catch (error) {
+    console.error('Error loading pending requests:', error);
+    document.getElementById('pendingRequests').innerHTML = 
+      '<p class="text-danger">Error loading requests</p>';
+  }
+}
+
+async function cancelRequest(requestId) {
+  if (!confirm('Are you sure you want to cancel this stock request?')) {
+    return;
+  }
+  
+  try {
+    await updateDoc(doc(db, 'stockRequests', requestId), {
+      status: 'cancelled',
+      cancelledAt: serverTimestamp()
+    });
+    
+    alert('Request cancelled successfully');
+    loadPendingRequests();
+    
+  } catch (error) {
+    console.error('Error cancelling request:', error);
+    alert('Error cancelling request');
+  }
+}
+
+// Invoice display and printing
+function showInvoice(invoiceNo, invoiceData) {
+  let itemsHTML = '';
+  invoiceData.items.forEach(item => {
+    itemsHTML += `
+      <tr>
+        <td>${item.name}</td>
+        <td>${item.size}</td>
+        <td>${item.qty}</td>
+        <td>₹${item.rate.toFixed(2)}</td>
+        <td>₹${item.amount.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+  
+  const modalBody = `
+    <div class="invoice-print-content">
+      <div class="text-center mb-4">
+        <h2>SUPREME ENTERPRISES</h2>
+        <p class="mb-1">Premium Beverage Distribution</p>
+        <p class="mb-1"><small>Invoice No: ${invoiceNo}</small></p>
+        <hr>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <h5>Invoice Details</h5>
+          <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+          <p><strong>Operator:</strong> ${currentOperator.name}</p>
+        </div>
+        <div class="col-md-6">
+          <h5>Retailer Information</h5>
+          <p><strong>Name:</strong> ${invoiceData.dealer.name}</p>
+          ${invoiceData.dealer.gstin ? `<p><strong>GSTIN:</strong> ${invoiceData.dealer.gstin}</p>` : ''}
+        </div>
+      </div>
+      
+      <div class="table-responsive mb-3">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Size</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>${itemsHTML}</tbody>
+        </table>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Payment Method:</strong> ${invoiceData.paymentMethod}</p>
+          ${invoiceData.notes ? `<p><strong>Notes:</strong> ${invoiceData.notes}</p>` : ''}
+        </div>
+        <div class="col-md-6">
+          <table class="table">
+            <tr>
+              <td><strong>Subtotal:</strong></td>
+              <td class="text-end">₹${invoiceData.subtotal.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td><strong>GST (18%):</strong></td>
+              <td class="text-end">₹${invoiceData.gst.toFixed(2)}</td>
+            </tr>
+            <tr class="table-primary">
+              <td><strong>Total:</strong></td>
+              <td class="text-end"><strong>₹${invoiceData.total.toFixed(2)}</strong></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('invoiceModalBody').innerHTML = modalBody;
+  const modal = new bootstrap.Modal(document.getElementById('invoiceModal'));
+  modal.show();
+}
+
+function printInvoice() {
+  const printContent = document.querySelector('.invoice-print-content');
+  if (!printContent) {
+    alert('No invoice data to print');
+    return;
+  }
+  
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Invoice Print</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          .table { font-size: 14px; }
+          @media print {
+            body { padding: 10px; }
+            .btn { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        ${printContent.innerHTML}
+        <div class="text-center mt-4">
+          <p><em>Thank you for your business!</em></p>
+        </div>
+      </body>
+    </html>
+  `);
+  
+  printWindow.document.close();
+  printWindow.focus();
+  
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 500);
+}
+
+// Initialize app on load
+window.addEventListener('load', initApp);
+
+// Expose functions to global scope
+window.operatorLogin = operatorLogin;
+window.operatorLogout = operatorLogout;
+window.addToCart = addToCart;
+window.removeCartItem = removeCartItem;
+window.createInvoice = createInvoice;
+window.printInvoice = printInvoice;
+window.submitStockRequest = submitStockRequest;
+window.cancelRequest = cancelRequest;
+
+  // Initialize operator app
+  window.addEventListener('load', initOperatorApp);
+</script>
+</body>
+</html>
