@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator - Supreme Enterprises</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary-color);
+        }
+        
+        h1 {
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            height: 60px;
+        }
+        
+        .form-section, .invoice-preview {
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            padding: 10px 15px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-danger {
+            background: var(--accent-color);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background: #219653;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 15mm;
+            box-sizing: border-box;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background: white;
+            position: relative;
+        }
+        
+        .history-item {
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .history-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .history-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .page, .page * {
+                visibility: visible;
+            }
+            .page {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+                box-shadow: none;
+                margin: 0;
+                padding: 15mm;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        /* Invoice Specific Styles */
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .company-info {
+            flex: 1;
+        }
+        
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .invoice-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--primary-color);
+            text-transform: uppercase;
+        }
+        
+        .invoice-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .invoice-number, .invoice-date {
+            font-weight: bold;
+        }
+        
+        .address-block {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        
+        .from-address, .bill-to-address, .ship-to-address {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        
+        .address-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .invoice-table th {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+        
+        .invoice-table td {
+            vertical-align: top;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .total-row {
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+        
+        .tax-details {
+            width: 50%;
+            float: right;
+            margin-top: 20px;
+        }
+        
+        .amount-in-words {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .signature-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 80px;
+        }
+        
+        .signature {
+            text-align: center;
+            width: 200px;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 50px;
+            padding-top: 5px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        
+        .product-autocomplete {
+            position: relative;
+        }
+        
+        .autocomplete-results {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .autocomplete-item {
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+        
+        .autocomplete-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .address-block {
+                flex-direction: column;
+            }
+            
+            .tax-details {
+                width: 100%;
+                float: none;
+            }
+            
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>Invoice Generator</span>
+            <img src="https://via.placeholder.com/150x50?text=SUPREME+ENTERPRISES" alt="Supreme Enterprises Logo" class="logo">
+        </h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="openTab('invoice-tab')">Invoice Details</div>
+            <div class="tab" onclick="openTab('history-tab')">Invoice History</div>
+        </div>
+        
+        <!-- Form Section -->
+        <div id="invoice-tab" class="tab-content active">
+            <div class="form-section">
+                <h2>Invoice Details</h2>
+                
+                <div class="grid-container">
+                    <div class="form-group">
+                        <label>Invoice No.</label>
+                        <input type="text" id="invoiceNo" placeholder="e.g., INV-2023-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Invoice Date</label>
+                        <input type="date" id="invoiceDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date</label>
+                        <input type="date" id="dueDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Reference No.</label>
+                        <input type="text" id="referenceNo" placeholder="Reference number">
+                    </div>
+                </div>
+                
+                <h3>From (Seller)</h3>
+                <div class="grid-container">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="sellerName" value="SUPREME ENTERPRISES">
+                    </div>
+                    <div class="form-group">
+                        <label>GSTIN</label>
+                        <input type="text" id="sellerGST" placeholder="Seller GSTIN">
+                    </div>
+                    <div class="form-group">
+                        <label>State Code</label>
+                        <input type="text" id="sellerStateCode" placeholder="State Code">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <textarea id="sellerAddress" rows="3" placeholder="Seller Address"></textarea>
+                </div>
+                
+                <h3>Bill To</h3>
+                <div class="grid-container">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="billToName" placeholder="Customer Name">
+                    </div>
+                    <div class="form-group">
+                        <label>GSTIN</label>
+                        <input type="text" id="billToGST" placeholder="Customer GSTIN">
+                    </div>
+                    <div class="form-group">
+                        <label>State Code</label>
+                        <input type="text" id="billToStateCode" placeholder="State Code">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <textarea id="billToAddress" rows="3" placeholder="Customer Address"></textarea>
+                </div>
+                
+                <h3>Ship To</h3>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="sameAsBillTo" onchange="toggleShipTo()"> Same as Bill To
+                    </label>
+                </div>
+                <div id="shipToFields">
+                    <div class="grid-container">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="shipToName" placeholder="Shipping Name">
+                        </div>
+                        <div class="form-group">
+                            <label>GSTIN</label>
+                            <input type="text" id="shipToGST" placeholder="Shipping GSTIN">
+                        </div>
+                        <div class="form-group">
+                            <label>State Code</label>
+                            <input type="text" id="shipToStateCode" placeholder="State Code">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="shipToAddress" rows="3" placeholder="Shipping Address"></textarea>
+                    </div>
+                </div>
+                
+                <h3>Dispatch Details</h3>
+                <div class="grid-container">
+                    <div class="form-group">
+                        <label>Transport Mode</label>
+                        <input type="text" id="transportMode" placeholder="e.g., Road, Air, etc.">
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle No.</label>
+                        <input type="text" id="vehicleNo" placeholder="Vehicle Number">
+                    </div>
+                    <div class="form-group">
+                        <label>eWay Bill No.</label>
+                        <input type="text" id="ewayBillNo" placeholder="eWay Bill Number">
+                    </div>
+                </div>
+                
+                <h3>Items</h3>
+                <table id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="25%">Product</th>
+                            <th width="10%">HSN Code</th>
+                            <th width="10%">GST %</th>
+                            <th width="10%">Qty</th>
+                            <th width="10%">Rate</th>
+                            <th width="10%">Taxable</th>
+                            <th width="10%">CGST</th>
+                            <th width="10%">SGST</th>
+                            <th width="10%">Amount</th>
+                            <th width="5%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsBody">
+                        <!-- Items will be added here -->
+                    </tbody>
+                </table>
+                <button onclick="addItem()"><i class="fas fa-plus"></i> Add Item</button>
+                
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea id="notes" rows="2" placeholder="Additional notes">E. & O.E</textarea>
+                </div>
+                
+                <button onclick="generateInvoice()" class="btn-success"><i class="fas fa-file-invoice"></i> Generate Invoice</button>
+                <button onclick="saveInvoice()" class="btn-success"><i class="fas fa-save"></i> Save Invoice</button>
+                <button onclick="clearForm()" class="btn-danger"><i class="fas fa-trash"></i> Clear Form</button>
+            </div>
+            
+            <!-- Invoice Preview -->
+            <div class="invoice-preview">
+                <h2>Invoice Preview</h2>
+                <div id="invoicePreview" class="page">
+                    <!-- Invoice will be rendered here -->
+                </div>
+                <div class="no-print">
+                    <button onclick="printInvoice()"><i class="fas fa-print"></i> Print</button>
+                    <button onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> Export to PDF</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Invoice History -->
+        <div id="history-tab" class="tab-content">
+            <div class="challan-history">
+                <h2>Invoice History</h2>
+                <div id="historyList">
+                    <!-- Saved invoices will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // Product database with HSN codes and GST rates
+        const products = [
+            { id: 1, name: "Campa Cola - 200ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+            { id: 2, name: "Power Up - 200ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+            { id: 3, name: "Orange - 200ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+            { id: 4, name: "Campa Soda - 500ml", hsn: "22011020", gst: 18, description: "Aerated water (not sweetened/flavoured)" },
+            { id: 5, name: "Campa Cola - 500ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+            { id: 6, name: "Orange - 500ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+            { id: 7, name: "Gold Boost Tin", hsn: "22021090", gst: 28, description: "Energy drink (flavoured/sweetened beverage not under fruit juice)" },
+            { id: 8, name: "Berry Kick - 200ml", hsn: "22021090", gst: 28, description: "Energy drink (flavoured/sweetened)" },
+            { id: 9, name: "Lemon - 200ml", hsn: "22021010", gst: 28, description: "Flavoured aerated beverage" },
+            { id: 10, name: "Raskik Tetra Mango - 125ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink (tetra pack)" },
+            { id: 11, name: "Raskik Mango - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
+            { id: 12, name: "Raskik Nimbu Pani - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
+            { id: 13, name: "Raskik Apple Drink - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
+            { id: 14, name: "Raskik Mixed Fruit - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
+            { id: 15, name: "Raskik Glucose - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink (glucose added)" },
+            { id: 16, name: "Spinner Lemon - 150ml", hsn: "22029100", gst: 18, description: "Other non-alcoholic beverages (non-coconut water)" },
+            { id: 17, name: "Spinner Orange - 150ml", hsn: "22029100", gst: 18, description: "Other non-alcoholic beverages (non-coconut water)" },
+            { id: 18, name: "Spinner Nitro - 150ml", hsn: "22029100", gst: 18, description: "Other non-alcoholic beverages (non-coconut water)" },
+            { id: 19, name: "Independence Water - 750ml", hsn: "22011010", gst: 18, description: "Mineral/Aerated water (unflavoured & unsweetened)" }
+        ];
+        
+        // Set default values
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('invoiceNo').value = 'INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('invoiceDate').valueAsDate = new Date();
+            
+            // Set due date to 30 days from now
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 30);
+            document.getElementById('dueDate').valueAsDate = dueDate;
+            
+            // Add 3 empty items by default
+            addItem();
+            addItem();
+            addItem();
+            
+            loadHistory();
+            generateInvoice();
+        });
+        
+        // Tab navigation
+        function openTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Deactivate all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate the selected tab
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Toggle ship to address
+        function toggleShipTo() {
+            const sameAsBillTo = document.getElementById('sameAsBillTo').checked;
+            const shipToFields = document.getElementById('shipToFields');
+            
+            if (sameAsBillTo) {
+                shipToFields.style.display = 'none';
+            } else {
+                shipToFields.style.display = 'block';
+            }
+        }
+        
+        // Add a new item row
+        function addItem(product = null) {
+            const tbody = document.getElementById('itemsBody');
+            const row = document.createElement('tr');
+            
+            if (product) {
+                row.innerHTML = `
+                    <td>${tbody.children.length + 1}</td>
+                    <td>
+                        <div class="product-autocomplete">
+                            <input type="text" class="item-name" value="${product.name}" oninput="searchProducts(this)" data-product-id="${product.id}">
+                            <div class="autocomplete-results"></div>
+                        </div>
+                    </td>
+                    <td><input type="text" class="item-hsn" value="${product.hsn}" readonly></td>
+                    <td><input type="number" class="item-gst" value="${product.gst}" readonly></td>
+                    <td><input type="number" class="item-qty" placeholder="Qty" value="1" min="1" onchange="calculateRow(this)"></td>
+                    <td><input type="number" class="item-rate" placeholder="Rate" value="0" min="0" step="0.01" onchange="calculateRow(this)"></td>
+                    <td class="item-taxable">0.00</td>
+                    <td class="item-cgst">0.00</td>
+                    <td class="item-sgst">0.00</td>
+                    <td class="item-amount">0.00</td>
+                    <td><button onclick="removeItem(this)" class="btn-danger"><i class="fas fa-trash"></i></button></td>
+                `;
+            } else {
+                row.innerHTML = `
+                    <td>${tbody.children.length + 1}</td>
+                    <td>
+                        <div class="product-autocomplete">
+                            <input type="text" class="item-name" placeholder="Product Name" oninput="searchProducts(this)">
+                            <div class="autocomplete-results"></div>
+                        </div>
+                    </td>
+                    <td><input type="text" class="item-hsn" placeholder="HSN" readonly></td>
+                    <td><input type="number" class="item-gst" placeholder="GST %" readonly></td>
+                    <td><input type="number" class="item-qty" placeholder="Qty" value="1" min="1" onchange="calculateRow(this)"></td>
+                    <td><input type="number" class="item-rate" placeholder="Rate" value="0" min="0" step="0.01" onchange="calculateRow(this)"></td>
+                    <td class="item-taxable">0.00</td>
+                    <td class="item-cgst">0.00</td>
+                    <td class="item-sgst">0.00</td>
+                    <td class="item-amount">0.00</td>
+                    <td><button onclick="removeItem(this)" class="btn-danger"><i class="fas fa-trash"></i></button></td>
+                `;
+            }
+            
+            tbody.appendChild(row);
+            
+            // Initialize autocomplete for the new row
+            if (!product) {
+                const input = row.querySelector('.item-name');
+                searchProducts(input);
+            }
+        }
+        
+        // Search products for autocomplete
+        function searchProducts(input) {
+            const searchTerm = input.value.toLowerCase();
+            const resultsContainer = input.parentNode.querySelector('.autocomplete-results');
+            
+            if (searchTerm.length < 2) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+            
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) || 
+                product.hsn.includes(searchTerm)
+            );
+            
+            if (filteredProducts.length === 0) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+            
+            resultsContainer.innerHTML = filteredProducts.map(product => `
+                <div class="autocomplete-item" 
+                     data-id="${product.id}"
+                     data-name="${product.name}"
+                     data-hsn="${product.hsn}"
+                     data-gst="${product.gst}"
+                     onclick="selectProduct(this, '${input.id}')">
+                    <strong>${product.name}</strong><br>
+                    <small>HSN: ${product.hsn} | GST: ${product.gst}% | ${product.description}</small>
+                </div>
+            `).join('');
+            
+            resultsContainer.style.display = 'block';
+        }
+        
+        // Select product from autocomplete
+        function selectProduct(item, inputId) {
+            const product = {
+                id: item.getAttribute('data-id'),
+                name: item.getAttribute('data-name'),
+                hsn: item.getAttribute('data-hsn'),
+                gst: item.getAttribute('data-gst')
+            };
+            
+            const row = item.closest('tr') || document.querySelector(`#${inputId}`).closest('tr');
+            
+            row.querySelector('.item-name').value = product.name;
+            row.querySelector('.item-hsn').value = product.hsn;
+            row.querySelector('.item-gst').value = product.gst;
+            row.querySelector('.item-name').setAttribute('data-product-id', product.id);
+            
+            // Hide results
+            item.closest('.autocomplete-results').style.display = 'none';
+            
+            // Focus on quantity
+            row.querySelector('.item-qty').focus();
+        }
+        
+        // Remove an item row
+        function removeItem(button) {
+            const row = button.closest('tr');
+            row.remove();
+            updateItemNumbers();
+            calculateTotals();
+        }
+        
+        // Update item numbers sequentially
+        function updateItemNumbers() {
+            const rows = document.querySelectorAll('#itemsBody tr');
+            rows.forEach((row, index) => {
+                row.cells[0].textContent = index + 1;
+            });
+        }
+        
+        // Calculate row amounts
+        function calculateRow(input) {
+            const row = input.closest('tr');
+            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+            const gst = parseFloat(row.querySelector('.item-gst').value) || 0;
+            
+            const taxable = qty * rate;
+            const cgst = taxable * (gst / 200); // Divided by 200 because 14% of taxable is 28%/2
+            const sgst = cgst; // Same as CGST
+            const amount = taxable + cgst + sgst;
+            
+            row.querySelector('.item-taxable').textContent = taxable.toFixed(2);
+            row.querySelector('.item-cgst').textContent = cgst.toFixed(2);
+            row.querySelector('.item-sgst').textContent = sgst.toFixed(2);
+            row.querySelector('.item-amount').textContent = amount.toFixed(2);
+            
+            calculateTotals();
+        }
+        
+        // Calculate invoice totals
+        function calculateTotals() {
+            let taxableTotal = 0;
+            let cgstTotal = 0;
+            let sgstTotal = 0;
+            let amountTotal = 0;
+            
+            document.querySelectorAll('#itemsBody tr').forEach(row => {
+                taxableTotal += parseFloat(row.querySelector('.item-taxable').textContent) || 0;
+                cgstTotal += parseFloat(row.querySelector('.item-cgst').textContent) || 0;
+                sgstTotal += parseFloat(row.querySelector('.item-sgst').textContent) || 0;
+                amountTotal += parseFloat(row.querySelector('.item-amount').textContent) || 0;
+            });
+            
+            return {
+                taxable: taxableTotal,
+                cgst: cgstTotal,
+                sgst: sgstTotal,
+                total: amountTotal
+            };
+        }
+        
+        // Generate invoice preview
+        function generateInvoice() {
+            const invoiceNo = document.getElementById('invoiceNo').value;
+            const invoiceDate = document.getElementById('invoiceDate').value;
+            const dueDate = document.getElementById('dueDate').value;
+            const referenceNo = document.getElementById('referenceNo').value;
+            
+            const sellerName = document.getElementById('sellerName').value;
+            const sellerAddress = document.getElementById('sellerAddress').value;
+            const sellerGST = document.getElementById('sellerGST').value;
+            const sellerStateCode = document.getElementById('sellerStateCode').value;
+            
+            const billToName = document.getElementById('billToName').value;
+            const billToAddress = document.getElementById('billToAddress').value;
+            const billToGST = document.getElementById('billToGST').value;
+            const billToStateCode = document.getElementById('billToStateCode').value;
+            
+            const sameAsBillTo = document.getElementById('sameAsBillTo').checked;
+            const shipToName = sameAsBillTo ? billToName : document.getElementById('shipToName').value;
+            const shipToAddress = sameAsBillTo ? billToAddress : document.getElementById('shipToAddress').value;
+            const shipToGST = sameAsBillTo ? billToGST : document.getElementById('shipToGST').value;
+            const shipToStateCode = sameAsBillTo ? billToStateCode : document.getElementById('shipToStateCode').value;
+            
+            const transportMode = document.getElementById('transportMode').value;
+            const vehicleNo = document.getElementById('vehicleNo').value;
+            const ewayBillNo = document.getElementById('ewayBillNo').value;
+            
+            const notes = document.getElementById('notes').value;
+            
+            // Get items
+            const items = [];
+            document.querySelectorAll('#itemsBody tr').forEach(row => {
+                items.push({
+                    name: row.querySelector('.item-name').value,
+                    hsn: row.querySelector('.item-hsn').value,
+                    gst: row.querySelector('.item-gst').value,
+                    qty: row.querySelector('.item-qty').value,
+                    rate: row.querySelector('.item-rate').value,
+                    taxable: row.querySelector('.item-taxable').textContent,
+                    cgst: row.querySelector('.item-cgst').textContent,
+                    sgst: row.querySelector('.item-sgst').textContent,
+                    amount: row.querySelector('.item-amount').textContent
+                });
+            });
+            
+            const totals = calculateTotals();
+            
+            // Generate HTML for invoice
+            const invoiceHTML = `
+                <div class="invoice-header">
+                    <div class="company-info">
+                        <div class="company-name">${sellerName}</div>
+                        <div>${sellerAddress.replace(/\n/g, '<br>')}</div>
+                        <div>GSTIN: ${sellerGST} | State Code: ${sellerStateCode}</div>
+                    </div>
+                    <div>
+                        <div class="invoice-number">Invoice No: ${invoiceNo}</div>
+                        <div class="invoice-date">Date: ${new Date(invoiceDate).toLocaleDateString()}</div>
+                        <div>Due Date: ${new Date(dueDate).toLocaleDateString()}</div>
+                    </div>
+                </div>
+                
+                <div class="invoice-title">TAX INVOICE</div>
+                
+                <div class="address-block">
+                    <div class="from-address">
+                        <div class="address-title">From</div>
+                        <div><strong>${sellerName}</strong></div>
+                        <div>${sellerAddress.replace(/\n/g, '<br>')}</div>
+                        <div>GSTIN: ${sellerGST}</div>
+                        <div>State Code: ${sellerStateCode}</div>
+                    </div>
+                    <div class="bill-to-address">
+                        <div class="address-title">Bill To</div>
+                        <div><strong>${billToName}</strong></div>
+                        <div>${billToAddress.replace(/\n/g, '<br>')}</div>
+                        <div>GSTIN: ${billToGST}</div>
+                        <div>State Code: ${billToStateCode}</div>
+                    </div>
+                    <div class="ship-to-address">
+                        <div class="address-title">Ship To</div>
+                        <div><strong>${shipToName}</strong></div>
+                        <div>${shipToAddress.replace(/\n/g, '<br>')}</div>
+                        <div>GSTIN: ${shipToGST}</div>
+                        <div>State Code: ${shipToStateCode}</div>
+                    </div>
+                </div>
+                
+                <div class="invoice-meta">
+                    <div><strong>Transport Mode:</strong> ${transportMode}</div>
+                    <div><strong>Vehicle No:</strong> ${vehicleNo}</div>
+                    <div><strong>eWay Bill No:</strong> ${ewayBillNo}</div>
+                </div>
+                
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Description of Goods</th>
+                            <th>HSN Code</th>
+                            <th>GST %</th>
+                            <th>Qty</th> 
+                                                        <th>Rate</th>
+                            <th>Taxable Value</th>
+                            <th>CGST</th>
+                            <th>SGST</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${items.map((item, index) => `
+                            <tr>
+                                <td class="text-center">${index + 1}</td>
+                                <td>${item.name}</td>
+                                <td class="text-center">${item.hsn}</td>
+                                <td class="text-center">${item.gst}%</td>
+                                <td class="text-center">${item.qty}</td>
+                                <td class="text-right">${parseFloat(item.rate).toFixed(2)}</td>
+                                <td class="text-right">${item.taxable}</td>
+                                <td class="text-right">${item.cgst}</td>
+                                <td class="text-right">${item.sgst}</td>
+                                <td class="text-right">${item.amount}</td>
+                            </tr>
+                        `).join('')}
+                        <tr class="total-row">
+                            <td colspan="6" class="text-right"><strong>Total</strong></td>
+                            <td class="text-right">${totals.taxable.toFixed(2)}</td>
+                            <td class="text-right">${totals.cgst.toFixed(2)}</td>
+                            <td class="text-right">${totals.sgst.toFixed(2)}</td>
+                            <td class="text-right">${totals.total.toFixed(2)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="tax-details">
+                    <table>
+                        <tr>
+                            <td><strong>Total Taxable Amount:</strong></td>
+                            <td class="text-right">${totals.taxable.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total CGST:</strong></td>
+                            <td class="text-right">${totals.cgst.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total SGST:</strong></td>
+                            <td class="text-right">${totals.sgst.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Invoice Total:</strong></td>
+                            <td class="text-right">${totals.total.toFixed(2)}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="amount-in-words">
+                    <strong>Amount in Words:</strong> ${numberToWords(totals.total)} Rupees Only
+                </div>
+                
+                <div class="signature-area">
+                    <div class="signature">
+                        <div class="signature-line"></div>
+                        <div>Authorized Signatory</div>
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <div>${notes}</div>
+                    <div>Thank you for your business!</div>
+                </div>
+            `;
+            
+            document.getElementById('invoicePreview').innerHTML = invoiceHTML;
+        }
+        
+        // Convert number to words
+        function numberToWords(num) {
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 
+                          'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 
+                          'Eighteen', 'Nineteen'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            
+            function convertLessThanOneThousand(n) {
+                if (n === 0) return '';
+                if (n < 20) return ones[n];
+                if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '');
+                return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertLessThanOneThousand(n % 100) : '');
+            }
+            
+            if (num === 0) return 'Zero';
+            let result = '';
+            const numStr = num.toString().split('.');
+            const wholeNum = parseInt(numStr[0]);
+            const decimalNum = numStr.length > 1 ? parseInt(numStr[1]) : 0;
+            
+            if (wholeNum >= 10000000) {
+                result += convertLessThanOneThousand(Math.floor(wholeNum / 10000000)) + ' Crore ';
+                wholeNum %= 10000000;
+            }
+            
+            if (wholeNum >= 100000) {
+                result += convertLessThanOneThousand(Math.floor(wholeNum / 100000)) + ' Lakh ';
+                wholeNum %= 100000;
+            }
+            
+            if (wholeNum >= 1000) {
+                result += convertLessThanOneThousand(Math.floor(wholeNum / 1000)) + ' Thousand ';
+                wholeNum %= 1000;
+            }
+            
+            if (wholeNum > 0) {
+                result += convertLessThanOneThousand(wholeNum);
+            }
+            
+            if (decimalNum > 0) {
+                result += ' and ' + convertLessThanOneThousand(decimalNum) + ' Paise';
+            }
+            
+            return result.trim();
+        }
+        
+        // Print invoice
+        function printInvoice() {
+            window.print();
+        }
+        
+        // Export to PDF
+        function exportToPDF() {
+            const element = document.getElementById('invoicePreview');
+            
+            html2canvas(element, {
+                scale: 2,
+                logging: false,
+                useCORS: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 295; // A4 height in mm
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+                
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                pdf.save('Invoice_' + document.getElementById('invoiceNo').value + '.pdf');
+            });
+        }
+        
+        // Save invoice to history
+        function saveInvoice() {
+            const invoiceData = {
+                id: Date.now(),
+                invoiceNo: document.getElementById('invoiceNo').value,
+                invoiceDate: document.getElementById('invoiceDate').value,
+                customerName: document.getElementById('billToName').value,
+                totalAmount: calculateTotals().total.toFixed(2),
+                items: []
+            };
+            
+            document.querySelectorAll('#itemsBody tr').forEach(row => {
+                invoiceData.items.push({
+                    name: row.querySelector('.item-name').value,
+                    qty: row.querySelector('.item-qty').value,
+                    rate: row.querySelector('.item-rate').value,
+                    amount: row.querySelector('.item-amount').textContent
+                });
+            });
+            
+            let history = JSON.parse(localStorage.getItem('invoiceHistory')) || [];
+            history.unshift(invoiceData);
+            localStorage.setItem('invoiceHistory', JSON.stringify(history));
+            
+            loadHistory();
+            alert('Invoice saved successfully!');
+        }
+        
+        // Load invoice history
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('invoiceHistory')) || [];
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p>No saved invoices found.</p>';
+                return;
+            }
+            
+            historyList.innerHTML = history.map(invoice => `
+                <div class="history-item">
+                    <h3>${invoice.invoiceNo} - ${invoice.customerName}</h3>
+                    <p><strong>Date:</strong> ${new Date(invoice.invoiceDate).toLocaleDateString()}</p>
+                    <p><strong>Total Amount:</strong> ₹${invoice.totalAmount}</p>
+                    <div class="history-actions">
+                        <button onclick="loadInvoice(${invoice.id})"><i class="fas fa-eye"></i> View</button>
+                        <button onclick="deleteInvoice(${invoice.id})" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Load invoice from history
+        function loadInvoice(id) {
+            const history = JSON.parse(localStorage.getItem('invoiceHistory')) || [];
+            const invoice = history.find(inv => inv.id === id);
+            
+            if (!invoice) {
+                alert('Invoice not found!');
+                return;
+            }
+            
+            // Open the invoice tab
+            openTab('invoice-tab');
+            
+            // Load basic info
+            document.getElementById('invoiceNo').value = invoice.invoiceNo;
+            document.getElementById('invoiceDate').value = invoice.invoiceDate;
+            document.getElementById('billToName').value = invoice.customerName;
+            
+            // Clear existing items
+            document.getElementById('itemsBody').innerHTML = '';
+            
+            // Add items
+            invoice.items.forEach(item => {
+                addItem();
+                const rows = document.querySelectorAll('#itemsBody tr');
+                const lastRow = rows[rows.length - 1];
+                
+                lastRow.querySelector('.item-name').value = item.name;
+                lastRow.querySelector('.item-qty').value = item.qty;
+                lastRow.querySelector('.item-rate').value = item.rate;
+                
+                // Trigger calculation
+                calculateRow(lastRow.querySelector('.item-rate'));
+            });
+            
+            // Generate preview
+            generateInvoice();
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Delete invoice from history
+        function deleteInvoice(id) {
+            if (!confirm('Are you sure you want to delete this invoice?')) return;
+            
+            let history = JSON.parse(localStorage.getItem('invoiceHistory')) || [];
+            history = history.filter(inv => inv.id !== id);
+            localStorage.setItem('invoiceHistory', JSON.stringify(history));
+            
+            loadHistory();
+        }
+        
+        // Clear form
+        function clearForm() {
+            if (!confirm('Are you sure you want to clear the form? All unsaved data will be lost.')) return;
+            
+            // Reset form fields
+            document.getElementById('invoiceNo').value = 'INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('invoiceDate').valueAsDate = new Date();
+            
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 30);
+            document.getElementById('dueDate').valueAsDate = dueDate;
+            
+            document.getElementById('referenceNo').value = '';
+            document.getElementById('sellerName').value = 'SUPREME ENTERPRISES';
+            document.getElementById('sellerGST').value = '';
+            document.getElementById('sellerStateCode').value = '';
+            document.getElementById('sellerAddress').value = '';
+            document.getElementById('billToName').value = '';
+            document.getElementById('billToGST').value = '';
+            document.getElementById('billToStateCode').value = '';
+            document.getElementById('billToAddress').value = '';
+            document.getElementById('sameAsBillTo').checked = true;
+            document.getElementById('shipToName').value = '';
+            document.getElementById('shipToGST').value = '';
+            document.getElementById('shipToStateCode').value = '';
+            document.getElementById('shipToAddress').value = '';
+            document.getElementById('transportMode').value = '';
+            document.getElementById('vehicleNo').value = '';
+            document.getElementById('ewayBillNo').value = '';
+            document.getElementById('notes').value = 'E. & O.E';
+            
+            // Clear items and add 3 empty rows
+            document.getElementById('itemsBody').innerHTML = '';
+            addItem();
+            addItem();
+            addItem();
+            
+            // Generate empty preview
+            generateInvoice();
+        }
+        
+        // Close autocomplete when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.item-name')) {
+                document.querySelectorAll('.autocomplete-results').forEach(results => {
+                    results.style.display = 'none';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
