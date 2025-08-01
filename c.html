@@ -397,12 +397,18 @@
         
         // Display invoice data
         function displayInvoice(invoice) {
-            const totals = {
-                taxable: invoice.items.reduce((sum, item) => sum + parseFloat(item.taxable), 0),
-                cgst: invoice.items.reduce((sum, item) => sum + parseFloat(item.cgst), 0),
-                sgst: invoice.items.reduce((sum, item) => sum + parseFloat(item.sgst), 0),
-                total: invoice.items.reduce((sum, item) => sum + parseFloat(item.amount), 0)
-            };
+            // Calculate totals
+            let taxableTotal = 0;
+            let cgstTotal = 0;
+            let sgstTotal = 0;
+            let amountTotal = 0;
+            
+            invoice.items.forEach(item => {
+                taxableTotal += parseFloat(item.taxable) || 0;
+                cgstTotal += parseFloat(item.cgst) || 0;
+                sgstTotal += parseFloat(item.sgst) || 0;
+                amountTotal += parseFloat(item.amount) || 0;
+            });
             
             const invoiceHTML = `
                 <div class="invoice-header">
@@ -485,10 +491,10 @@
                         `).join('')}
                         <tr class="total-row">
                             <td colspan="6" class="text-right"><strong>Total</strong></td>
-                            <td class="text-right">${totals.taxable.toFixed(2)}</td>
-                            <td class="text-right">${totals.cgst.toFixed(2)}</td>
-                            <td class="text-right">${totals.sgst.toFixed(2)}</td>
-                            <td class="text-right">${totals.total.toFixed(2)}</td>
+                            <td class="text-right">${taxableTotal.toFixed(2)}</td>
+                            <td class="text-right">${cgstTotal.toFixed(2)}</td>
+                            <td class="text-right">${sgstTotal.toFixed(2)}</td>
+                            <td class="text-right">${amountTotal.toFixed(2)}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -497,25 +503,25 @@
                     <table>
                         <tr>
                             <td><strong>Total Taxable Amount:</strong></td>
-                            <td class="text-right">${totals.taxable.toFixed(2)}</td>
+                            <td class="text-right">${taxableTotal.toFixed(2)}</td>
                         </tr>
                         <tr>
                             <td><strong>Total CGST:</strong></td>
-                            <td class="text-right">${totals.cgst.toFixed(2)}</td>
+                            <td class="text-right">${cgstTotal.toFixed(2)}</td>
                         </tr>
                         <tr>
                             <td><strong>Total SGST:</strong></td>
-                            <td class="text-right">${totals.sgst.toFixed(2)}</td>
+                            <td class="text-right">${sgstTotal.toFixed(2)}</td>
                         </tr>
                         <tr>
                             <td><strong>Invoice Total:</strong></td>
-                            <td class="text-right">${totals.total.toFixed(2)}</td>
+                            <td class="text-right">${amountTotal.toFixed(2)}</td>
                         </tr>
                     </table>
                 </div>
                 
                 <div class="amount-in-words">
-                    <strong>Amount in Words:</strong> ${numberToWords(totals.total)} Rupees Only
+                    <strong>Amount in Words:</strong> ${numberToWords(amountTotal)} Rupees Only
                 </div>
                 
                 <div class="signature-area">
@@ -560,23 +566,27 @@
             }
             
             if (num === 0) return 'Zero';
+            
             let result = '';
             const numStr = num.toString().split('.');
-            const wholeNum = parseInt(numStr[0]);
+            let wholeNum = parseInt(numStr[0]);
             const decimalNum = numStr.length > 1 ? parseInt(numStr[1]) : 0;
             
             if (wholeNum >= 10000000) {
-                result += convertLessThanOneThousand(Math.floor(wholeNum / 10000000)) + ' Crore ';
+                const crores = Math.floor(wholeNum / 10000000);
+                result += convertLessThanOneThousand(crores) + ' Crore ';
                 wholeNum %= 10000000;
             }
             
             if (wholeNum >= 100000) {
-                result += convertLessThanOneThousand(Math.floor(wholeNum / 100000)) + ' Lakh ';
+                const lakhs = Math.floor(wholeNum / 100000);
+                result += convertLessThanOneThousand(lakhs) + ' Lakh ';
                 wholeNum %= 100000;
             }
             
             if (wholeNum >= 1000) {
-                result += convertLessThanOneThousand(Math.floor(wholeNum / 1000)) + ' Thousand ';
+                const thousands = Math.floor(wholeNum / 1000);
+                result += convertLessThanOneThousand(thousands) + ' Thousand ';
                 wholeNum %= 1000;
             }
             
@@ -618,7 +628,8 @@
                     heightLeft -= pageHeight;
                 }
                 
-                pdf.save(`Invoice_${document.querySelector('.invoice-number').textContent.replace('Invoice No: ', '')}.pdf`);
+                const invoiceNumber = document.querySelector('.invoice-number').textContent.replace('Invoice No: ', '');
+                pdf.save(`Invoice_${invoiceNumber}.pdf`);
             });
         }
         
