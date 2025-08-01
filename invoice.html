@@ -741,9 +741,9 @@
         <div class="dashboard">
             <div class="dashboard-header">
                 <h1 class="dashboard-title">Invoice System</h1>
-                <img src="https://via.placeholder.com/150x50?text=SUPREME+ENTERPRISES" alt="Supreme Enterprises Logo" class="dashboard-logo">
+                <img src="https://admin.supremeenterpeises.com/img/2.png" alt="Supreme Enterprises Logo" class="dashboard-logo">
                 <div class="dashboard-user">
-                    <img id="user-photo" src="https://via.placeholder.com/40" alt="User Photo">
+                    <img id="user-photo" src="https://admin.supremeenterpeises.com/img/2.png" alt="User Photo">
                     <span id="user-name">Admin</span>
                     <button id="logout-btn" class="dashboard-logout">Logout</button>
                 </div>
@@ -1141,7 +1141,7 @@
                 } else {
                     // Not authorized - sign out
                     auth.signOut();
-                    showToast('Only admin@supremeenterpeises.com is authorized to access this system', true);
+                    showToast('Only admin@supremeenterpeises is authorized to access this system', true);
                 }
             } else {
                 // User is signed out
@@ -1763,7 +1763,8 @@
                 await db.collection('invoices').doc(invoiceData.id).set(invoiceData);
                 
                 // Generate shareable link
-                const shareLink = `${window.location.origin}${window.location.pathname}?invoice=${invoiceData.id}`;
+                // In the saveInvoice() function, replace the shareLink generation with:
+                const shareLink = `https://admin.supremeenterpeises.com/c?invoice=${invoiceData.id}`;
                 
                 // Show success message with share link
                 showToast('Invoice saved successfully!');
