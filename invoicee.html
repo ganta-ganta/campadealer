@@ -1088,1710 +1088,1720 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
     <script>
-        // Initialize jsPDF
-        const { jsPDF } = window.jspdf;
-        
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzl1R3xsNUKQ9wO3DX8nHt3O0NkI6Cc_E",
-            authDomain: "cola-d7685.firebaseapp.com",
-            projectId: "cola-d7685",
-            storageBucket: "cola-d7685.appspot.com",
-            messagingSenderId: "206120855200",
-            appId: "1:206120855200:web:d88691337ce6a1b2dd4bc5",
-            measurementId: "G-W3VMM4VNM1"
-        };
+       // Initialize jsPDF
+const { jsPDF } = window.jspdf;
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+// Initialize Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBzl1R3xsNUKQ9wO3DX8nHt3O0NkI6Cc_E",
+    authDomain: "cola-d7685.firebaseapp.com",
+    projectId: "cola-d7685",
+    storageBucket: "cola-d7685.appspot.com",
+    messagingSenderId: "206120855200",
+    appId: "1:206120855200:web:d88691337ce6a1b2dd4bc5",
+    measurementId: "G-W3VMM4VNM1"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// Product database with HSN codes and GST rates
+let products = [
+    { id: 1, name: "Campa Cola - 200ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+    { id: 2, name: "Power Up - 200ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+    { id: 3, name: "Orange - 200ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+    { id: 4, name: "Campa Soda - 500ml", hsn: "22011020", gst: 18, description: "Aerated water (not sweetened/flavoured)" },
+    { id: 5, name: "Campa Cola - 500ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+    { id: 6, name: "Orange - 500ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
+    { id: 7, name: "Gold Boost Tin", hsn: "22021090", gst: 28, description: "Energy drink (flavoured/sweetened beverage not under fruit juice)" },
+    { id: 8, name: "Berry Kick - 200ml", hsn: "22021090", gst: 28, description: "Energy drink (flavoured/sweetened)" },
+    { id: 9, name: "Lemon - 200ml", hsn: "22021010", gst: 28, description: "Flavoured aerated beverage" },
+    { id: 10, name: "Raskik Tetra Mango - 125ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink (tetra pack)" },
+    { id: 11, name: "Raskik Mango - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
+    { id: 12, name: "Raskik Nimbu Pani - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
+    { id: 13, name: "Raskik Apple Drink - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
+    { id: 14, name: "Raskik Mixed Fruit - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
+    { id: 15, name: "Raskik Glucose - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink (glucose added)" },
+    { id: 16, name: "Spinner Lemon - 150ml", hsn: "22029100", gst: 18, description: "Other non-alcoholic beverages (non-coconut water)" },
+    { id: 17, name: "Spinner Orange - 150ml", hsn: "22029100", gst: 18, description: "Other non-alcoholic beverages (non-coconut water)" },
+    { id: 18, name: "Spinner Nitro - 150ml", hsn: "22029100", gst: 18, description: "Other non-alcoholic beverages (non-coconut water)" },
+    { id: 19, name: "Independence Water - 750ml", hsn: "22011010", gst: 18, description: "Mineral/Aerated water (unflavoured & unsweetened)" }
+];
+
+// Check authentication state on page load
+auth.onAuthStateChanged(user => {
+    if (user) {
+        // User is signed in
+        if (user.email === 'admin@supremeenterpeises.com') {
+            // Show admin dashboard
+            showAdminDashboard(user);
+        } else {
+            // Not authorized - sign out
+            auth.signOut();
+            showToast('Only admin@supremeenterpeises.com is authorized to access this system', true);
+        }
+    } else {
+        // User is signed out
+        showAuthContainer();
+    }
+    
+    // Check if we're viewing a shared invoice
+    checkSharedInvoice();
+});
+
+// Login form submission
+document.getElementById('login-form').addEventListener('submit', e => {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+            // Login successful
+            showToast('Login successful!');
+        })
+        .catch(error => {
+            // Login failed
+            showToast(error.message, true);
+        });
+});
+
+// Logout button
+document.getElementById('logout-btn').addEventListener('click', () => {
+    auth.signOut()
+        .then(() => {
+            showToast('Logged out successfully');
+            window.location.href = window.location.pathname; // Clear any query params
+        })
+        .catch(error => {
+            showToast(error.message, true);
+        });
+});
+
+// Show auth container
+function showAuthContainer() {
+    document.getElementById('auth-container').style.display = 'flex';
+    document.getElementById('admin-dashboard').style.display = 'none';
+    document.getElementById('customer-view').style.display = 'none';
+}
+
+// Show admin dashboard
+function showAdminDashboard(user) {
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'block';
+    document.getElementById('customer-view').style.display = 'none';
+    
+    // Set user info
+    document.getElementById('user-name').textContent = user.email;
+    if (user.photoURL) {
+        document.getElementById('user-photo').src = user.photoURL;
+    }
+    
+    // Initialize form
+    initInvoiceForm();
+    loadHistory();
+    loadClients();
+    loadSettings();
+    loadProducts();
+}
+
+// Show customer view
+function showCustomerView(invoice) {
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'none';
+    document.getElementById('customer-view').style.display = 'block';
+    
+    // Display invoice
+    displayInvoiceForCustomer(invoice);
+}
+
+// Initialize invoice form
+function initInvoiceForm() {
+    // Set default values
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('invoiceDate').value = today;
+    
+    // Set due date to 30 days from now
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 30);
+    document.getElementById('dueDate').value = dueDate.toISOString().split('T')[0];
+    
+    // Generate invoice number from settings
+    generateInvoiceNumber();
+    
+    // Add 3 empty items by default
+    addItem();
+    addItem();
+    addItem();
+    
+    generateInvoice();
+}
+
+// Generate invoice number from settings
+function generateInvoiceNumber() {
+    const settings = JSON.parse(localStorage.getItem('settings')) || {};
+    if (settings.invoice) {
+        const prefix = settings.invoice.prefix || 'INV';
+        const nextNumber = settings.invoice.nextNumber || 1001;
+        const year = new Date().getFullYear();
+        document.getElementById('invoiceNo').value = `${prefix}-${year}-${nextNumber}`;
+    } else {
+        document.getElementById('invoiceNo').value = 'INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+    }
+}
+
+// Show toast notification
+function showToast(message, isError = false) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = isError ? 'toast error show' : 'toast show';
+    
+    setTimeout(() => {
+        toast.className = 'toast';
+    }, 3000);
+}
+
+// Tab navigation - Updated version
+function openTab(tabId, event) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Deactivate all tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Activate the selected tab
+    document.getElementById(tabId).classList.add('active');
+    
+    // If called from an event (click), highlight the tab
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    } else {
+        // If called programmatically, find and highlight the corresponding tab
+        const tab = document.querySelector(`.tab[onclick*="${tabId}"]`);
+        if (tab) {
+            tab.classList.add('active');
+        }
+    }
+}
+
+// Toggle ship to address
+function toggleShipTo() {
+    const sameAsBillTo = document.getElementById('sameAsBillTo').checked;
+    const shipToFields = document.getElementById('shipToFields');
+    
+    if (sameAsBillTo) {
+        shipToFields.style.display = 'none';
+    } else {
+        shipToFields.style.display = 'block';
+    }
+}
+
+// Add a new item row
+function addItem(product = null) {
+    const tbody = document.getElementById('itemsBody');
+    const row = document.createElement('tr');
+    
+    if (product) {
+        row.innerHTML = `
+            <td>${tbody.children.length + 1}</td>
+            <td>
+                <div class="product-autocomplete">
+                    <input type="text" class="item-name" value="${product.name}" oninput="searchProducts(this)" data-product-id="${product.id}">
+                    <div class="autocomplete-results"></div>
+                </div>
+            </td>
+            <td><input type="text" class="item-hsn" value="${product.hsn}" readonly></td>
+            <td><input type="number" class="item-gst" value="${product.gst}" readonly></td>
+            <td><input type="number" class="item-qty" placeholder="Qty" value="1" min="1" onchange="calculateRow(this)"></td>
+            <td><input type="number" class="item-rate" placeholder="Rate" value="0" min="0" step="0.01" onchange="calculateRow(this)"></td>
+            <td class="item-taxable">0.00</td>
+            <td class="item-cgst">0.00</td>
+            <td class="item-sgst">0.00</td>
+            <td class="item-amount">0.00</td>
+            <td><button onclick="removeItem(this)" class="btn-danger"><i class="fas fa-trash"></i></button></td>
+        `;
+    } else {
+        row.innerHTML = `
+            <td>${tbody.children.length + 1}</td>
+            <td>
+                <div class="product-autocomplete">
+                    <input type="text" class="item-name" placeholder="Product Name" oninput="searchProducts(this)">
+                    <div class="autocomplete-results"></div>
+                </div>
+            </td>
+            <td><input type="text" class="item-hsn" placeholder="HSN" readonly></td>
+            <td><input type="number" class="item-gst" placeholder="GST %" readonly></td>
+            <td><input type="number" class="item-qty" placeholder="Qty" value="1" min="1" onchange="calculateRow(this)"></td>
+            <td><input type="number" class="item-rate" placeholder="Rate" value="0" min="0" step="0.01" onchange="calculateRow(this)"></td>
+            <td class="item-taxable">0.00</td>
+            <td class="item-cgst">0.00</td>
+            <td class="item-sgst">0.00</td>
+            <td class="item-amount">0.00</td>
+            <td><button onclick="removeItem(this)" class="btn-danger"><i class="fas fa-trash"></i></button></td>
+        `;
+    }
+    
+    tbody.appendChild(row);
+    
+    // Initialize autocomplete for the new row
+    if (!product) {
+        const input = row.querySelector('.item-name');
+        searchProducts(input);
+    }
+}
+
+// Search products for autocomplete
+function searchProducts(input) {
+    const searchTerm = input.value.toLowerCase();
+    const resultsContainer = input.parentNode.querySelector('.autocomplete-results');
+    
+    if (searchTerm.length < 2) {
+        resultsContainer.style.display = 'none';
+        return;
+    }
+    
+    const filteredProducts = products.filter(product => 
+        product.name.toLowerCase().includes(searchTerm) || 
+        product.hsn.includes(searchTerm)
+    );
+    
+    if (filteredProducts.length === 0) {
+        resultsContainer.style.display = 'none';
+        return;
+    }
+    
+    resultsContainer.innerHTML = filteredProducts.map(product => `
+        <div class="autocomplete-item" 
+             data-id="${product.id}"
+             data-name="${product.name}"
+             data-hsn="${product.hsn}"
+             data-gst="${product.gst}"
+             onclick="selectProduct(this, '${input.id}')">
+            <strong>${product.name}</strong><br>
+            <small>HSN: ${product.hsn} | GST: ${product.gst}% | ${product.description}</small>
+        </div>
+    `).join('');
+    
+    resultsContainer.style.display = 'block';
+}
+
+// Select product from autocomplete
+function selectProduct(item, inputId) {
+    const product = {
+        id: item.getAttribute('data-id'),
+        name: item.getAttribute('data-name'),
+        hsn: item.getAttribute('data-hsn'),
+        gst: item.getAttribute('data-gst')
+    };
+    
+    const row = item.closest('tr') || document.querySelector(`#${inputId}`).closest('tr');
+    
+    row.querySelector('.item-name').value = product.name;
+    row.querySelector('.item-hsn').value = product.hsn;
+    row.querySelector('.item-gst').value = product.gst;
+    row.querySelector('.item-name').setAttribute('data-product-id', product.id);
+    
+    // Hide results
+    item.closest('.autocomplete-results').style.display = 'none';
+    
+    // Focus on quantity
+    row.querySelector('.item-qty').focus();
+}
+
+// Remove an item row
+function removeItem(button) {
+    const row = button.closest('tr');
+    row.remove();
+    updateItemNumbers();
+    calculateTotals();
+}
+
+// Update item numbers sequentially
+function updateItemNumbers() {
+    const rows = document.querySelectorAll('#itemsBody tr');
+    rows.forEach((row, index) => {
+        row.cells[0].textContent = index + 1;
+    });
+}
+
+// Calculate row amounts
+function calculateRow(input) {
+    const row = input.closest('tr');
+    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+    const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+    const gst = parseFloat(row.querySelector('.item-gst').value) || 0;
+    
+    const taxable = qty * rate;
+    const cgst = taxable * (gst / 200); // Divided by 200 because 14% of taxable is 28%/2
+    const sgst = cgst; // Same as CGST
+    const amount = taxable + cgst + sgst;
+    
+    row.querySelector('.item-taxable').textContent = taxable.toFixed(2);
+    row.querySelector('.item-cgst').textContent = cgst.toFixed(2);
+    row.querySelector('.item-sgst').textContent = sgst.toFixed(2);
+    row.querySelector('.item-amount').textContent = amount.toFixed(2);
+    
+    calculateTotals();
+}
+
+// Calculate invoice totals
+function calculateTotals() {
+    let taxableTotal = 0;
+    let cgstTotal = 0;
+    let sgstTotal = 0;
+    let amountTotal = 0;
+    
+    document.querySelectorAll('#itemsBody tr').forEach(row => {
+        taxableTotal += parseFloat(row.querySelector('.item-taxable').textContent) || 0;
+        cgstTotal += parseFloat(row.querySelector('.item-cgst').textContent) || 0;
+        sgstTotal += parseFloat(row.querySelector('.item-sgst').textContent) || 0;
+        amountTotal += parseFloat(row.querySelector('.item-amount').textContent) || 0;
+    });
+    
+    return {
+        taxable: taxableTotal,
+        cgst: cgstTotal,
+        sgst: sgstTotal,
+        total: amountTotal
+    };
+}
+
+// Generate invoice preview
+function generateInvoice() {
+    const invoiceNo = document.getElementById('invoiceNo').value;
+    const invoiceDate = document.getElementById('invoiceDate').value;
+    const dueDate = document.getElementById('dueDate').value;
+    const referenceNo = document.getElementById('referenceNo').value;
+    
+    const sellerName = document.getElementById('sellerName').value;
+    const sellerAddress = document.getElementById('sellerAddress').value;
+    const sellerGST = document.getElementById('sellerGST').value;
+    const sellerStateCode = document.getElementById('sellerStateCode').value;
+    
+    const billToName = document.getElementById('billToName').value;
+    const billToAddress = document.getElementById('billToAddress').value;
+    const billToGST = document.getElementById('billToGST').value;
+    const billToStateCode = document.getElementById('billToStateCode').value;
+    
+    const sameAsBillTo = document.getElementById('sameAsBillTo').checked;
+    const shipToName = sameAsBillTo ? billToName : document.getElementById('shipToName').value;
+    const shipToAddress = sameAsBillTo ? billToAddress : document.getElementById('shipToAddress').value;
+    const shipToGST = sameAsBillTo ? billToGST : document.getElementById('shipToGST').value;
+    const shipToStateCode = sameAsBillTo ? billToStateCode : document.getElementById('shipToStateCode').value;
+    
+    const transportMode = document.getElementById('transportMode').value;
+    const vehicleNo = document.getElementById('vehicleNo').value;
+    const ewayBillNo = document.getElementById('ewayBillNo').value;
+    
+    const notes = document.getElementById('notes').value;
+    
+    // Get signature image from settings
+    const signatureImageUrl = document.getElementById('signatureImageUrl').value;
+    
+    // Get items
+    const items = [];
+    document.querySelectorAll('#itemsBody tr').forEach(row => {
+        items.push({
+            name: row.querySelector('.item-name').value,
+            hsn: row.querySelector('.item-hsn').value,
+            gst: row.querySelector('.item-gst').value,
+            qty: row.querySelector('.item-qty').value,
+            rate: row.querySelector('.item-rate').value,
+            taxable: row.querySelector('.item-taxable').textContent,
+            cgst: row.querySelector('.item-cgst').textContent,
+            sgst: row.querySelector('.item-sgst').textContent,
+            amount: row.querySelector('.item-amount').textContent
+        });
+    });
+    
+    const totals = calculateTotals();
+    
+    // Generate HTML for invoice
+    const invoiceHTML = `
+        <div class="invoice-header">
+            <div class="company-info">
+                <div class="company-name">${sellerName}</div>
+                <div>${sellerAddress.replace(/\n/g, '<br>')}</div>
+                <div>GSTIN: ${sellerGST} | State Code: ${sellerStateCode}</div>
+            </div>
+            <div>
+                <div class="invoice-number">Invoice No: ${invoiceNo}</div>
+                <div class="invoice-date">Date: ${formatDate(invoiceDate)}</div>
+                <div>Due Date: ${formatDate(dueDate)}</div>
+            </div>
+        </div>
         
-        // Product database with HSN codes and GST rates
-        let products = [
-            { id: 1, name: "Campa Cola - 200ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
-            { id: 2, name: "Power Up - 200ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
-            { id: 3, name: "Orange - 200ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
-            { id: 4, name: "Campa Soda - 500ml", hsn: "22011020", gst: 18, description: "Aerated water (not sweetened/flavoured)" },
-            { id: 5, name: "Campa Cola - 500ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
-            { id: 6, name: "Orange - 500ml", hsn: "22021010", gst: 28, description: "Flavoured sweetened aerated beverage" },
-            { id: 7, name: "Gold Boost Tin", hsn: "22021090", gst: 28, description: "Energy drink (flavoured/sweetened beverage not under fruit juice)" },
-            { id: 8, name: "Berry Kick - 200ml", hsn: "22021090", gst: 28, description: "Energy drink (flavoured/sweetened)" },
-            { id: 9, name: "Lemon - 200ml", hsn: "22021010", gst: 28, description: "Flavoured aerated beverage" },
-            { id: 10, name: "Raskik Tetra Mango - 125ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink (tetra pack)" },
-            { id: 11, name: "Raskik Mango - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
-            { id: 12, name: "Raskik Nimbu Pani - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
-            { id: 13, name: "Raskik Apple Drink - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
-            { id: 14, name: "Raskik Mixed Fruit - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink" },
-            { id: 15, name: "Raskik Glucose - 150ml", hsn: "22029920", gst: 12, description: "Fruit juice–based drink (glucose added)" },
-            { id: 16, name: "Spinner Lemon - 150ml", hsn: "22029100", gst: 18, description: "Other non-alcoholic beverages (non-coconut water)" },
-            { id: 17, name: "Spinner Orange - 150ml", hsn: "22029100", gst: 18, description: "Other non-alcoholic beverages (non-coconut water)" },
-            { id: 18, name: "Spinner Nitro - 150ml", hsn: "22029100", gst: 18, description: "Other non-alcoholic beverages (non-coconut water)" },
-            { id: 19, name: "Independence Water - 750ml", hsn: "22011010", gst: 18, description: "Mineral/Aerated water (unflavoured & unsweetened)" }
-        ];
+        <div class="invoice-title">TAX INVOICE</div>
         
-        // Check authentication state on page load
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // User is signed in
-                if (user.email === 'admin@supremeenterpeises.com') {
-                    // Show admin dashboard
-                    showAdminDashboard(user);
-                } else {
-                    // Not authorized - sign out
-                    auth.signOut();
-                    showToast('Only admin@supremeenterpeises.com is authorized to access this system', true);
-                }
-            } else {
-                // User is signed out
-                showAuthContainer();
-            }
-            
-            // Check if we're viewing a shared invoice
-            checkSharedInvoice();
+        <div class="address-block">
+            <div class="from-address">
+                <div class="address-title">From</div>
+                <div><strong>${sellerName}</strong></div>
+                <div>${sellerAddress.replace(/\n/g, '<br>')}</div>
+                <div>GSTIN: ${sellerGST}</div>
+                <div>State Code: ${sellerStateCode}</div>
+            </div>
+            <div class="bill-to-address">
+                <div class="address-title">Bill To</div>
+                <div><strong>${billToName}</strong></div>
+                <div>${billToAddress.replace(/\n/g, '<br>')}</div>
+                <div>GSTIN: ${billToGST}</div>
+                <div>State Code: ${billToStateCode}</div>
+            </div>
+            <div class="ship-to-address">
+                <div class="address-title">Ship To</div>
+                <div><strong>${shipToName}</strong></div>
+                <div>${shipToAddress.replace(/\n/g, '<br>')}</div>
+                <div>GSTIN: ${shipToGST}</div>
+                <div>State Code: ${shipToStateCode}</div>
+            </div>
+        </div>
+        
+        <div class="invoice-meta">
+            <div><strong>Transport Mode:</strong> ${transportMode}</div>
+            <div><strong>Vehicle No:</strong> ${vehicleNo}</div>
+            <div><strong>eWay Bill No:</strong> ${ewayBillNo}</div>
+        </div>
+        
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Description of Goods</th>
+                    <th>HSN Code</th>
+                    <th>GST %</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Taxable Value</th>
+                    <th>CGST</th>
+                    <th>SGST</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${items.map((item, index) => `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td class="text-center">${item.hsn}</td>
+                        <td class="text-center">${item.gst}%</td>
+                        <td class="text-center">${item.qty}</td>
+                        <td class="text-right">${parseFloat(item.rate).toFixed(2)}</td>
+                        <td class="text-right">${item.taxable}</td>
+                        <td class="text-right">${item.cgst}</td>
+                        <td class="text-right">${item.sgst}</td>
+                        <td class="text-right">${item.amount}</td>
+                    </tr>
+                `).join('')}
+                <tr class="total-row">
+                    <td colspan="6" class="text-right"><strong>Total</strong></td>
+                    <td class="text-right">${totals.taxable.toFixed(2)}</td>
+                    <td class="text-right">${totals.cgst.toFixed(2)}</td>
+                    <td class="text-right">${totals.sgst.toFixed(2)}</td>
+                    <td class="text-right">${totals.total.toFixed(2)}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="tax-details">
+            <table>
+                <tr>
+                    <td><strong>Total Taxable Amount:</strong></td>
+                    <td class="text-right">${totals.taxable.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Total CGST:</strong></td>
+                    <td class="text-right">${totals.cgst.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Total SGST:</strong></td>
+                    <td class="text-right">${totals.sgst.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Invoice Total:</strong></td>
+                    <td class="text-right">${totals.total.toFixed(2)}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="amount-in-words">
+            <strong>Amount in Words:</strong> ${numberToWords(totals.total)} Rupees Only
+        </div>
+        
+        <div class="signature-area">
+            <div class="signature">
+                ${signatureImageUrl ? `<img src="${signatureImageUrl}" alt="Signature" class="signature-image">` : ''}
+                <div class="signature-line"></div>
+                <div>Authorized Signatory</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div>${notes}</div>
+            <div>Thank you for your business!</div>
+        </div>
+    `;
+    
+    document.getElementById('invoicePreview').innerHTML = invoiceHTML;
+}
+
+// Format date as DD-MM-YYYY
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+}
+
+// Convert number to words
+function numberToWords(num) {
+    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 
+                  'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 
+                  'Eighteen', 'Nineteen'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    
+    function convertLessThanOneThousand(n) {
+        if (n === 0) return '';
+        if (n < 20) return ones[n];
+        if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '');
+        return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertLessThanOneThousand(n % 100) : '');
+    }
+    
+    if (num === 0) return 'Zero';
+    let result = '';
+    const numStr = num.toString().split('.');
+    const wholeNum = parseInt(numStr[0]);
+    const decimalNum = numStr.length > 1 ? parseInt(numStr[1]) : 0;
+    
+    if (wholeNum >= 10000000) {
+        result += convertLessThanOneThousand(Math.floor(wholeNum / 10000000)) + ' Crore ';
+        wholeNum %= 10000000;
+    }
+    
+    if (wholeNum >= 100000) {
+        result += convertLessThanOneThousand(Math.floor(wholeNum / 100000)) + ' Lakh ';
+        wholeNum %= 100000;
+    }
+    
+    if (wholeNum >= 1000) {
+        result += convertLessThanOneThousand(Math.floor(wholeNum / 1000)) + ' Thousand ';
+        wholeNum %= 1000;
+    }
+    
+    if (wholeNum > 0) {
+        result += convertLessThanOneThousand(wholeNum);
+    }
+    
+    if (decimalNum > 0) {
+        result += ' and ' + convertLessThanOneThousand(decimalNum) + ' Paise';
+    }
+    
+    return result.trim();
+}
+
+// Print invoice
+function printInvoice() {
+    window.print();
+}
+
+// Export to PDF
+function exportToPDF() {
+    const element = document.getElementById('invoicePreview');
+    
+    html2canvas(element, {
+        scale: 2,
+        logging: false,
+        useCORS: true
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 210; // A4 width in mm
+        const pageHeight = 295; // A4 height in mm
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+        
+        pdf.save('Invoice_' + document.getElementById('invoiceNo').value + '.pdf');
+    });
+}
+
+// Save invoice to history and Firebase
+async function saveInvoice() {
+    // Get settings to update invoice number
+    const settings = JSON.parse(localStorage.getItem('settings')) || {};
+    const nextInvoiceNumber = settings.invoice ? (settings.invoice.nextNumber || 1001) : 1001;
+    
+    const invoiceData = {
+        id: Date.now().toString(),
+        invoiceNo: document.getElementById('invoiceNo').value,
+        invoiceDate: document.getElementById('invoiceDate').value,
+        dueDate: document.getElementById('dueDate').value,
+        referenceNo: document.getElementById('referenceNo').value,
+        sellerName: document.getElementById('sellerName').value,
+        sellerAddress: document.getElementById('sellerAddress').value,
+        sellerGST: document.getElementById('sellerGST').value,
+        sellerStateCode: document.getElementById('sellerStateCode').value,
+        billToName: document.getElementById('billToName').value,
+        billToAddress: document.getElementById('billToAddress').value,
+        billToGST: document.getElementById('billToGST').value,
+        billToStateCode: document.getElementById('billToStateCode').value,
+        sameAsBillTo: document.getElementById('sameAsBillTo').checked,
+        shipToName: document.getElementById('shipToName').value,
+        shipToAddress: document.getElementById('shipToAddress').value,
+        shipToGST: document.getElementById('shipToGST').value,
+        shipToStateCode: document.getElementById('shipToStateCode').value,
+        transportMode: document.getElementById('transportMode').value,
+        vehicleNo: document.getElementById('vehicleNo').value,
+        ewayBillNo: document.getElementById('ewayBillNo').value,
+        notes: document.getElementById('notes').value,
+        signatureImageUrl: document.getElementById('signatureImageUrl').value,
+        totalAmount: calculateTotals().total.toFixed(2),
+        createdAt: new Date().toISOString(),
+        items: []
+    };
+    
+    document.querySelectorAll('#itemsBody tr').forEach(row => {
+        invoiceData.items.push({
+            name: row.querySelector('.item-name').value,
+            hsn: row.querySelector('.item-hsn').value,
+            gst: row.querySelector('.item-gst').value,
+            qty: row.querySelector('.item-qty').value,
+            rate: row.querySelector('.item-rate').value,
+            taxable: row.querySelector('.item-taxable').textContent,
+            cgst: row.querySelector('.item-cgst').textContent,
+            sgst: row.querySelector('.item-sgst').textContent,
+            amount: row.querySelector('.item-amount').textContent
+        });
+    });
+    
+    try {
+        // Save to Firebase
+        await db.collection('invoices').doc(invoiceData.id).set(invoiceData);
+        
+        // Update invoice number in settings if it matches the pattern
+        if (settings.invoice && invoiceData.invoiceNo.includes(nextInvoiceNumber)) {
+            settings.invoice.nextNumber = nextInvoiceNumber + 1;
+            localStorage.setItem('settings', JSON.stringify(settings));
+            await db.collection('settings').doc('invoice').update({
+                nextNumber: nextInvoiceNumber + 1
+            });
+        }
+        
+        // Generate shareable link
+        const shareLink = `https://admin.supremeenterpeises.com/c?invoice=${invoiceData.id}`;
+        
+        // Show success message with share link
+        showToast('Invoice saved successfully!');
+        
+        // Add share options to UI
+        const shareDiv = document.createElement('div');
+        shareDiv.className = 'share-container';
+        shareDiv.innerHTML = `
+            <h3>Share Invoice</h3>
+            <div class="share-link">
+                <input type="text" id="shareLink" value="${shareLink}" readonly>
+                <button onclick="copyShareLink()"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+            <div class="share-options">
+                <button class="btn-whatsapp" onclick="shareViaWhatsApp('${shareLink}')"><i class="fab fa-whatsapp"></i> Share via WhatsApp</button>
+                <button class="btn-email" onclick="shareViaEmail('${shareLink}')"><i class="fas fa-envelope"></i> Share via Email</button>
+            </div>
+        `;
+        
+        const invoicePreview = document.querySelector('.invoice-preview');
+        const existingShareLink = invoicePreview.querySelector('.share-container');
+        if (existingShareLink) {
+            existingShareLink.replaceWith(shareDiv);
+        } else {
+            invoicePreview.appendChild(shareDiv);
+        }
+        
+        loadHistory();
+    } catch (error) {
+        console.error('Error saving invoice:', error);
+        showToast('Error saving invoice!', true);
+    }
+}
+
+// Copy share link to clipboard
+function copyShareLink() {
+    const shareLink = document.getElementById('shareLink');
+    shareLink.select();
+    document.execCommand('copy');
+    showToast('Link copied to clipboard!');
+}
+
+// Share via WhatsApp
+function shareViaWhatsApp(link) {
+    const message = `Please find your invoice here: ${link}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+// Share via Email
+function shareViaEmail(link) {
+    const subject = 'Your Invoice from Supreme Enterprises';
+    const body = `Dear Customer,\n\nPlease find your invoice here: ${link}\n\nThank you for your business!\n\nSupreme Enterprises`;
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+}
+
+// Load invoice history
+async function loadHistory() {
+    try {
+        const historyList = document.getElementById('historyList');
+        historyList.innerHTML = '<p>Loading invoices...</p>';
+        
+        // Load from Firebase
+        const querySnapshot = await db.collection('invoices').orderBy('createdAt', 'desc').get();
+        
+        if (querySnapshot.empty) {
+            historyList.innerHTML = '<p>No saved invoices found.</p>';
+            return;
+        }
+        
+        let invoices = [];
+        querySnapshot.forEach(doc => {
+            invoices.push(doc.data());
         });
         
-        // Login form submission
-        document.getElementById('login-form').addEventListener('submit', e => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    // Login successful
-                    showToast('Login successful!');
-                })
-                .catch(error => {
-                    // Login failed
-                    showToast(error.message, true);
-                });
+        historyList.innerHTML = invoices.map(invoice => `
+            <div class="history-item">
+                <h3>${invoice.invoiceNo} - ${invoice.billToName}</h3>
+                <p><strong>Date:</strong> ${formatDate(invoice.invoiceDate)}</p>
+                <p><strong>Total Amount:</strong> ₹${invoice.totalAmount}</p>
+                <div class="history-actions">
+                    <button onclick="loadInvoice('${invoice.id}')"><i class="fas fa-eye"></i> View</button>
+                    <button onclick="deleteInvoice('${invoice.id}')" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                    <button onclick="shareInvoice('${invoice.id}')" class="btn-success"><i class="fas fa-share"></i> Share</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading history:', error);
+        showToast('Error loading invoice history!', true);
+    }
+}
+
+// Load invoice from history
+function loadInvoice(id) {
+    db.collection('invoices').doc(id).get().then(doc => {
+        if (doc.exists) {
+            const invoice = doc.data();
+            displayInvoice(invoice);
+        } else {
+            showToast('Invoice not found!', true);
+        }
+    }).catch(error => {
+        console.error('Error loading invoice:', error);
+        showToast('Error loading invoice!', true);
+    });
+}
+
+// Display invoice data in form
+function displayInvoice(invoice) {
+    // Open the invoice tab
+    openTab('invoice-tab');
+    
+    // Load basic info
+    document.getElementById('invoiceNo').value = invoice.invoiceNo;
+    document.getElementById('invoiceDate').value = invoice.invoiceDate;
+    document.getElementById('dueDate').value = invoice.dueDate;
+    document.getElementById('referenceNo').value = invoice.referenceNo || '';
+    
+    // Seller info
+    document.getElementById('sellerName').value = invoice.sellerName;
+    document.getElementById('sellerAddress').value = invoice.sellerAddress;
+    document.getElementById('sellerGST').value = invoice.sellerGST;
+    document.getElementById('sellerStateCode').value = invoice.sellerStateCode;
+    
+    // Bill To info
+    document.getElementById('billToName').value = invoice.billToName;
+    document.getElementById('billToAddress').value = invoice.billToAddress;
+    document.getElementById('billToGST').value = invoice.billToGST;
+    document.getElementById('billToStateCode').value = invoice.billToStateCode;
+    
+    // Ship To info
+    document.getElementById('sameAsBillTo').checked = invoice.sameAsBillTo;
+    toggleShipTo();
+    
+    if (!invoice.sameAsBillTo) {
+        document.getElementById('shipToName').value = invoice.shipToName;
+        document.getElementById('shipToAddress').value = invoice.shipToAddress;
+        document.getElementById('shipToGST').value = invoice.shipToGST;
+        document.getElementById('shipToStateCode').value = invoice.shipToStateCode;
+    }
+    
+    // Dispatch info
+    document.getElementById('transportMode').value = invoice.transportMode || '';
+    document.getElementById('vehicleNo').value = invoice.vehicleNo || '';
+    document.getElementById('ewayBillNo').value = invoice.ewayBillNo || '';
+    
+    // Notes
+    document.getElementById('notes').value = invoice.notes || 'E. & O.E';
+    
+    // Signature image
+    document.getElementById('signatureImageUrl').value = invoice.signatureImageUrl || '';
+    
+    // Clear existing items
+    document.getElementById('itemsBody').innerHTML = '';
+    
+    // Add items
+    invoice.items.forEach(item => {
+        addItem();
+        const rows = document.querySelectorAll('#itemsBody tr');
+        const lastRow = rows[rows.length - 1];
+        
+        lastRow.querySelector('.item-name').value = item.name;
+        lastRow.querySelector('.item-hsn').value = item.hsn;
+        lastRow.querySelector('.item-gst').value = item.gst;
+        lastRow.querySelector('.item-qty').value = item.qty;
+        lastRow.querySelector('.item-rate').value = item.rate;
+        
+        // Trigger calculation
+        calculateRow(lastRow.querySelector('.item-rate'));
+    });
+    
+    // Generate preview
+    generateInvoice();
+    
+    // Scroll to top
+    window.scrollTo(0, 0);
+}
+
+// Display invoice for customer view
+function displayInvoiceForCustomer(invoice) {
+    const totals = {
+        taxable: invoice.items.reduce((sum, item) => sum + parseFloat(item.taxable), 0),
+        cgst: invoice.items.reduce((sum, item) => sum + parseFloat(item.cgst), 0),
+        sgst: invoice.items.reduce((sum, item) => sum + parseFloat(item.sgst), 0),
+        total: invoice.items.reduce((sum, item) => sum + parseFloat(item.amount), 0)
+    };
+    
+    const invoiceHTML = `
+        <div class="invoice-header">
+            <div class="company-info">
+                <div class="company-name">${invoice.sellerName}</div>
+                <div>${invoice.sellerAddress.replace(/\n/g, '<br>')}</div>
+                <div>GSTIN: ${invoice.sellerGST} | State Code: ${invoice.sellerStateCode}</div>
+            </div>
+            <div>
+                <div class="invoice-number">Invoice No: ${invoice.invoiceNo}</div>
+                <div class="invoice-date">Date: ${formatDate(invoice.invoiceDate)}</div>
+                <div>Due Date: ${formatDate(invoice.dueDate)}</div>
+            </div>
+        </div>
+        
+        <div class="invoice-title">TAX INVOICE</div>
+        
+        <div class="address-block">
+            <div class="from-address">
+                <div class="address-title">From</div>
+                <div><strong>${invoice.sellerName}</strong></div>
+                <div>${invoice.sellerAddress.replace(/\n/g, '<br>')}</div>
+                <div>GSTIN: ${invoice.sellerGST}</div>
+                <div>State Code: ${invoice.sellerStateCode}</div>
+            </div>
+            <div class="bill-to-address">
+                <div class="address-title">Bill To</div>
+                <div><strong>${invoice.billToName}</strong></div>
+                <div>${invoice.billToAddress.replace(/\n/g, '<br>')}</div>
+                <div>GSTIN: ${invoice.billToGST}</div>
+                <div>State Code: ${invoice.billToStateCode}</div>
+            </div>
+            <div class="ship-to-address">
+                <div class="address-title">Ship To</div>
+                <div><strong>${invoice.shipToName}</strong></div>
+                <div>${invoice.shipToAddress.replace(/\n/g, '<br>')}</div>
+                <div>GSTIN: ${invoice.shipToGST}</div>
+                <div>State Code: ${invoice.shipToStateCode}</div>
+            </div>
+        </div>
+        
+        <div class="invoice-meta">
+            <div><strong>Transport Mode:</strong> ${invoice.transportMode || ''}</div>
+            <div><strong>Vehicle No:</strong> ${invoice.vehicleNo || ''}</div>
+            <div><strong>eWay Bill No:</strong> ${invoice.ewayBillNo || ''}</div>
+        </div>
+        
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Description of Goods</th>
+                    <th>HSN Code</th>
+                    <th>GST %</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Taxable Value</th>
+                    <th>CGST</th>
+                    <th>SGST</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${invoice.items.map((item, index) => `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td class="text-center">${item.hsn}</td>
+                        <td class="text-center">${item.gst}%</td>
+                        <td class="text-center">${item.qty}</td>
+                        <td class="text-right">${parseFloat(item.rate).toFixed(2)}</td>
+                        <td class="text-right">${item.taxable}</td>
+                        <td class="text-right">${item.cgst}</td>
+                        <td class="text-right">${item.sgst}</td>
+                        <td class="text-right">${item.amount}</td>
+                    </tr>
+                `).join('')}
+                <tr class="total-row">
+                    <td colspan="6" class="text-right"><strong>Total</strong></td>
+                    <td class="text-right">${totals.taxable.toFixed(2)}</td>
+                    <td class="text-right">${totals.cgst.toFixed(2)}</td>
+                    <td class="text-right">${totals.sgst.toFixed(2)}</td>
+                    <td class="text-right">${totals.total.toFixed(2)}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="tax-details">
+            <table>
+                <tr>
+                    <td><strong>Total Taxable Amount:</strong></td>
+                    <td class="text-right">${totals.taxable.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Total CGST:</strong></td>
+                    <td class="text-right">${totals.cgst.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Total SGST:</strong></td>
+                    <td class="text-right">${totals.sgst.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Invoice Total:</strong></td>
+                    <td class="text-right">${totals.total.toFixed(2)}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="amount-in-words">
+            <strong>Amount in Words:</strong> ${numberToWords(totals.total)} Rupees Only
+        </div>
+        
+        <div class="signature-area">
+            <div class="signature">
+                ${invoice.signatureImageUrl ? `<img src="${invoice.signatureImageUrl}" alt="Signature" class="signature-image">` : ''}
+                <div class="signature-line"></div>
+                <div>Authorized Signatory</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div>${invoice.notes || 'E. & O.E'}</div>
+            <div>Thank you for your business!</div>
+        </div>
+    `;
+    
+    document.getElementById('customer-invoice-preview').innerHTML = invoiceHTML;
+}
+
+// Download as PDF for customer view
+function downloadAsPDF() {
+    const element = document.getElementById('customer-invoice-preview');
+    
+    html2canvas(element, {
+        scale: 2,
+        logging: false,
+        useCORS: true
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 210; // A4 width in mm
+        const pageHeight = 295; // A4 height in mm
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+        
+        pdf.save('Invoice_' + document.getElementById('invoiceNo').value + '.pdf');
+    });
+}
+
+// Delete invoice from Firebase
+async function deleteInvoice(id) {
+    if (!confirm('Are you sure you want to delete this invoice?')) return;
+    
+    try {
+        await db.collection('invoices').doc(id).delete();
+        showToast('Invoice deleted successfully!');
+        loadHistory();
+    } catch (error) {
+        console.error('Error deleting invoice:', error);
+        showToast('Error deleting invoice!', true);
+    }
+}
+
+// Share invoice by generating a shareable link
+function shareInvoice(id) {
+    const shareLink = `https://admin.supremeenterpeises.com/c?invoice=${id}`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Invoice',
+            text: 'View this invoice',
+            url: shareLink
+        }).catch(err => {
+            console.error('Error sharing:', err);
+            copyToClipboard(shareLink);
         });
-        
-        // Logout button
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            auth.signOut()
-                .then(() => {
-                    showToast('Logged out successfully');
-                    window.location.href = window.location.pathname; // Clear any query params
-                })
-                .catch(error => {
-                    showToast(error.message, true);
-                });
-        });
-        
-        // Show auth container
-        function showAuthContainer() {
-            document.getElementById('auth-container').style.display = 'flex';
-            document.getElementById('admin-dashboard').style.display = 'none';
-            document.getElementById('customer-view').style.display = 'none';
-        }
-        
-        // Show admin dashboard
-        function showAdminDashboard(user) {
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'block';
-            document.getElementById('customer-view').style.display = 'none';
-            
-            // Set user info
-            document.getElementById('user-name').textContent = user.email;
-            if (user.photoURL) {
-                document.getElementById('user-photo').src = user.photoURL;
-            }
-            
-            // Initialize form
-            initInvoiceForm();
-            loadHistory();
-            loadClients();
-            loadSettings();
-            loadProducts();
-        }
-        
-        // Show customer view
-        function showCustomerView(invoice) {
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'none';
-            document.getElementById('customer-view').style.display = 'block';
-            
-            // Display invoice
-            displayInvoiceForCustomer(invoice);
-        }
-        
-        // Initialize invoice form
-        function initInvoiceForm() {
-            // Set default values
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('invoiceDate').value = today;
-            
-            // Set due date to 30 days from now
-            const dueDate = new Date();
-            dueDate.setDate(dueDate.getDate() + 30);
-            document.getElementById('dueDate').value = dueDate.toISOString().split('T')[0];
-            
-            // Generate invoice number from settings
-            generateInvoiceNumber();
-            
-            // Add 3 empty items by default
-            addItem();
-            addItem();
-            addItem();
-            
-            generateInvoice();
-        }
-        
-        // Generate invoice number from settings
-        function generateInvoiceNumber() {
-            const settings = JSON.parse(localStorage.getItem('settings')) || {};
-            if (settings.invoice) {
-                const prefix = settings.invoice.prefix || 'INV';
-                const nextNumber = settings.invoice.nextNumber || 1001;
-                const year = new Date().getFullYear();
-                document.getElementById('invoiceNo').value = `${prefix}-${year}-${nextNumber}`;
-            } else {
-                document.getElementById('invoiceNo').value = 'INV-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
-            }
-        }
-        
-        // Show toast notification
-        function showToast(message, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = isError ? 'toast error show' : 'toast show';
-            
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
-        }
-        
-        // Tab navigation
-        function openTab(tabId) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Deactivate all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Activate the selected tab
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-        
-        // Toggle ship to address
-        function toggleShipTo() {
-            const sameAsBillTo = document.getElementById('sameAsBillTo').checked;
-            const shipToFields = document.getElementById('shipToFields');
-            
-            if (sameAsBillTo) {
-                shipToFields.style.display = 'none';
-            } else {
-                shipToFields.style.display = 'block';
-            }
-        }
-        
-        // Add a new item row
-        function addItem(product = null) {
-            const tbody = document.getElementById('itemsBody');
-            const row = document.createElement('tr');
-            
-            if (product) {
-                row.innerHTML = `
-                    <td>${tbody.children.length + 1}</td>
-                    <td>
-                        <div class="product-autocomplete">
-                            <input type="text" class="item-name" value="${product.name}" oninput="searchProducts(this)" data-product-id="${product.id}">
-                            <div class="autocomplete-results"></div>
-                        </div>
-                    </td>
-                    <td><input type="text" class="item-hsn" value="${product.hsn}" readonly></td>
-                    <td><input type="number" class="item-gst" value="${product.gst}" readonly></td>
-                    <td><input type="number" class="item-qty" placeholder="Qty" value="1" min="1" onchange="calculateRow(this)"></td>
-                    <td><input type="number" class="item-rate" placeholder="Rate" value="0" min="0" step="0.01" onchange="calculateRow(this)"></td>
-                    <td class="item-taxable">0.00</td>
-                    <td class="item-cgst">0.00</td>
-                    <td class="item-sgst">0.00</td>
-                    <td class="item-amount">0.00</td>
-                    <td><button onclick="removeItem(this)" class="btn-danger"><i class="fas fa-trash"></i></button></td>
-                `;
-            } else {
-                row.innerHTML = `
-                    <td>${tbody.children.length + 1}</td>
-                    <td>
-                        <div class="product-autocomplete">
-                            <input type="text" class="item-name" placeholder="Product Name" oninput="searchProducts(this)">
-                            <div class="autocomplete-results"></div>
-                        </div>
-                    </td>
-                    <td><input type="text" class="item-hsn" placeholder="HSN" readonly></td>
-                    <td><input type="number" class="item-gst" placeholder="GST %" readonly></td>
-                    <td><input type="number" class="item-qty" placeholder="Qty" value="1" min="1" onchange="calculateRow(this)"></td>
-                    <td><input type="number" class="item-rate" placeholder="Rate" value="0" min="0" step="0.01" onchange="calculateRow(this)"></td>
-                    <td class="item-taxable">0.00</td>
-                    <td class="item-cgst">0.00</td>
-                    <td class="item-sgst">0.00</td>
-                    <td class="item-amount">0.00</td>
-                    <td><button onclick="removeItem(this)" class="btn-danger"><i class="fas fa-trash"></i></button></td>
-                `;
-            }
-            
-            tbody.appendChild(row);
-            
-            // Initialize autocomplete for the new row
-            if (!product) {
-                const input = row.querySelector('.item-name');
-                searchProducts(input);
-            }
-        }
-        
-        // Search products for autocomplete
-        function searchProducts(input) {
-            const searchTerm = input.value.toLowerCase();
-            const resultsContainer = input.parentNode.querySelector('.autocomplete-results');
-            
-            if (searchTerm.length < 2) {
-                resultsContainer.style.display = 'none';
-                return;
-            }
-            
-            const filteredProducts = products.filter(product => 
-                product.name.toLowerCase().includes(searchTerm) || 
-                product.hsn.includes(searchTerm)
-            );
-            
-            if (filteredProducts.length === 0) {
-                resultsContainer.style.display = 'none';
-                return;
-            }
-            
-            resultsContainer.innerHTML = filteredProducts.map(product => `
-                <div class="autocomplete-item" 
-                     data-id="${product.id}"
-                     data-name="${product.name}"
-                     data-hsn="${product.hsn}"
-                     data-gst="${product.gst}"
-                     onclick="selectProduct(this, '${input.id}')">
-                    <strong>${product.name}</strong><br>
-                    <small>HSN: ${product.hsn} | GST: ${product.gst}% | ${product.description}</small>
-                </div>
-            `).join('');
-            
-            resultsContainer.style.display = 'block';
-        }
-        
-        // Select product from autocomplete
-        function selectProduct(item, inputId) {
-            const product = {
-                id: item.getAttribute('data-id'),
-                name: item.getAttribute('data-name'),
-                hsn: item.getAttribute('data-hsn'),
-                gst: item.getAttribute('data-gst')
-            };
-            
-            const row = item.closest('tr') || document.querySelector(`#${inputId}`).closest('tr');
-            
-            row.querySelector('.item-name').value = product.name;
-            row.querySelector('.item-hsn').value = product.hsn;
-            row.querySelector('.item-gst').value = product.gst;
-            row.querySelector('.item-name').setAttribute('data-product-id', product.id);
-            
-            // Hide results
-            item.closest('.autocomplete-results').style.display = 'none';
-            
-            // Focus on quantity
-            row.querySelector('.item-qty').focus();
-        }
-        
-        // Remove an item row
-        function removeItem(button) {
-            const row = button.closest('tr');
-            row.remove();
-            updateItemNumbers();
-            calculateTotals();
-        }
-        
-        // Update item numbers sequentially
-        function updateItemNumbers() {
-            const rows = document.querySelectorAll('#itemsBody tr');
-            rows.forEach((row, index) => {
-                row.cells[0].textContent = index + 1;
-            });
-        }
-        
-        // Calculate row amounts
-        function calculateRow(input) {
-            const row = input.closest('tr');
-            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-            const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
-            const gst = parseFloat(row.querySelector('.item-gst').value) || 0;
-            
-            const taxable = qty * rate;
-            const cgst = taxable * (gst / 200); // Divided by 200 because 14% of taxable is 28%/2
-            const sgst = cgst; // Same as CGST
-            const amount = taxable + cgst + sgst;
-            
-            row.querySelector('.item-taxable').textContent = taxable.toFixed(2);
-            row.querySelector('.item-cgst').textContent = cgst.toFixed(2);
-            row.querySelector('.item-sgst').textContent = sgst.toFixed(2);
-            row.querySelector('.item-amount').textContent = amount.toFixed(2);
-            
-            calculateTotals();
-        }
-        
-        // Calculate invoice totals
-        function calculateTotals() {
-            let taxableTotal = 0;
-            let cgstTotal = 0;
-            let sgstTotal = 0;
-            let amountTotal = 0;
-            
-            document.querySelectorAll('#itemsBody tr').forEach(row => {
-                taxableTotal += parseFloat(row.querySelector('.item-taxable').textContent) || 0;
-                cgstTotal += parseFloat(row.querySelector('.item-cgst').textContent) || 0;
-                sgstTotal += parseFloat(row.querySelector('.item-sgst').textContent) || 0;
-                amountTotal += parseFloat(row.querySelector('.item-amount').textContent) || 0;
-            });
-            
-            return {
-                taxable: taxableTotal,
-                cgst: cgstTotal,
-                sgst: sgstTotal,
-                total: amountTotal
-            };
-        }
-        
-        // Generate invoice preview
-        function generateInvoice() {
-            const invoiceNo = document.getElementById('invoiceNo').value;
-            const invoiceDate = document.getElementById('invoiceDate').value;
-            const dueDate = document.getElementById('dueDate').value;
-            const referenceNo = document.getElementById('referenceNo').value;
-            
-            const sellerName = document.getElementById('sellerName').value;
-            const sellerAddress = document.getElementById('sellerAddress').value;
-            const sellerGST = document.getElementById('sellerGST').value;
-            const sellerStateCode = document.getElementById('sellerStateCode').value;
-            
-            const billToName = document.getElementById('billToName').value;
-            const billToAddress = document.getElementById('billToAddress').value;
-            const billToGST = document.getElementById('billToGST').value;
-            const billToStateCode = document.getElementById('billToStateCode').value;
-            
-            const sameAsBillTo = document.getElementById('sameAsBillTo').checked;
-            const shipToName = sameAsBillTo ? billToName : document.getElementById('shipToName').value;
-            const shipToAddress = sameAsBillTo ? billToAddress : document.getElementById('shipToAddress').value;
-            const shipToGST = sameAsBillTo ? billToGST : document.getElementById('shipToGST').value;
-            const shipToStateCode = sameAsBillTo ? billToStateCode : document.getElementById('shipToStateCode').value;
-            
-            const transportMode = document.getElementById('transportMode').value;
-            const vehicleNo = document.getElementById('vehicleNo').value;
-            const ewayBillNo = document.getElementById('ewayBillNo').value;
-            
-            const notes = document.getElementById('notes').value;
-            
-            // Get signature image from settings
-            const signatureImageUrl = document.getElementById('signatureImageUrl').value;
-            
-            // Get items
-            const items = [];
-            document.querySelectorAll('#itemsBody tr').forEach(row => {
-                items.push({
-                    name: row.querySelector('.item-name').value,
-                    hsn: row.querySelector('.item-hsn').value,
-                    gst: row.querySelector('.item-gst').value,
-                    qty: row.querySelector('.item-qty').value,
-                    rate: row.querySelector('.item-rate').value,
-                    taxable: row.querySelector('.item-taxable').textContent,
-                    cgst: row.querySelector('.item-cgst').textContent,
-                    sgst: row.querySelector('.item-sgst').textContent,
-                    amount: row.querySelector('.item-amount').textContent
-                });
-            });
-            
-            const totals = calculateTotals();
-            
-            // Generate HTML for invoice
-            const invoiceHTML = `
-                <div class="invoice-header">
-                    <div class="company-info">
-                        <div class="company-name">${sellerName}</div>
-                        <div>${sellerAddress.replace(/\n/g, '<br>')}</div>
-                        <div>GSTIN: ${sellerGST} | State Code: ${sellerStateCode}</div>
-                    </div>
-                    <div>
-                        <div class="invoice-number">Invoice No: ${invoiceNo}</div>
-                        <div class="invoice-date">Date: ${formatDate(invoiceDate)}</div>
-                        <div>Due Date: ${formatDate(dueDate)}</div>
-                    </div>
-                </div>
-                
-                <div class="invoice-title">TAX INVOICE</div>
-                
-                <div class="address-block">
-                    <div class="from-address">
-                        <div class="address-title">From</div>
-                        <div><strong>${sellerName}</strong></div>
-                        <div>${sellerAddress.replace(/\n/g, '<br>')}</div>
-                        <div>GSTIN: ${sellerGST}</div>
-                        <div>State Code: ${sellerStateCode}</div>
-                    </div>
-                    <div class="bill-to-address">
-                        <div class="address-title">Bill To</div>
-                        <div><strong>${billToName}</strong></div>
-                        <div>${billToAddress.replace(/\n/g, '<br>')}</div>
-                        <div>GSTIN: ${billToGST}</div>
-                        <div>State Code: ${billToStateCode}</div>
-                    </div>
-                    <div class="ship-to-address">
-                        <div class="address-title">Ship To</div>
-                        <div><strong>${shipToName}</strong></div>
-                        <div>${shipToAddress.replace(/\n/g, '<br>')}</div>
-                        <div>GSTIN: ${shipToGST}</div>
-                        <div>State Code: ${shipToStateCode}</div>
-                    </div>
-                </div>
-                
-                <div class="invoice-meta">
-                    <div><strong>Transport Mode:</strong> ${transportMode}</div>
-                    <div><strong>Vehicle No:</strong> ${vehicleNo}</div>
-                    <div><strong>eWay Bill No:</strong> ${ewayBillNo}</div>
-                </div>
-                
-                <table class="invoice-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Description of Goods</th>
-                            <th>HSN Code</th>
-                            <th>GST %</th>
-                            <th>Qty</th>
-                            <th>Rate</th>
-                            <th>Taxable Value</th>
-                            <th>CGST</th>
-                            <th>SGST</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${items.map((item, index) => `
-                            <tr>
-                                <td class="text-center">${index + 1}</td>
-                                <td>${item.name}</td>
-                                <td class="text-center">${item.hsn}</td>
-                                <td class="text-center">${item.gst}%</td>
-                                <td class="text-center">${item.qty}</td>
-                                <td class="text-right">${parseFloat(item.rate).toFixed(2)}</td>
-                                <td class="text-right">${item.taxable}</td>
-                                <td class="text-right">${item.cgst}</td>
-                                <td class="text-right">${item.sgst}</td>
-                                <td class="text-right">${item.amount}</td>
-                            </tr>
-                        `).join('')}
-                        <tr class="total-row">
-                            <td colspan="6" class="text-right"><strong>Total</strong></td>
-                            <td class="text-right">${totals.taxable.toFixed(2)}</td>
-                            <td class="text-right">${totals.cgst.toFixed(2)}</td>
-                            <td class="text-right">${totals.sgst.toFixed(2)}</td>
-                            <td class="text-right">${totals.total.toFixed(2)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <div class="tax-details">
-                    <table>
-                        <tr>
-                            <td><strong>Total Taxable Amount:</strong></td>
-                            <td class="text-right">${totals.taxable.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total CGST:</strong></td>
-                            <td class="text-right">${totals.cgst.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total SGST:</strong></td>
-                            <td class="text-right">${totals.sgst.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Invoice Total:</strong></td>
-                            <td class="text-right">${totals.total.toFixed(2)}</td>
-                        </tr>
-                    </table>
-                </div>
-                
-                <div class="amount-in-words">
-                    <strong>Amount in Words:</strong> ${numberToWords(totals.total)} Rupees Only
-                </div>
-                
-                <div class="signature-area">
-                    <div class="signature">
-                        ${signatureImageUrl ? `<img src="${signatureImageUrl}" alt="Signature" class="signature-image">` : ''}
-                        <div class="signature-line"></div>
-                        <div>Authorized Signatory</div>
-                    </div>
-                </div>
-                
-                <div class="footer">
-                    <div>${notes}</div>
-                    <div>Thank you for your business!</div>
-                </div>
-            `;
-            
-            document.getElementById('invoicePreview').innerHTML = invoiceHTML;
-        }
-        
-        // Format date as DD-MM-YYYY
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
-        }
-        
-        // Convert number to words
-        function numberToWords(num) {
-            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 
-                          'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 
-                          'Eighteen', 'Nineteen'];
-            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-            
-            function convertLessThanOneThousand(n) {
-                if (n === 0) return '';
-                if (n < 20) return ones[n];
-                if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '');
-                return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convertLessThanOneThousand(n % 100) : '');
-            }
-            
-            if (num === 0) return 'Zero';
-            let result = '';
-            const numStr = num.toString().split('.');
-            const wholeNum = parseInt(numStr[0]);
-            const decimalNum = numStr.length > 1 ? parseInt(numStr[1]) : 0;
-            
-            if (wholeNum >= 10000000) {
-                result += convertLessThanOneThousand(Math.floor(wholeNum / 10000000)) + ' Crore ';
-                wholeNum %= 10000000;
-            }
-            
-            if (wholeNum >= 100000) {
-                result += convertLessThanOneThousand(Math.floor(wholeNum / 100000)) + ' Lakh ';
-                wholeNum %= 100000;
-            }
-            
-            if (wholeNum >= 1000) {
-                result += convertLessThanOneThousand(Math.floor(wholeNum / 1000)) + ' Thousand ';
-                wholeNum %= 1000;
-            }
-            
-            if (wholeNum > 0) {
-                result += convertLessThanOneThousand(wholeNum);
-            }
-            
-            if (decimalNum > 0) {
-                result += ' and ' + convertLessThanOneThousand(decimalNum) + ' Paise';
-            }
-            
-            return result.trim();
-        }
-        
-        // Print invoice
-        function printInvoice() {
-            window.print();
-        }
-        
-        // Export to PDF
-        function exportToPDF() {
-            const element = document.getElementById('invoicePreview');
-            
-            html2canvas(element, {
-                scale: 2,
-                logging: false,
-                useCORS: true
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = 210; // A4 width in mm
-                const pageHeight = 295; // A4 height in mm
-                const imgHeight = canvas.height * imgWidth / canvas.width;
-                let heightLeft = imgHeight;
-                let position = 0;
-                
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-                
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-                
-                pdf.save('Invoice_' + document.getElementById('invoiceNo').value + '.pdf');
-            });
-        }
-        
-        // Save invoice to history and Firebase
-        async function saveInvoice() {
-            // Get settings to update invoice number
-            const settings = JSON.parse(localStorage.getItem('settings')) || {};
-            const nextInvoiceNumber = settings.invoice ? (settings.invoice.nextNumber || 1001) : 1001;
-            
-            const invoiceData = {
-                id: Date.now().toString(),
-                invoiceNo: document.getElementById('invoiceNo').value,
-                invoiceDate: document.getElementById('invoiceDate').value,
-                dueDate: document.getElementById('dueDate').value,
-                referenceNo: document.getElementById('referenceNo').value,
-                sellerName: document.getElementById('sellerName').value,
-                sellerAddress: document.getElementById('sellerAddress').value,
-                sellerGST: document.getElementById('sellerGST').value,
-                sellerStateCode: document.getElementById('sellerStateCode').value,
-                billToName: document.getElementById('billToName').value,
-                billToAddress: document.getElementById('billToAddress').value,
-                billToGST: document.getElementById('billToGST').value,
-                billToStateCode: document.getElementById('billToStateCode').value,
-                sameAsBillTo: document.getElementById('sameAsBillTo').checked,
-                shipToName: document.getElementById('shipToName').value,
-                shipToAddress: document.getElementById('shipToAddress').value,
-                shipToGST: document.getElementById('shipToGST').value,
-                shipToStateCode: document.getElementById('shipToStateCode').value,
-                transportMode: document.getElementById('transportMode').value,
-                vehicleNo: document.getElementById('vehicleNo').value,
-                ewayBillNo: document.getElementById('ewayBillNo').value,
-                notes: document.getElementById('notes').value,
-                signatureImageUrl: document.getElementById('signatureImageUrl').value,
-                totalAmount: calculateTotals().total.toFixed(2),
-                createdAt: new Date().toISOString(),
-                items: []
-            };
-            
-            document.querySelectorAll('#itemsBody tr').forEach(row => {
-                invoiceData.items.push({
-                    name: row.querySelector('.item-name').value,
-                    hsn: row.querySelector('.item-hsn').value,
-                    gst: row.querySelector('.item-gst').value,
-                    qty: row.querySelector('.item-qty').value,
-                    rate: row.querySelector('.item-rate').value,
-                    taxable: row.querySelector('.item-taxable').textContent,
-                    cgst: row.querySelector('.item-cgst').textContent,
-                    sgst: row.querySelector('.item-sgst').textContent,
-                    amount: row.querySelector('.item-amount').textContent
-                });
-            });
-            
-            try {
-                // Save to Firebase
-                await db.collection('invoices').doc(invoiceData.id).set(invoiceData);
-                
-                // Update invoice number in settings if it matches the pattern
-                if (settings.invoice && invoiceData.invoiceNo.includes(nextInvoiceNumber)) {
-                    settings.invoice.nextNumber = nextInvoiceNumber + 1;
-                    localStorage.setItem('settings', JSON.stringify(settings));
-                    await db.collection('settings').doc('invoice').update({
-                        nextNumber: nextInvoiceNumber + 1
-                    });
-                }
-                
-                // Generate shareable link
-                const shareLink = `https://admin.supremeenterpeises.com/c?invoice=${invoiceData.id}`;
-                
-                // Show success message with share link
-                showToast('Invoice saved successfully!');
-                
-                // Add share options to UI
-                const shareDiv = document.createElement('div');
-                shareDiv.className = 'share-container';
-                shareDiv.innerHTML = `
-                    <h3>Share Invoice</h3>
-                    <div class="share-link">
-                        <input type="text" id="shareLink" value="${shareLink}" readonly>
-                        <button onclick="copyShareLink()"><i class="fas fa-copy"></i> Copy</button>
-                    </div>
-                    <div class="share-options">
-                        <button class="btn-whatsapp" onclick="shareViaWhatsApp('${shareLink}')"><i class="fab fa-whatsapp"></i> Share via WhatsApp</button>
-                        <button class="btn-email" onclick="shareViaEmail('${shareLink}')"><i class="fas fa-envelope"></i> Share via Email</button>
-                    </div>
-                `;
-                
-                const invoicePreview = document.querySelector('.invoice-preview');
-                const existingShareLink = invoicePreview.querySelector('.share-container');
-                if (existingShareLink) {
-                    existingShareLink.replaceWith(shareDiv);
-                } else {
-                    invoicePreview.appendChild(shareDiv);
-                }
-                
-                loadHistory();
-            } catch (error) {
-                console.error('Error saving invoice:', error);
-                showToast('Error saving invoice!', true);
-            }
-        }
-        
-        // Copy share link to clipboard
-        function copyShareLink() {
-            const shareLink = document.getElementById('shareLink');
-            shareLink.select();
-            document.execCommand('copy');
-            showToast('Link copied to clipboard!');
-        }
-        
-        // Share via WhatsApp
-        function shareViaWhatsApp(link) {
-            const message = `Please find your invoice here: ${link}`;
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-        
-        // Share via Email
-        function shareViaEmail(link) {
-            const subject = 'Your Invoice from Supreme Enterprises';
-            const body = `Dear Customer,\n\nPlease find your invoice here: ${link}\n\nThank you for your business!\n\nSupreme Enterprises`;
-            const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.location.href = mailtoUrl;
-        }
-        
-        // Load invoice history
-        async function loadHistory() {
-            try {
-                const historyList = document.getElementById('historyList');
-                historyList.innerHTML = '<p>Loading invoices...</p>';
-                
-                // Load from Firebase
-                const querySnapshot = await db.collection('invoices').orderBy('createdAt', 'desc').get();
-                
-                if (querySnapshot.empty) {
-                    historyList.innerHTML = '<p>No saved invoices found.</p>';
-                    return;
-                }
-                
-                let invoices = [];
-                querySnapshot.forEach(doc => {
-                    invoices.push(doc.data());
-                });
-                
-                historyList.innerHTML = invoices.map(invoice => `
-                    <div class="history-item">
-                        <h3>${invoice.invoiceNo} - ${invoice.billToName}</h3>
-                        <p><strong>Date:</strong> ${formatDate(invoice.invoiceDate)}</p>
-                        <p><strong>Total Amount:</strong> ₹${invoice.totalAmount}</p>
-                        <div class="history-actions">
-                            <button onclick="loadInvoice('${invoice.id}')"><i class="fas fa-eye"></i> View</button>
-                            <button onclick="deleteInvoice('${invoice.id}')" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
-                            <button onclick="shareInvoice('${invoice.id}')" class="btn-success"><i class="fas fa-share"></i> Share</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading history:', error);
-                showToast('Error loading invoice history!', true);
-            }
-        }
-        
-        // Load invoice from history
-        function loadInvoice(id) {
-            db.collection('invoices').doc(id).get().then(doc => {
+    } else {
+        copyToClipboard(shareLink);
+    }
+}
+
+// Check if URL has invoice parameter to load shared invoice
+function checkSharedInvoice() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const invoiceId = urlParams.get('invoice');
+    
+    if (invoiceId) {
+        // Check if user is admin
+        const user = auth.currentUser;
+        if (user && user.email === 'admin@supremeenterpeises.com') {
+            // Admin viewing shared link - load in admin view
+            loadInvoice(invoiceId);
+        } else {
+            // Customer viewing shared link - load in customer view
+            db.collection('invoices').doc(invoiceId).get().then(doc => {
                 if (doc.exists) {
-                    const invoice = doc.data();
-                    displayInvoice(invoice);
+                    showCustomerView(doc.data());
                 } else {
                     showToast('Invoice not found!', true);
+                    showAuthContainer();
                 }
             }).catch(error => {
                 console.error('Error loading invoice:', error);
                 showToast('Error loading invoice!', true);
+                showAuthContainer();
             });
         }
+    }
+}
+
+// Clear form
+function clearForm() {
+    if (!confirm('Are you sure you want to clear the form? All unsaved data will be lost.')) return;
+    
+    // Reset form fields
+    generateInvoiceNumber();
+    document.getElementById('invoiceDate').valueAsDate = new Date();
+    
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 30);
+    document.getElementById('dueDate').valueAsDate = dueDate;
+    
+    document.getElementById('referenceNo').value = '';
+    document.getElementById('sellerName').value = 'SUPREME ENTERPRISES';
+    document.getElementById('sellerGST').value = '';
+    document.getElementById('sellerStateCode').value = '';
+    document.getElementById('sellerAddress').value = '';
+    document.getElementById('billToName').value = '';
+    document.getElementById('billToGST').value = '';
+    document.getElementById('billToStateCode').value = '';
+    document.getElementById('billToAddress').value = '';
+    document.getElementById('sameAsBillTo').checked = true;
+    document.getElementById('shipToName').value = '';
+    document.getElementById('shipToGST').value = '';
+    document.getElementById('shipToStateCode').value = '';
+    document.getElementById('shipToAddress').value = '';
+    document.getElementById('transportMode').value = '';
+    document.getElementById('vehicleNo').value = '';
+    document.getElementById('ewayBillNo').value = '';
+    document.getElementById('notes').value = 'E. & O.E';
+    
+    // Clear items and add 3 empty rows
+    document.getElementById('itemsBody').innerHTML = '';
+    addItem();
+    addItem();
+    addItem();
+    
+    // Generate empty preview
+    generateInvoice();
+}
+
+// Client Management Functions
+async function saveClient() {
+    const clientData = {
+        id: Date.now().toString(),
+        name: document.getElementById('clientName').value,
+        contact: document.getElementById('clientContact').value,
+        email: document.getElementById('clientEmail').value,
+        phone: document.getElementById('clientPhone').value,
+        gst: document.getElementById('clientGST').value,
+        stateCode: document.getElementById('clientStateCode').value,
+        billingAddress: document.getElementById('clientBillingAddress').value,
+        shippingAddress: document.getElementById('clientShippingAddress').value,
+        createdAt: new Date().toISOString()
+    };
+
+    if (!clientData.name) {
+        showToast('Client name is required!', true);
+        return;
+    }
+
+    try {
+        // Save to Firebase
+        await db.collection('clients').doc(clientData.id).set(clientData);
         
-        // Display invoice data in form
-        function displayInvoice(invoice) {
-            // Open the invoice tab
-            openTab('invoice-tab');
-            
-            // Load basic info
-            document.getElementById('invoiceNo').value = invoice.invoiceNo;
-            document.getElementById('invoiceDate').value = invoice.invoiceDate;
-            document.getElementById('dueDate').value = invoice.dueDate;
-            document.getElementById('referenceNo').value = invoice.referenceNo || '';
-            
-            // Seller info
-            document.getElementById('sellerName').value = invoice.sellerName;
-            document.getElementById('sellerAddress').value = invoice.sellerAddress;
-            document.getElementById('sellerGST').value = invoice.sellerGST;
-            document.getElementById('sellerStateCode').value = invoice.sellerStateCode;
-            
-            // Bill To info
-            document.getElementById('billToName').value = invoice.billToName;
-            document.getElementById('billToAddress').value = invoice.billToAddress;
-            document.getElementById('billToGST').value = invoice.billToGST;
-            document.getElementById('billToStateCode').value = invoice.billToStateCode;
-            
-            // Ship To info
-            document.getElementById('sameAsBillTo').checked = invoice.sameAsBillTo;
-            toggleShipTo();
-            
-            if (!invoice.sameAsBillTo) {
-                document.getElementById('shipToName').value = invoice.shipToName;
-                document.getElementById('shipToAddress').value = invoice.shipToAddress;
-                document.getElementById('shipToGST').value = invoice.shipToGST;
-                document.getElementById('shipToStateCode').value = invoice.shipToStateCode;
-            }
-            
-            // Dispatch info
-            document.getElementById('transportMode').value = invoice.transportMode || '';
-            document.getElementById('vehicleNo').value = invoice.vehicleNo || '';
-            document.getElementById('ewayBillNo').value = invoice.ewayBillNo || '';
-            
-            // Notes
-            document.getElementById('notes').value = invoice.notes || 'E. & O.E';
-            
-            // Signature image
-            document.getElementById('signatureImageUrl').value = invoice.signatureImageUrl || '';
-            
-            // Clear existing items
-            document.getElementById('itemsBody').innerHTML = '';
-            
-            // Add items
-            invoice.items.forEach(item => {
-                addItem();
-                const rows = document.querySelectorAll('#itemsBody tr');
-                const lastRow = rows[rows.length - 1];
-                
-                lastRow.querySelector('.item-name').value = item.name;
-                lastRow.querySelector('.item-hsn').value = item.hsn;
-                lastRow.querySelector('.item-gst').value = item.gst;
-                lastRow.querySelector('.item-qty').value = item.qty;
-                lastRow.querySelector('.item-rate').value = item.rate;
-                
-                // Trigger calculation
-                calculateRow(lastRow.querySelector('.item-rate'));
-            });
-            
-            // Generate preview
-            generateInvoice();
-            
-            // Scroll to top
-            window.scrollTo(0, 0);
-        }
+        showToast('Client saved successfully!');
+        loadClients();
+        clearClientForm();
+    } catch (error) {
+        console.error('Error saving client:', error);
+        showToast('Error saving client!', true);
+    }
+}
+
+async function loadClients() {
+    try {
+        const clientsList = document.getElementById('clientsList');
+        clientsList.innerHTML = '<p>Loading clients...</p>';
         
-        // Display invoice for customer view
-        function displayInvoiceForCustomer(invoice) {
-            const totals = {
-                taxable: invoice.items.reduce((sum, item) => sum + parseFloat(item.taxable), 0),
-                cgst: invoice.items.reduce((sum, item) => sum + parseFloat(item.cgst), 0),
-                sgst: invoice.items.reduce((sum, item) => sum + parseFloat(item.sgst), 0),
-                total: invoice.items.reduce((sum, item) => sum + parseFloat(item.amount), 0)
-            };
-            
-            const invoiceHTML = `
-                <div class="invoice-header">
-                    <div class="company-info">
-                        <div class="company-name">${invoice.sellerName}</div>
-                        <div>${invoice.sellerAddress.replace(/\n/g, '<br>')}</div>
-                        <div>GSTIN: ${invoice.sellerGST} | State Code: ${invoice.sellerStateCode}</div>
-                    </div>
-                    <div>
-                        <div class="invoice-number">Invoice No: ${invoice.invoiceNo}</div>
-                        <div class="invoice-date">Date: ${formatDate(invoice.invoiceDate)}</div>
-                        <div>Due Date: ${formatDate(invoice.dueDate)}</div>
-                    </div>
-                </div>
-                
-                <div class="invoice-title">TAX INVOICE</div>
-                
-                <div class="address-block">
-                    <div class="from-address">
-                        <div class="address-title">From</div>
-                        <div><strong>${invoice.sellerName}</strong></div>
-                        <div>${invoice.sellerAddress.replace(/\n/g, '<br>')}</div>
-                        <div>GSTIN: ${invoice.sellerGST}</div>
-                        <div>State Code: ${invoice.sellerStateCode}</div>
-                    </div>
-                    <div class="bill-to-address">
-                        <div class="address-title">Bill To</div>
-                        <div><strong>${invoice.billToName}</strong></div>
-                        <div>${invoice.billToAddress.replace(/\n/g, '<br>')}</div>
-                        <div>GSTIN: ${invoice.billToGST}</div>
-                        <div>State Code: ${invoice.billToStateCode}</div>
-                    </div>
-                    <div class="ship-to-address">
-                        <div class="address-title">Ship To</div>
-                        <div><strong>${invoice.shipToName}</strong></div>
-                        <div>${invoice.shipToAddress.replace(/\n/g, '<br>')}</div>
-                        <div>GSTIN: ${invoice.shipToGST}</div>
-                        <div>State Code: ${invoice.shipToStateCode}</div>
-                    </div>
-                </div>
-                
-                <div class="invoice-meta">
-                    <div><strong>Transport Mode:</strong> ${invoice.transportMode || ''}</div>
-                    <div><strong>Vehicle No:</strong> ${invoice.vehicleNo || ''}</div>
-                    <div><strong>eWay Bill No:</strong> ${invoice.ewayBillNo || ''}</div>
-                </div>
-                
-                <table class="invoice-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Description of Goods</th>
-                            <th>HSN Code</th>
-                            <th>GST %</th>
-                            <th>Qty</th>
-                            <th>Rate</th>
-                            <th>Taxable Value</th>
-                            <th>CGST</th>
-                            <th>SGST</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${invoice.items.map((item, index) => `
-                            <tr>
-                                <td class="text-center">${index + 1}</td>
-                                <td>${item.name}</td>
-                                <td class="text-center">${item.hsn}</td>
-                                <td class="text-center">${item.gst}%</td>
-                                <td class="text-center">${item.qty}</td>
-                                <td class="text-right">${parseFloat(item.rate).toFixed(2)}</td>
-                                <td class="text-right">${item.taxable}</td>
-                                <td class="text-right">${item.cgst}</td>
-                                <td class="text-right">${item.sgst}</td>
-                                <td class="text-right">${item.amount}</td>
-                            </tr>
-                        `).join('')}
-                        <tr class="total-row">
-                            <td colspan="6" class="text-right"><strong>Total</strong></td>
-                            <td class="text-right">${totals.taxable.toFixed(2)}</td>
-                            <td class="text-right">${totals.cgst.toFixed(2)}</td>
-                            <td class="text-right">${totals.sgst.toFixed(2)}</td>
-                            <td class="text-right">${totals.total.toFixed(2)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <div class="tax-details">
-                    <table>
-                        <tr>
-                            <td><strong>Total Taxable Amount:</strong></td>
-                            <td class="text-right">${totals.taxable.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total CGST:</strong></td>
-                            <td class="text-right">${totals.cgst.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total SGST:</strong></td>
-                            <td class="text-right">${totals.sgst.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Invoice Total:</strong></td>
-                            <td class="text-right">${totals.total.toFixed(2)}</td>
-                        </tr>
-                    </table>
-                </div>
-                
-                <div class="amount-in-words">
-                    <strong>Amount in Words:</strong> ${numberToWords(totals.total)} Rupees Only
-                </div>
-                
-                <div class="signature-area">
-                    <div class="signature">
-                        ${invoice.signatureImageUrl ? `<img src="${invoice.signatureImageUrl}" alt="Signature" class="signature-image">` : ''}
-                        <div class="signature-line"></div>
-                        <div>Authorized Signatory</div>
-                    </div>
-                </div>
-                
-                <div class="footer">
-                    <div>${invoice.notes || 'E. & O.E'}</div>
-                    <div>Thank you for your business!</div>
-                </div>
-            `;
-            
-            document.getElementById('customer-invoice-preview').innerHTML = invoiceHTML;
+        // Load from Firebase
+        const querySnapshot = await db.collection('clients').orderBy('createdAt', 'desc').get();
+        
+        if (querySnapshot.empty) {
+            clientsList.innerHTML = '<p>No clients found. Add your first client above.</p>';
+            return;
         }
         
-        // Download as PDF for customer view
-        function downloadAsPDF() {
-            const element = document.getElementById('customer-invoice-preview');
-            
-            html2canvas(element, {
-                scale: 2,
-                logging: false,
-                useCORS: true
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = 210; // A4 width in mm
-                const pageHeight = 295; // A4 height in mm
-                const imgHeight = canvas.height * imgWidth / canvas.width;
-                let heightLeft = imgHeight;
-                let position = 0;
-                
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-                
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-                
-                pdf.save('Invoice_' + document.getElementById('invoiceNo').value + '.pdf');
-            });
-        }
-        
-        // Delete invoice from Firebase
-        async function deleteInvoice(id) {
-            if (!confirm('Are you sure you want to delete this invoice?')) return;
-            
-            try {
-                await db.collection('invoices').doc(id).delete();
-                showToast('Invoice deleted successfully!');
-                loadHistory();
-            } catch (error) {
-                console.error('Error deleting invoice:', error);
-                showToast('Error deleting invoice!', true);
-            }
-        }
-        
-        // Share invoice by generating a shareable link
-        function shareInvoice(id) {
-            const shareLink = `https://admin.supremeenterpeises.com/c?invoice=${id}`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Invoice',
-                    text: 'View this invoice',
-                    url: shareLink
-                }).catch(err => {
-                    console.error('Error sharing:', err);
-                    copyToClipboard(shareLink);
-                });
-            } else {
-                copyToClipboard(shareLink);
-            }
-        }
-        
-        // Check if URL has invoice parameter to load shared invoice
-        function checkSharedInvoice() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const invoiceId = urlParams.get('invoice');
-            
-            if (invoiceId) {
-                // Check if user is admin
-                const user = auth.currentUser;
-                if (user && user.email === 'admin@supremeenterpeises.com') {
-                    // Admin viewing shared link - load in admin view
-                    loadInvoice(invoiceId);
-                } else {
-                    // Customer viewing shared link - load in customer view
-                    db.collection('invoices').doc(invoiceId).get().then(doc => {
-                        if (doc.exists) {
-                            showCustomerView(doc.data());
-                        } else {
-                            showToast('Invoice not found!', true);
-                            showAuthContainer();
-                        }
-                    }).catch(error => {
-                        console.error('Error loading invoice:', error);
-                        showToast('Error loading invoice!', true);
-                        showAuthContainer();
-                    });
-                }
-            }
-        }
-        
-        // Clear form
-        function clearForm() {
-            if (!confirm('Are you sure you want to clear the form? All unsaved data will be lost.')) return;
-            
-            // Reset form fields
-            generateInvoiceNumber();
-            document.getElementById('invoiceDate').valueAsDate = new Date();
-            
-            const dueDate = new Date();
-            dueDate.setDate(dueDate.getDate() + 30);
-            document.getElementById('dueDate').valueAsDate = dueDate;
-            
-            document.getElementById('referenceNo').value = '';
-            document.getElementById('sellerName').value = 'SUPREME ENTERPRISES';
-            document.getElementById('sellerGST').value = '';
-            document.getElementById('sellerStateCode').value = '';
-            document.getElementById('sellerAddress').value = '';
-            document.getElementById('billToName').value = '';
-            document.getElementById('billToGST').value = '';
-            document.getElementById('billToStateCode').value = '';
-            document.getElementById('billToAddress').value = '';
-            document.getElementById('sameAsBillTo').checked = true;
-            document.getElementById('shipToName').value = '';
-            document.getElementById('shipToGST').value = '';
-            document.getElementById('shipToStateCode').value = '';
-            document.getElementById('shipToAddress').value = '';
-            document.getElementById('transportMode').value = '';
-            document.getElementById('vehicleNo').value = '';
-            document.getElementById('ewayBillNo').value = '';
-            document.getElementById('notes').value = 'E. & O.E';
-            
-            // Clear items and add 3 empty rows
-            document.getElementById('itemsBody').innerHTML = '';
-            addItem();
-            addItem();
-            addItem();
-            
-            // Generate empty preview
-            generateInvoice();
-        }
-
-        // Client Management Functions
-        async function saveClient() {
-            const clientData = {
-                id: Date.now().toString(),
-                name: document.getElementById('clientName').value,
-                contact: document.getElementById('clientContact').value,
-                email: document.getElementById('clientEmail').value,
-                phone: document.getElementById('clientPhone').value,
-                gst: document.getElementById('clientGST').value,
-                stateCode: document.getElementById('clientStateCode').value,
-                billingAddress: document.getElementById('clientBillingAddress').value,
-                shippingAddress: document.getElementById('clientShippingAddress').value,
-                createdAt: new Date().toISOString()
-            };
-
-            if (!clientData.name) {
-                showToast('Client name is required!', true);
-                return;
-            }
-
-            try {
-                // Save to Firebase
-                await db.collection('clients').doc(clientData.id).set(clientData);
-                
-                showToast('Client saved successfully!');
-                loadClients();
-                clearClientForm();
-            } catch (error) {
-                console.error('Error saving client:', error);
-                showToast('Error saving client!', true);
-            }
-        }
-
-        async function loadClients() {
-            try {
-                const clientsList = document.getElementById('clientsList');
-                clientsList.innerHTML = '<p>Loading clients...</p>';
-                
-                // Load from Firebase
-                const querySnapshot = await db.collection('clients').orderBy('createdAt', 'desc').get();
-                
-                if (querySnapshot.empty) {
-                    clientsList.innerHTML = '<p>No clients found. Add your first client above.</p>';
-                    return;
-                }
-                
-                let clients = [];
-                querySnapshot.forEach(doc => {
-                    clients.push(doc.data());
-                });
-
-                clientsList.innerHTML = clients.map(client => `
-                    <div class="client-item">
-                        <div class="client-info">
-                            <h3>${client.name}</h3>
-                            <p><strong>Contact:</strong> ${client.contact} | <strong>Phone:</strong> ${client.phone}</p>
-                            <p><strong>GSTIN:</strong> ${client.gst} | <strong>State Code:</strong> ${client.stateCode}</p>
-                        </div>
-                        <div class="client-actions">
-                            <button onclick="editClient('${client.id}')"><i class="fas fa-edit"></i> Edit</button>
-                            <button onclick="deleteClient('${client.id}')" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
-                            <button onclick="useClientForInvoice('${client.id}')" class="btn-success"><i class="fas fa-file-invoice"></i> Use for Invoice</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading clients:', error);
-                showToast('Error loading clients!', true);
-            }
-        }
-
-        function clearClientForm() {
-            document.getElementById('clientName').value = '';
-            document.getElementById('clientContact').value = '';
-            document.getElementById('clientEmail').value = '';
-            document.getElementById('clientPhone').value = '';
-            document.getElementById('clientGST').value = '';
-            document.getElementById('clientStateCode').value = '';
-            document.getElementById('clientBillingAddress').value = '';
-            document.getElementById('clientShippingAddress').value = '';
-            
-            // Reset save button if it was in update mode
-            const saveBtn = document.querySelector('#clients-tab .btn-success');
-            saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Client';
-            saveBtn.onclick = function() { saveClient(); };
-        }
-
-        function editClient(id) {
-            db.collection('clients').doc(id).get().then(doc => {
-                if (doc.exists) {
-                    const client = doc.data();
-                    displayClientForm(client);
-                } else {
-                    showToast('Client not found!', true);
-                }
-            }).catch(error => {
-                console.error('Error loading client:', error);
-                showToast('Error loading client!', true);
-            });
-        }
-        
-        function displayClientForm(client) {
-            document.getElementById('clientName').value = client.name;
-            document.getElementById('clientContact').value = client.contact;
-            document.getElementById('clientEmail').value = client.email;
-            document.getElementById('clientPhone').value = client.phone;
-            document.getElementById('clientGST').value = client.gst;
-            document.getElementById('clientStateCode').value = client.stateCode;
-            document.getElementById('clientBillingAddress').value = client.billingAddress;
-            document.getElementById('clientShippingAddress').value = client.shippingAddress;
-
-            // Store the current client ID for updating
-            document.getElementById('clientName').dataset.clientId = client.id;
-
-            // Change save button to update
-            const saveBtn = document.querySelector('#clients-tab .btn-success');
-            saveBtn.innerHTML = '<i class="fas fa-save"></i> Update Client';
-            saveBtn.onclick = function() { updateClient(client.id); };
-
-            // Scroll to form
-            document.querySelector('#clients-tab .client-form').scrollIntoView();
-        }
-
-        async function updateClient(id) {
-            const clientRef = db.collection('clients').doc(id);
-            const doc = await clientRef.get();
-
-            if (!doc.exists) {
-                showToast('Client not found!', true);
-                return;
-            }
-
-            const updatedClient = {
-                id: id,
-                name: document.getElementById('clientName').value,
-                contact: document.getElementById('clientContact').value,
-                email: document.getElementById('clientEmail').value,
-                phone: document.getElementById('clientPhone').value,
-                gst: document.getElementById('clientGST').value,
-                stateCode: document.getElementById('clientStateCode').value,
-                billingAddress: document.getElementById('clientBillingAddress').value,
-                shippingAddress: document.getElementById('clientShippingAddress').value,
-                createdAt: doc.data().createdAt
-            };
-
-            try {
-                await clientRef.update(updatedClient);
-                
-                showToast('Client updated successfully!');
-                loadClients();
-                clearClientForm();
-            } catch (error) {
-                console.error('Error updating client:', error);
-                showToast('Error updating client!', true);
-            }
-        }
-
-        async function deleteClient(id) {
-            if (!confirm('Are you sure you want to delete this client?')) return;
-
-            try {
-                await db.collection('clients').doc(id).delete();
-                showToast('Client deleted successfully!');
-                loadClients();
-            } catch (error) {
-                console.error('Error deleting client:', error);
-                showToast('Error deleting client!', true);
-            }
-        }
-
-        function useClientForInvoice(id) {
-            db.collection('clients').doc(id).get().then(doc => {
-                if (doc.exists) {
-                    const client = doc.data();
-                    fillClientDetails(client);
-                } else {
-                    showToast('Client not found!', true);
-                }
-            }).catch(error => {
-                console.error('Error loading client:', error);
-                showToast('Error loading client!', true);
-            });
-        }
-        
-        function fillClientDetails(client) {
-            // Switch to invoice tab
-            openTab('invoice-tab');
-
-            // Fill client details
-            document.getElementById('billToName').value = client.name;
-            document.getElementById('billToGST').value = client.gst;
-            document.getElementById('billToStateCode').value = client.stateCode;
-            document.getElementById('billToAddress').value = client.billingAddress;
-
-            // Check if shipping is same as billing
-            if (client.shippingAddress && client.shippingAddress !== client.billingAddress) {
-                document.getElementById('sameAsBillTo').checked = false;
-                document.getElementById('shipToName').value = client.name;
-                document.getElementById('shipToGST').value = client.gst;
-                document.getElementById('shipToStateCode').value = client.stateCode;
-                document.getElementById('shipToAddress').value = client.shippingAddress;
-                toggleShipTo();
-            } else {
-                document.getElementById('sameAsBillTo').checked = true;
-                toggleShipTo();
-            }
-
-            // Focus on items
-            document.querySelector('.item-name').focus();
-        }
-
-        async function searchClients() {
-            const searchTerm = document.getElementById('clientSearch').value.toLowerCase();
-            
-            if (!searchTerm) {
-                loadClients();
-                return;
-            }
-
-            try {
-                const clientsList = document.getElementById('clientsList');
-                clientsList.innerHTML = '<p>Searching clients...</p>';
-                
-                // Search in Firebase
-                const querySnapshot = await db.collection('clients')
-                    .orderBy('name')
-                    .startAt(searchTerm)
-                    .endAt(searchTerm + '\uf8ff')
-                    .get();
-
-                if (querySnapshot.empty) {
-                    clientsList.innerHTML = '<p>No clients match your search.</p>';
-                    return;
-                }
-
-                let clients = [];
-                querySnapshot.forEach(doc => {
-                    clients.push(doc.data());
-                });
-
-                clientsList.innerHTML = clients.map(client => `
-                    <div class="client-item">
-                        <div class="client-info">
-                            <h3>${client.name}</h3>
-                            <p><strong>Contact:</strong> ${client.contact} | <strong>Phone:</strong> ${client.phone}</p>
-                            <p><strong>GSTIN:</strong> ${client.gst} | <strong>State Code:</strong> ${client.stateCode}</p>
-                        </div>
-                        <div class="client-actions">
-                            <button onclick="editClient('${client.id}')"><i class="fas fa-edit"></i> Edit</button>
-                            <button onclick="deleteClient('${client.id}')" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
-                            <button onclick="useClientForInvoice('${client.id}')" class="btn-success"><i class="fas fa-file-invoice"></i> Use for Invoice</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error searching clients:', error);
-                showToast('Error searching clients!', true);
-            }
-        }
-
-        // Settings Functions
-        async function loadSettings() {
-            try {
-                // Load company settings
-                const companyDoc = await db.collection('settings').doc('company').get();
-                if (companyDoc.exists) {
-                    const company = companyDoc.data();
-                    document.getElementById('companyName').value = company.name || 'SUPREME ENTERPRISES';
-                    document.getElementById('companyGST').value = company.gst || '';
-                    document.getElementById('companyStateCode').value = company.stateCode || '';
-                    document.getElementById('companyAddress').value = company.address || '';
-                    document.getElementById('companyPhone').value = company.phone || '';
-                    document.getElementById('companyEmail').value = company.email || '';
-                    document.getElementById('companyWebsite').value = company.website || '';
-                    document.getElementById('signatureImageUrl').value = company.signatureImageUrl || '';
-                    
-                    // Update seller info in invoice form
-                    document.getElementById('sellerName').value = company.name || 'SUPREME ENTERPRISES';
-                    document.getElementById('sellerGST').value = company.gst || '';
-                    document.getElementById('sellerStateCode').value = company.stateCode || '';
-                    document.getElementById('sellerAddress').value = company.address || '';
-                }
-                
-                // Load invoice settings
-                const invoiceDoc = await db.collection('settings').doc('invoice').get();
-                if (invoiceDoc.exists) {
-                    const invoice = invoiceDoc.data();
-                    document.getElementById('invoicePrefix').value = invoice.prefix || 'INV';
-                    document.getElementById('nextInvoiceNumber').value = invoice.nextNumber || 1001;
-                    document.getElementById('defaultDueDays').value = invoice.dueDays || 30;
-                    document.getElementById('defaultNotes').value = invoice.notes || 'E. & O.E';
-                    
-                    // Update default notes in invoice form
-                    document.getElementById('notes').value = invoice.notes || 'E. & O.E';
-                }
-                
-                // Save to localStorage for offline use
-                const settings = {
-                    company: companyDoc.exists ? companyDoc.data() : {},
-                    invoice: invoiceDoc.exists ? invoiceDoc.data() : {}
-                };
-                localStorage.setItem('settings', JSON.stringify(settings));
-            } catch (error) {
-                console.error('Error loading settings:', error);
-                showToast('Error loading settings!', true);
-            }
-        }
-
-        async function saveCompanySettings() {
-            const companySettings = {
-                name: document.getElementById('companyName').value,
-                gst: document.getElementById('companyGST').value,
-                stateCode: document.getElementById('companyStateCode').value,
-                address: document.getElementById('companyAddress').value,
-                phone: document.getElementById('companyPhone').value,
-                email: document.getElementById('companyEmail').value,
-                website: document.getElementById('companyWebsite').value,
-                signatureImageUrl: document.getElementById('signatureImageUrl').value
-            };
-
-            try {
-                await db.collection('settings').doc('company').set(companySettings);
-                
-                // Update seller info in invoice form
-                document.getElementById('sellerName').value = companySettings.name;
-                document.getElementById('sellerGST').value = companySettings.gst;
-                document.getElementById('sellerStateCode').value = companySettings.stateCode;
-                document.getElementById('sellerAddress').value = companySettings.address;
-                
-                showToast('Company settings saved successfully!');
-            } catch (error) {
-                console.error('Error saving company settings:', error);
-                showToast('Error saving company settings!', true);
-            }
-        }
-
-        async function saveInvoiceSettings() {
-            const invoiceSettings = {
-                prefix: document.getElementById('invoicePrefix').value,
-                nextNumber: parseInt(document.getElementById('nextInvoiceNumber').value),
-                dueDays: parseInt(document.getElementById('defaultDueDays').value),
-                notes: document.getElementById('defaultNotes').value
-            };
-
-            try {
-                await db.collection('settings').doc('invoice').set(invoiceSettings);
-                
-                // Update default notes in invoice form
-                document.getElementById('notes').value = invoiceSettings.notes;
-                
-                showToast('Invoice settings saved successfully!');
-            } catch (error) {
-                console.error('Error saving invoice settings:', error);
-                showToast('Error saving invoice settings!', true);
-            }
-        }
-
-        // Product Management Functions
-        async function loadProducts() {
-            try {
-                const productsList = document.getElementById('productsList');
-                productsList.innerHTML = '<p>Loading products...</p>';
-                
-                // Load from Firebase
-                const querySnapshot = await db.collection('products').orderBy('name').get();
-                
-                if (querySnapshot.empty) {
-                    productsList.innerHTML = '<p>No products found. Add your first product above.</p>';
-                    return;
-                }
-                
-                products = [];
-                querySnapshot.forEach(doc => {
-                    products.push(doc.data());
-                });
-
-                productsList.innerHTML = products.map(product => `
-                    <div class="client-item" style="margin-top: 10px;">
-                        <div class="client-info">
-                            <h3>${product.name}</h3>
-                            <p><strong>HSN:</strong> ${product.hsn} | <strong>GST:</strong> ${product.gst}%</p>
-                            <p>${product.description}</p>
-                        </div>
-                        <div class="client-actions">
-                            <button onclick="editProduct(${product.id})"><i class="fas fa-edit"></i> Edit</button>
-                            <button onclick="deleteProduct(${product.id})" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading products:', error);
-                showToast('Error loading products!', true);
-            }
-        }
-
-        async function addNewProduct() {
-            const newProduct = {
-                id: Date.now(),
-                name: document.getElementById('newProductName').value,
-                hsn: document.getElementById('newProductHSN').value,
-                gst: parseInt(document.getElementById('newProductGST').value),
-                description: document.getElementById('newProductDescription').value
-            };
-
-            if (!newProduct.name || !newProduct.hsn || isNaN(newProduct.gst)) {
-                showToast('Please fill all required fields for the product!', true);
-                return;
-            }
-
-            try {
-                await db.collection('products').doc(newProduct.id.toString()).set(newProduct);
-                
-                // Add to local products array
-                products.push(newProduct);
-                
-                // Reload products list
-                loadProducts();
-
-                // Clear form
-                document.getElementById('newProductName').value = '';
-                document.getElementById('newProductHSN').value = '';
-                document.getElementById('newProductGST').value = '';
-                document.getElementById('newProductDescription').value = '';
-
-                showToast('Product added successfully!');
-            } catch (error) {
-                console.error('Error adding product:', error);
-                showToast('Error adding product!', true);
-            }
-        }
-
-        function editProduct(id) {
-            const product = products.find(p => p.id === id);
-
-            if (!product) {
-                showToast('Product not found!', true);
-                return;
-            }
-
-            document.getElementById('newProductName').value = product.name;
-            document.getElementById('newProductHSN').value = product.hsn;
-            document.getElementById('newProductGST').value = product.gst;
-            document.getElementById('newProductDescription').value = product.description;
-
-            // Store the current product ID for updating
-            document.getElementById('newProductName').dataset.productId = product.id;
-
-            // Change add button to update
-            const addBtn = document.querySelector('#settings-tab .btn-success');
-            addBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
-            addBtn.onclick = function() { updateProduct(product.id); };
-
-            // Scroll to form
-            document.querySelector('#settings-tab .form-group').scrollIntoView();
-        }
-
-        async function updateProduct(id) {
-            const productRef = db.collection('products').doc(id.toString());
-            const doc = await productRef.get();
-
-            if (!doc.exists) {
-                showToast('Product not found!', true);
-                return;
-            }
-
-            const updatedProduct = {
-                id: id,
-                name: document.getElementById('newProductName').value,
-                hsn: document.getElementById('newProductHSN').value,
-                gst: parseInt(document.getElementById('newProductGST').value),
-                description: document.getElementById('newProductDescription').value
-            };
-
-            try {
-                await productRef.update(updatedProduct);
-                
-                // Update in local products array
-                const productIndex = products.findIndex(p => p.id === id);
-                if (productIndex !== -1) {
-                    products[productIndex] = updatedProduct;
-                }
-                
-                // Reload products list
-                loadProducts();
-
-                // Clear form and reset button
-                document.getElementById('newProductName').value = '';
-                document.getElementById('newProductHSN').value = '';
-                document.getElementById('newProductGST').value = '';
-                document.getElementById('newProductDescription').value = '';
-
-                const addBtn = document.querySelector('#settings-tab .btn-success');
-                addBtn.innerHTML = '<i class="fas fa-plus"></i> Add Product';
-                addBtn.onclick = function() { addNewProduct(); };
-
-                showToast('Product updated successfully!');
-            } catch (error) {
-                console.error('Error updating product:', error);
-                showToast('Error updating product!', true);
-            }
-        }
-
-        async function deleteProduct(id) {
-            if (!confirm('Are you sure you want to delete this product?')) return;
-
-            try {
-                await db.collection('products').doc(id.toString()).delete();
-                
-                // Remove from products array
-                const productIndex = products.findIndex(p => p.id === id);
-                if (productIndex !== -1) {
-                    products.splice(productIndex, 1);
-                }
-                
-                // Reload products list
-                loadProducts();
-
-                showToast('Product deleted successfully!');
-            } catch (error) {
-                console.error('Error deleting product:', error);
-                showToast('Error deleting product!', true);
-            }
-        }
-        
-        // Close autocomplete when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.matches('.item-name')) {
-                document.querySelectorAll('.autocomplete-results').forEach(results => {
-                    results.style.display = 'none';
-                });
-            }
+        let clients = [];
+        querySnapshot.forEach(doc => {
+            clients.push(doc.data());
         });
 
-        // Copy text to clipboard
-        function copyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showToast('Link copied to clipboard!');
+        clientsList.innerHTML = clients.map(client => `
+            <div class="client-item">
+                <div class="client-info">
+                    <h3>${client.name}</h3>
+                    <p><strong>Contact:</strong> ${client.contact} | <strong>Phone:</strong> ${client.phone}</p>
+                    <p><strong>GSTIN:</strong> ${client.gst} | <strong>State Code:</strong> ${client.stateCode}</p>
+                </div>
+                <div class="client-actions">
+                    <button onclick="editClient('${client.id}')"><i class="fas fa-edit"></i> Edit</button>
+                    <button onclick="deleteClient('${client.id}')" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                    <button onclick="useClientForInvoice('${client.id}')" class="btn-success"><i class="fas fa-file-invoice"></i> Use for Invoice</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading clients:', error);
+        showToast('Error loading clients!', true);
+    }
+}
+
+function clearClientForm() {
+    document.getElementById('clientName').value = '';
+    document.getElementById('clientContact').value = '';
+    document.getElementById('clientEmail').value = '';
+    document.getElementById('clientPhone').value = '';
+    document.getElementById('clientGST').value = '';
+    document.getElementById('clientStateCode').value = '';
+    document.getElementById('clientBillingAddress').value = '';
+    document.getElementById('clientShippingAddress').value = '';
+    
+    // Reset save button if it was in update mode
+    const saveBtn = document.querySelector('#clients-tab .btn-success');
+    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Client';
+    saveBtn.onclick = function() { saveClient(); };
+}
+
+function editClient(id) {
+    db.collection('clients').doc(id).get().then(doc => {
+        if (doc.exists) {
+            const client = doc.data();
+            displayClientForm(client);
+        } else {
+            showToast('Client not found!', true);
         }
+    }).catch(error => {
+        console.error('Error loading client:', error);
+        showToast('Error loading client!', true);
+    });
+}
+
+function displayClientForm(client) {
+    document.getElementById('clientName').value = client.name;
+    document.getElementById('clientContact').value = client.contact;
+    document.getElementById('clientEmail').value = client.email;
+    document.getElementById('clientPhone').value = client.phone;
+    document.getElementById('clientGST').value = client.gst;
+    document.getElementById('clientStateCode').value = client.stateCode;
+    document.getElementById('clientBillingAddress').value = client.billingAddress;
+    document.getElementById('clientShippingAddress').value = client.shippingAddress;
+
+    // Store the current client ID for updating
+    document.getElementById('clientName').dataset.clientId = client.id;
+
+    // Change save button to update
+    const saveBtn = document.querySelector('#clients-tab .btn-success');
+    saveBtn.innerHTML = '<i class="fas fa-save"></i> Update Client';
+    saveBtn.onclick = function() { updateClient(client.id); };
+
+    // Scroll to form
+    document.querySelector('#clients-tab .client-form').scrollIntoView();
+}
+
+async function updateClient(id) {
+    const clientRef = db.collection('clients').doc(id);
+    const doc = await clientRef.get();
+
+    if (!doc.exists) {
+        showToast('Client not found!', true);
+        return;
+    }
+
+    const updatedClient = {
+        id: id,
+        name: document.getElementById('clientName').value,
+        contact: document.getElementById('clientContact').value,
+        email: document.getElementById('clientEmail').value,
+        phone: document.getElementById('clientPhone').value,
+        gst: document.getElementById('clientGST').value,
+        stateCode: document.getElementById('clientStateCode').value,
+        billingAddress: document.getElementById('clientBillingAddress').value,
+        shippingAddress: document.getElementById('clientShippingAddress').value,
+        createdAt: doc.data().createdAt
+    };
+
+    try {
+        await clientRef.update(updatedClient);
+        
+        showToast('Client updated successfully!');
+        loadClients();
+        clearClientForm();
+    } catch (error) {
+        console.error('Error updating client:', error);
+        showToast('Error updating client!', true);
+    }
+}
+
+async function deleteClient(id) {
+    if (!confirm('Are you sure you want to delete this client?')) return;
+
+    try {
+        await db.collection('clients').doc(id).delete();
+        showToast('Client deleted successfully!');
+        loadClients();
+    } catch (error) {
+        console.error('Error deleting client:', error);
+        showToast('Error deleting client!', true);
+    }
+}
+
+function useClientForInvoice(id) {
+    db.collection('clients').doc(id).get().then(doc => {
+        if (doc.exists) {
+            const client = doc.data();
+            fillClientDetails(client);
+        } else {
+            showToast('Client not found!', true);
+        }
+    }).catch(error => {
+        console.error('Error loading client:', error);
+        showToast('Error loading client!', true);
+    });
+}
+
+function fillClientDetails(client) {
+    // Switch to invoice tab
+    openTab('invoice-tab');
+
+    // Fill client details
+    document.getElementById('billToName').value = client.name;
+    document.getElementById('billToGST').value = client.gst;
+    document.getElementById('billToStateCode').value = client.stateCode;
+    document.getElementById('billToAddress').value = client.billingAddress;
+
+    // Check if shipping is same as billing
+    if (client.shippingAddress && client.shippingAddress !== client.billingAddress) {
+        document.getElementById('sameAsBillTo').checked = false;
+        document.getElementById('shipToName').value = client.name;
+        document.getElementById('shipToGST').value = client.gst;
+        document.getElementById('shipToStateCode').value = client.stateCode;
+        document.getElementById('shipToAddress').value = client.shippingAddress;
+        toggleShipTo();
+    } else {
+        document.getElementById('sameAsBillTo').checked = true;
+        toggleShipTo();
+    }
+
+    // Focus on items
+    document.querySelector('.item-name').focus();
+}
+
+async function searchClients() {
+    const searchTerm = document.getElementById('clientSearch').value.toLowerCase();
+    
+    if (!searchTerm) {
+        loadClients();
+        return;
+    }
+
+    try {
+        const clientsList = document.getElementById('clientsList');
+        clientsList.innerHTML = '<p>Searching clients...</p>';
+        
+        // Search in Firebase
+        const querySnapshot = await db.collection('clients')
+            .orderBy('name')
+            .startAt(searchTerm)
+            .endAt(searchTerm + '\uf8ff')
+            .get();
+
+        if (querySnapshot.empty) {
+            clientsList.innerHTML = '<p>No clients match your search.</p>';
+            return;
+        }
+
+        let clients = [];
+        querySnapshot.forEach(doc => {
+            clients.push(doc.data());
+        });
+
+        clientsList.innerHTML = clients.map(client => `
+            <div class="client-item">
+                <div class="client-info">
+                    <h3>${client.name}</h3>
+                    <p><strong>Contact:</strong> ${client.contact} | <strong>Phone:</strong> ${client.phone}</p>
+                    <p><strong>GSTIN:</strong> ${client.gst} | <strong>State Code:</strong> ${client.stateCode}</p>
+                </div>
+                <div class="client-actions">
+                    <button onclick="editClient('${client.id}')"><i class="fas fa-edit"></i> Edit</button>
+                    <button onclick="deleteClient('${client.id}')" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                    <button onclick="useClientForInvoice('${client.id}')" class="btn-success"><i class="fas fa-file-invoice"></i> Use for Invoice</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error searching clients:', error);
+        showToast('Error searching clients!', true);
+    }
+}
+
+// Settings Functions
+async function loadSettings() {
+    try {
+        // Load company settings
+        const companyDoc = await db.collection('settings').doc('company').get();
+        if (companyDoc.exists) {
+            const company = companyDoc.data();
+            document.getElementById('companyName').value = company.name || 'SUPREME ENTERPRISES';
+            document.getElementById('companyGST').value = company.gst || '';
+            document.getElementById('companyStateCode').value = company.stateCode || '';
+            document.getElementById('companyAddress').value = company.address || '';
+            document.getElementById('companyPhone').value = company.phone || '';
+            document.getElementById('companyEmail').value = company.email || '';
+            document.getElementById('companyWebsite').value = company.website || '';
+            document.getElementById('signatureImageUrl').value = company.signatureImageUrl || '';
+            
+            // Update seller info in invoice form
+            document.getElementById('sellerName').value = company.name || 'SUPREME ENTERPRISES';
+            document.getElementById('sellerGST').value = company.gst || '';
+            document.getElementById('sellerStateCode').value = company.stateCode || '';
+            document.getElementById('sellerAddress').value = company.address || '';
+        }
+        
+        // Load invoice settings
+        const invoiceDoc = await db.collection('settings').doc('invoice').get();
+        if (invoiceDoc.exists) {
+            const invoice = invoiceDoc.data();
+            document.getElementById('invoicePrefix').value = invoice.prefix || 'INV';
+            document.getElementById('nextInvoiceNumber').value = invoice.nextNumber || 1001;
+            document.getElementById('defaultDueDays').value = invoice.dueDays || 30;
+            document.getElementById('defaultNotes').value = invoice.notes || 'E. & O.E';
+            
+            // Update default notes in invoice form
+            document.getElementById('notes').value = invoice.notes || 'E. & O.E';
+        }
+        
+        // Save to localStorage for offline use
+        const settings = {
+            company: companyDoc.exists ? companyDoc.data() : {},
+            invoice: invoiceDoc.exists ? invoiceDoc.data() : {}
+        };
+        localStorage.setItem('settings', JSON.stringify(settings));
+    } catch (error) {
+        console.error('Error loading settings:', error);
+        showToast('Error loading settings!', true);
+    }
+}
+
+async function saveCompanySettings() {
+    const companySettings = {
+        name: document.getElementById('companyName').value,
+        gst: document.getElementById('companyGST').value,
+        stateCode: document.getElementById('companyStateCode').value,
+        address: document.getElementById('companyAddress').value,
+        phone: document.getElementById('companyPhone').value,
+        email: document.getElementById('companyEmail').value,
+        website: document.getElementById('companyWebsite').value,
+        signatureImageUrl: document.getElementById('signatureImageUrl').value
+    };
+
+    try {
+        await db.collection('settings').doc('company').set(companySettings);
+        
+        // Update seller info in invoice form
+        document.getElementById('sellerName').value = companySettings.name;
+        document.getElementById('sellerGST').value = companySettings.gst;
+        document.getElementById('sellerStateCode').value = companySettings.stateCode;
+        document.getElementById('sellerAddress').value = companySettings.address;
+        
+        showToast('Company settings saved successfully!');
+    } catch (error) {
+        console.error('Error saving company settings:', error);
+        showToast('Error saving company settings!', true);
+    }
+}
+
+async function saveInvoiceSettings() {
+    const invoiceSettings = {
+        prefix: document.getElementById('invoicePrefix').value,
+        nextNumber: parseInt(document.getElementById('nextInvoiceNumber').value),
+        dueDays: parseInt(document.getElementById('defaultDueDays').value),
+        notes: document.getElementById('defaultNotes').value
+    };
+
+    try {
+        await db.collection('settings').doc('invoice').set(invoiceSettings);
+        
+        // Update default notes in invoice form
+        document.getElementById('notes').value = invoiceSettings.notes;
+        
+        showToast('Invoice settings saved successfully!');
+    } catch (error) {
+        console.error('Error saving invoice settings:', error);
+        showToast('Error saving invoice settings!', true);
+    }
+}
+
+// Product Management Functions
+async function loadProducts() {
+    try {
+        const productsList = document.getElementById('productsList');
+        productsList.innerHTML = '<p>Loading products...</p>';
+        
+        // Load from Firebase
+        const querySnapshot = await db.collection('products').orderBy('name').get();
+        
+        if (querySnapshot.empty) {
+            productsList.innerHTML = '<p>No products found. Add your first product above.</p>';
+            return;
+        }
+        
+        products = [];
+        querySnapshot.forEach(doc => {
+            products.push(doc.data());
+        });
+
+        productsList.innerHTML = products.map(product => `
+            <div class="client-item" style="margin-top: 10px;">
+                <div class="client-info">
+                    <h3>${product.name}</h3>
+                    <p><strong>HSN:</strong> ${product.hsn} | <strong>GST:</strong> ${product.gst}%</p>
+                    <p>${product.description}</p>
+                </div>
+                <div class="client-actions">
+                    <button onclick="editProduct(${product.id})"><i class="fas fa-edit"></i> Edit</button>
+                    <button onclick="deleteProduct(${product.id})" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading products:', error);
+        showToast('Error loading products!', true);
+    }
+}
+
+async function addNewProduct() {
+    const newProduct = {
+        id: Date.now(),
+        name: document.getElementById('newProductName').value,
+        hsn: document.getElementById('newProductHSN').value,
+        gst: parseInt(document.getElementById('newProductGST').value),
+        description: document.getElementById('newProductDescription').value
+    };
+
+    if (!newProduct.name || !newProduct.hsn || isNaN(newProduct.gst)) {
+        showToast('Please fill all required fields for the product!', true);
+        return;
+    }
+
+    try {
+        await db.collection('products').doc(newProduct.id.toString()).set(newProduct);
+        
+        // Add to local products array
+        products.push(newProduct);
+        
+        // Reload products list
+        loadProducts();
+
+        // Clear form
+        document.getElementById('newProductName').value = '';
+        document.getElementById('newProductHSN').value = '';
+        document.getElementById('newProductGST').value = '';
+        document.getElementById('newProductDescription').value = '';
+
+        showToast('Product added successfully!');
+    } catch (error) {
+        console.error('Error adding product:', error);
+        showToast('Error adding product!', true);
+    }
+}
+
+function editProduct(id) {
+    const product = products.find(p => p.id === id);
+
+    if (!product) {
+        showToast('Product not found!', true);
+        return;
+    }
+
+    document.getElementById('newProductName').value = product.name;
+    document.getElementById('newProductHSN').value = product.hsn;
+    document.getElementById('newProductGST').value = product.gst;
+    document.getElementById('newProductDescription').value = product.description;
+
+    // Store the current product ID for updating
+    document.getElementById('newProductName').dataset.productId = product.id;
+
+    // Change add button to update
+    const addBtn = document.querySelector('#settings-tab .btn-success');
+    addBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
+    addBtn.onclick = function() { updateProduct(product.id); };
+
+    // Scroll to form
+    document.querySelector('#settings-tab .form-group').scrollIntoView();
+}
+
+async function updateProduct(id) {
+    const productRef = db.collection('products').doc(id.toString());
+    const doc = await productRef.get();
+
+    if (!doc.exists) {
+        showToast('Product not found!', true);
+        return;
+    }
+
+    const updatedProduct = {
+        id: id,
+        name: document.getElementById('newProductName').value,
+        hsn: document.getElementById('newProductHSN').value,
+        gst: parseInt(document.getElementById('newProductGST').value),
+        description: document.getElementById('newProductDescription').value
+    };
+
+    try {
+        await productRef.update(updatedProduct);
+        
+        // Update in local products array
+        const productIndex = products.findIndex(p => p.id === id);
+        if (productIndex !== -1) {
+            products[productIndex] = updatedProduct;
+        }
+        
+        // Reload products list
+        loadProducts();
+
+        // Clear form and reset button
+        document.getElementById('newProductName').value = '';
+        document.getElementById('newProductHSN').value = '';
+        document.getElementById('newProductGST').value = '';
+        document.getElementById('newProductDescription').value = '';
+
+        const addBtn = document.querySelector('#settings-tab .btn-success');
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> Add Product';
+        addBtn.onclick = function() { addNewProduct(); };
+
+        showToast('Product updated successfully!');
+    } catch (error) {
+        console.error('Error updating product:', error);
+        showToast('Error updating product!', true);
+    }
+}
+
+async function deleteProduct(id) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+        await db.collection('products').doc(id.toString()).delete();
+        
+        // Remove from products array
+        const productIndex = products.findIndex(p => p.id === id);
+        if (productIndex !== -1) {
+            products.splice(productIndex, 1);
+        }
+        
+        // Reload products list
+        loadProducts();
+
+        showToast('Product deleted successfully!');
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        showToast('Error deleting product!', true);
+    }
+}
+
+// Close autocomplete when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.matches('.item-name')) {
+        document.querySelectorAll('.autocomplete-results').forEach(results => {
+            results.style.display = 'none';
+        });
+    }
+});
+
+// Copy text to clipboard
+function copyToClipboard(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    showToast('Link copied to clipboard!');
+}
     </script>
 </body>
 </html>
