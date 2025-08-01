@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator - Supreme Enterprises</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            font-size: 28px;
+            margin-right: 10px;
+            color: #3498db;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .invoice-preview {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .invoice-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .invoice-details {
+            text-align: right;
+        }
+        
+        .invoice-details p {
+            margin-bottom: 5px;
+        }
+        
+        .invoice-company {
+            margin-bottom: 30px;
+        }
+        
+        .invoice-company h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .invoice-table th {
+            background-color: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .invoice-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .invoice-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .invoice-totals {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+        }
+        
+        .invoice-totals tr td {
+            padding: 8px 0;
+        }
+        
+        .invoice-totals tr:last-child td {
+            font-weight: 600;
+            font-size: 18px;
+            border-top: 2px solid #eee;
+            padding-top: 12px;
+        }
+        
+        .invoice-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #7f8c8d;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .items-list {
+            margin-top: 15px;
+        }
+        
+        .item-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .item-row input {
+            flex: 1;
+        }
+        
+        .item-row .btn-danger {
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-item-btn {
+            margin-top: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .auth-form input {
+            margin-bottom: 15px;
+        }
+        
+        .share-section {
+            margin-top: 20px;
+        }
+        
+        .share-link {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .share-link input {
+            flex: 1;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2ecc71;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Container (Shown First) -->
+    <div id="auth-container" class="auth-container">
+        <h2>Admin Login</h2>
+        <div id="login-form" class="auth-form">
+            <input type="email" id="login-email" placeholder="admin@supremeenterprises.com" class="form-control">
+            <input type="password" id="login-password" placeholder="Password" class="form-control">
+            <button onclick="login()" class="btn btn-success">Login</button>
+        </div>
+    </div>
+
+    <!-- Main App Container (Hidden Initially) -->
+    <div id="app-container" class="container hidden">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-file-invoice"></i>
+                    <h1>Supreme Enterprises - Invoice Generator</h1>
+                </div>
+                <button onclick="logout()" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <h3 class="card-title">Invoice Details</h3>
+                <input type="text" id="invoice-number" class="form-control" placeholder="Invoice Number">
+                <input type="date" id="invoice-date" class="form-control">
+                
+                <h3 class="card-title" style="margin-top: 20px;">From</h3>
+                <input type="text" id="company-name" class="form-control" placeholder="Company Name">
+                <input type="text" id="company-address" class="form-control" placeholder="Address">
+                <input type="text" id="company-city" class="form-control" placeholder="City, State, ZIP">
+                <input type="text" id="company-phone" class="form-control" placeholder="Phone">
+                <input type="email" id="company-email" class="form-control" placeholder="Email">
+                
+                <h3 class="card-title" style="margin-top: 20px;">To</h3>
+                <input type="text" id="client-name" class="form-control" placeholder="Client Name">
+                <input type="text" id="client-address" class="form-control" placeholder="Address">
+                <input type="text" id="client-city" class="form-control" placeholder="City, State, ZIP">
+                <input type="text" id="client-phone" class="form-control" placeholder="Phone">
+                <input type="email" id="client-email" class="form-control" placeholder="Email">
+            </div>
+            
+            <div class="card">
+                <h3 class="card-title">Items</h3>
+                <div class="items-list" id="items-container">
+                    <!-- Items will be added here dynamically -->
+                </div>
+                <button onclick="addItemRow()" class="btn btn-primary add-item-btn">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+                
+                <h3 class="card-title" style="margin-top: 20px;">Payment Details</h3>
+                <input type="text" id="payment-method" class="form-control" placeholder="Payment Method">
+                <input type="text" id="payment-account" class="form-control" placeholder="Account Details">
+                <input type="text" id="payment-terms" class="form-control" placeholder="Payment Terms">
+                
+                <div class="action-buttons">
+                    <button onclick="saveInvoice()" class="btn btn-success">
+                        <i class="fas fa-save"></i> Save Invoice
+                    </button>
+                    <button onclick="generatePDF()" class="btn btn-primary">
+                        <i class="fas fa-file-pdf"></i> Generate PDF
+                    </button>
+                    <button onclick="clearForm()" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+                
+                <div class="share-section" id="share-section" style="display: none;">
+                    <h3 class="card-title">Share Invoice</h3>
+                    <p>Share this link with your client to allow them to view the invoice:</p>
+                    <div class="share-link">
+                        <input type="text" id="share-link-input" class="form-control" readonly>
+                        <button onclick="copyShareLink()" class="btn btn-primary">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="invoice-preview" id="invoice-preview">
+            <div class="invoice-header">
+                <div class="invoice-company">
+                    <h2 id="preview-company-name">Supreme Enterprises</h2>
+                    <p id="preview-company-address">123 Business Ave, Suite 100</p>
+                    <p id="preview-company-city">New York, NY 10001</p>
+                    <p id="preview-company-phone">Phone: (123) 456-7890</p>
+                    <p id="preview-company-email">Email: info@supremeenterprises.com</p>
+                </div>
+                
+                <div class="invoice-details">
+                    <h1 class="invoice-title">INVOICE</h1>
+                    <p><strong>Invoice #:</strong> <span id="preview-invoice-number">INV-001</span></p>
+                    <p><strong>Date:</strong> <span id="preview-invoice-date">June 15, 2023</span></p>
+                </div>
+            </div>
+            
+            <div class="invoice-client">
+                <h3>Bill To:</h3>
+                <p id="preview-client-name">Client Name</p>
+                <p id="preview-client-address">123 Client Street</p>
+                <p id="preview-client-city">Client City, ST 12345</p>
+                <p id="preview-client-phone">Phone: (987) 654-3210</p>
+                <p id="preview-client-email">Email: client@example.com</p>
+            </div>
+            
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="preview-items">
+                    <!-- Items will be added here dynamically -->
+                </tbody>
+            </table>
+            
+            <table class="invoice-totals">
+                <tr>
+                    <td>Subtotal:</td>
+                    <td class="text-right" id="preview-subtotal">$0.00</td>
+                </tr>
+                <tr>
+                    <td>Tax (10%):</td>
+                    <td class="text-right" id="preview-tax">$0.00</td>
+                </tr>
+                <tr>
+                    <td>Total:</td>
+                    <td class="text-right" id="preview-total">$0.00</td>
+                </tr>
+            </table>
+            
+            <div class="invoice-payment">
+                <h3>Payment Information</h3>
+                <p><strong>Payment Method:</strong> <span id="preview-payment-method">Bank Transfer</span></p>
+                <p><strong>Account Details:</strong> <span id="preview-payment-account">Account #: 123456789, Routing #: 987654321</span></p>
+                <p><strong>Payment Terms:</strong> <span id="preview-payment-terms">Net 30</span></p>
+            </div>
+            
+            <div class="invoice-footer">
+                <p>Thank you for your business!</p>
+                <p>Please make payments payable to <span id="preview-footer-company">Supreme Enterprises</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        // Initialize Firebase with your config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzl1R3xsNUKQ9wO3DX8nHt3O0NkI6Cc_E",
+            authDomain: "cola-d7685.firebaseapp.com",
+            projectId: "cola-d7685",
+            storageBucket: "cola-d7685.appspot.com",
+            messagingSenderId: "206120855200",
+            appId: "1:206120855200:web:d88691337ce6a1b2dd4bc5"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const { jsPDF } = window.jspdf;
+
+        // Admin Authentication
+        function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Hardcoded admin credentials (replace with Firebase Auth users in production)
+            if(email === "admin@supremeenterprises.com" && password === "AdminPassword123") {
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        document.getElementById('auth-container').classList.add('hidden');
+                        document.getElementById('app-container').classList.remove('hidden');
+                        initApp();
+                        showToast('Login successful!');
+                    })
+                    .catch((error) => {
+                        showToast("Login failed: " + error.message, 'error');
+                    });
+            } else {
+                showToast("Invalid admin credentials", 'error');
+            }
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                document.getElementById('auth-container').classList.remove('hidden');
+                document.getElementById('app-container').classList.add('hidden');
+                showToast('Logged out successfully');
+            });
+        }
+
+        // Check auth state on load
+        auth.onAuthStateChanged((user) => {
+            if (user && user.email === "admin@supremeenterprises.com") {
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                initApp();
+            }
+        });
+
+        // Initialize the app after auth
+        function initApp() {
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('invoice-date').value = today;
+            
+            // Add first item row
+            addItemRow();
+            
+            // Set up event listeners for live preview
+            setupLivePreview();
+            
+            // Check if we're loading an existing invoice from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const invoiceId = urlParams.get('invoice');
+            
+            if (invoiceId && window.location.pathname === '/') {
+                loadInvoice(invoiceId);
+            }
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.backgroundColor = type === 'error' ? '#e74c3c' : '#2ecc71';
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Setup live preview
+        function setupLivePreview() {
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+        }
+
+        // Update preview based on form inputs
+        function updatePreview() {
+            // Company info
+            document.getElementById('preview-company-name').textContent = document.getElementById('company-name').value || 'Supreme Enterprises';
+            document.getElementById('preview-company-address').textContent = document.getElementById('company-address').value || '123 Business Ave, Suite 100';
+            document.getElementById('preview-company-city').textContent = document.getElementById('company-city').value || 'New York, NY 10001';
+            document.getElementById('preview-company-phone').textContent = document.getElementById('company-phone').value ? 'Phone: ' + document.getElementById('company-phone').value : 'Phone: (123) 456-7890';
+            document.getElementById('preview-company-email').textContent = document.getElementById('company-email').value || 'Email: info@supremeenterprises.com';
+            document.getElementById('preview-footer-company').textContent = document.getElementById('company-name').value || 'Supreme Enterprises';
+            
+            // Invoice info
+            document.getElementById('preview-invoice-number').textContent = document.getElementById('invoice-number').value || 'INV-001';
+            
+            const invoiceDate = document.getElementById('invoice-date').value;
+            if (invoiceDate) {
+                const dateObj = new Date(invoiceDate);
+                document.getElementById('preview-invoice-date').textContent = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            }
+            
+            // Client info
+            document.getElementById('preview-client-name').textContent = document.getElementById('client-name').value || 'Client Name';
+            document.getElementById('preview-client-address').textContent = document.getElementById('client-address').value || '123 Client Street';
+            document.getElementById('preview-client-city').textContent = document.getElementById('client-city').value || 'Client City, ST 12345';
+            document.getElementById('preview-client-phone').textContent = document.getElementById('client-phone').value ? 'Phone: ' + document.getElementById('client-phone').value : '';
+            document.getElementById('preview-client-email').textContent = document.getElementById('client-email').value || '';
+            
+            // Payment info
+            document.getElementById('preview-payment-method').textContent = document.getElementById('payment-method').value || 'Bank Transfer';
+            document.getElementById('preview-payment-account').textContent = document.getElementById('payment-account').value || 'Account #: 123456789, Routing #: 987654321';
+            document.getElementById('preview-payment-terms').textContent = document.getElementById('payment-terms').value || 'Net 30';
+            
+            // Update items preview
+            updateItemsPreview();
+        }
+
+        // Add item row
+        function addItemRow(item = {}) {
+            const itemsContainer = document.getElementById('items-container');
+            const itemId = Date.now() + Math.floor(Math.random() * 1000);
+            
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            itemRow.dataset.id = itemId;
+            
+            itemRow.innerHTML = `
+                <input type="text" class="form-control item-name" placeholder="Item Name" value="${item.name || ''}">
+                <input type="text" class="form-control item-description" placeholder="Description" value="${item.description || ''}">
+                <input type="number" class="form-control item-quantity" placeholder="Qty" min="1" value="${item.quantity || 1}">
+                <input type="number" class="form-control item-price" placeholder="Unit Price" min="0" step="0.01" value="${item.price || ''}">
+                <button onclick="removeItemRow('${itemId}')" class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            itemsContainer.appendChild(itemRow);
+            
+            // Add event listeners for live preview
+            const inputs = itemRow.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+            
+            return itemId;
+        }
+
+        // Remove item row
+        function removeItemRow(id) {
+            const itemRow = document.querySelector(`.item-row[data-id="${id}"]`);
+            if (itemRow) {
+                itemRow.remove();
+                updateItemsPreview();
+            }
+        }
+
+        // Update items in preview
+        function updateItemsPreview() {
+            const itemsContainer = document.getElementById('preview-items');
+            itemsContainer.innerHTML = '';
+            
+            const itemRows = document.querySelectorAll('.item-row');
+            let subtotal = 0;
+            
+            itemRows.forEach(row => {
+                const name = row.querySelector('.item-name').value || 'Unnamed Item';
+                const description = row.querySelector('.item-description').value || '';
+                const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                const total = quantity * price;
+                
+                subtotal += total;
+                
+                const rowElement = document.createElement('tr');
+                rowElement.innerHTML = `
+                    <td>${name}</td>
+                    <td>${description}</td>
+                    <td>${quantity}</td>
+                    <td>$${price.toFixed(2)}</td>
+                    <td>$${total.toFixed(2)}</td>
+                `;
+                
+                itemsContainer.appendChild(rowElement);
+            });
+            
+            const tax = subtotal * 0.1; // 10% tax for example
+            const total = subtotal + tax;
+            
+            document.getElementById('preview-subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('preview-tax').textContent = '$' + tax.toFixed(2);
+            document.getElementById('preview-total').textContent = '$' + total.toFixed(2);
+        }
+
+        // Save invoice to Firestore
+        async function saveInvoice() {
+            const user = auth.currentUser;
+            if (!user || user.email !== "admin@supremeenterprises.com") {
+                showToast("Admin access required", 'error');
+                return;
+            }
+
+            // Collect all invoice data
+            const invoiceNumber = document.getElementById('invoice-number').value || 'INV-' + Math.floor(1000 + Math.random() * 9000);
+            const invoiceDate = document.getElementById('invoice-date').value;
+            
+            const company = {
+                name: document.getElementById('company-name').value,
+                address: document.getElementById('company-address').value,
+                city: document.getElementById('company-city').value,
+                phone: document.getElementById('company-phone').value,
+                email: document.getElementById('company-email').value
+            };
+            
+            const client = {
+                name: document.getElementById('client-name').value,
+                address: document.getElementById('client-address').value,
+                city: document.getElementById('client-city').value,
+                phone: document.getElementById('client-phone').value,
+                email: document.getElementById('client-email').value
+            };
+            
+            const payment = {
+                method: document.getElementById('payment-method').value,
+                account: document.getElementById('payment-account').value,
+                terms: document.getElementById('payment-terms').value
+            };
+            
+            // Collect items
+            const items = [];
+            const itemRows = document.querySelectorAll('.item-row');
+            
+            itemRows.forEach(row => {
+                items.push({
+                    name: row.querySelector('.item-name').value,
+                    description: row.querySelector('.item-description').value,
+                    quantity: parseFloat(row.querySelector('.item-quantity').value),
+                    price: parseFloat(row.querySelector('.item-price').value)
+                });
+            });
+            
+            // Calculate totals
+            let subtotal = 0;
+            items.forEach(item => {
+                subtotal += item.quantity * item.price;
+            });
+            const tax = subtotal * 0.1; // 10% tax
+            const total = subtotal + tax;
+            
+            const invoiceData = {
+                id: generateId(),
+                invoiceNumber,
+                date: invoiceDate,
+                company,
+                client,
+                items,
+                payment,
+                subtotal,
+                tax,
+                total,
+                createdBy: user.uid,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                await db.collection('invoices').doc(invoiceData.id).set(invoiceData);
+                
+                // Generate shareable link
+                const shareLink = `${window.location.origin}${window.location.pathname}?invoice=${invoiceData.id}`;
+                document.getElementById('share-link-input').value = shareLink;
+                document.getElementById('share-section').style.display = 'block';
+                
+                showToast('Invoice saved successfully!');
+                
+                // Update the invoice number if it was auto-generated
+                if (!document.getElementById('invoice-number').value) {
+                    document.getElementById('invoice-number').value = invoiceNumber;
+                    updatePreview();
+                }
+            } catch (error) {
+                console.error("Error saving invoice:", error);
+                showToast('Error saving invoice: ' + error.message, 'error');
+            }
+        }
+
+        // Load invoice from Firestore
+        async function loadInvoice(id) {
+            try {
+                const doc = await db.collection('invoices').doc(id).get();
+                if (doc.exists) {
+                    const invoice = doc.data();
+                    
+                    // Verify admin access
+                    const user = auth.currentUser;
+                    if (!user || user.email !== "admin@supremeenterprises.com") {
+                        showToast("Admin access required to edit invoices", 'error');
+                        return;
+                    }
+                    
+                    // Fill in the form
+                    document.getElementById('invoice-number').value = invoice.invoiceNumber;
+                    document.getElementById('invoice-date').value = invoice.date;
+                    
+                    // Company info
+                    document.getElementById('company-name').value = invoice.company.name || '';
+                    document.getElementById('company-address').value = invoice.company.address || '';
+                    document.getElementById('company-city').value = invoice.company.city || '';
+                    document.getElementById('company-phone').value = invoice.company.phone || '';
+                    document.getElementById('company-email').value = invoice.company.email || '';
+                    
+                    // Client info
+                    document.getElementById('client-name').value = invoice.client.name || '';
+                    document.getElementById('client-address').value = invoice.client.address || '';
+                    document.getElementById('client-city').value = invoice.client.city || '';
+                    document.getElementById('client-phone').value = invoice.client.phone || '';
+                    document.getElementById('client-email').value = invoice.client.email || '';
+                    
+                    // Payment info
+                    document.getElementById('payment-method').value = invoice.payment.method || '';
+                    document.getElementById('payment-account').value = invoice.payment.account || '';
+                    document.getElementById('payment-terms').value = invoice.payment.terms || '';
+                    
+                    // Clear existing items
+                    document.getElementById('items-container').innerHTML = '';
+                    
+                    // Add items
+                    if (invoice.items && invoice.items.length > 0) {
+                        invoice.items.forEach(item => {
+                            addItemRow(item);
+                        });
+                    } else {
+                        addItemRow(); // Add at least one empty row
+                    }
+                    
+                    // Update preview
+                    updatePreview();
+                    
+                    // Show share section
+                    const shareLink = `${window.location.origin}${window.location.pathname}?invoice=${id}`;
+                    document.getElementById('share-link-input').value = shareLink;
+                    document.getElementById('share-section').style.display = 'block';
+                    
+                    showToast('Invoice loaded successfully');
+                } else {
+                    showToast('Invoice not found', 'error');
+                }
+            } catch (error) {
+                console.error("Error loading invoice:", error);
+                showToast('Error loading invoice: ' + error.message, 'error');
+            }
+        }
+
+        // Generate PDF
+        async function generatePDF() {
+            const invoicePreview = document.getElementById('invoice-preview');
+            
+            // Temporarily hide action buttons if they're visible in the preview
+            const originalDisplay = invoicePreview.querySelector('.action-buttons')?.style.display;
+            if (invoicePreview.querySelector('.action-buttons')) {
+                invoicePreview.querySelector('.action-buttons').style.display = 'none';
+            }
+            
+            try {
+                const canvas = await html2canvas(invoicePreview, {
+                    scale: 2,
+                    logging: false,
+                    useCORS: true
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 295; // A4 height in mm
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+                
+                // Add additional pages if the content is too long
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                const invoiceNumber = document.getElementById('invoice-number').value || 'invoice';
+                pdf.save(`${invoiceNumber}.pdf`);
+                
+                showToast('PDF generated successfully');
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                showToast('Error generating PDF: ' + error.message, 'error');
+            } finally {
+                // Restore original display of action buttons
+                if (invoicePreview.querySelector('.action-buttons')) {
+                    invoicePreview.querySelector('.action-buttons').style.display = originalDisplay;
+                }
+            }
+        }
+
+        // Copy share link
+        function copyShareLink() {
+            const shareInput = document.getElementById('share-link-input');
+            shareInput.select();
+            document.execCommand('copy');
+            showToast('Link copied to clipboard!');
+        }
+
+        // Clear form
+        function clearForm() {
+            if (confirm('Are you sure you want to clear the form? All unsaved data will be lost.')) {
+                document.querySelector('form').reset();
+                document.getElementById('items-container').innerHTML = '';
+                document.getElementById('share-section').style.display = 'none';
+                addItemRow();
+                updatePreview();
+                showToast('Form cleared');
+            }
+        }
+
+        // Generate a unique ID
+        function generateId() {
+            return 'inv_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+        }
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if we're viewing an invoice (not editing)
+            const urlParams = new URLSearchParams(window.location.search);
+            const invoiceId = urlParams.get('invoice');
+            
+            if (invoiceId && window.location.pathname === '/') {
+                // If not logged in as admin, show a read-only view
+                auth.onAuthStateChanged((user) => {
+                    if (!user || user.email !== "admin@supremeenterprises.com") {
+                        viewInvoice(invoiceId);
+                    }
+                });
+            }
+        });
+
+        // View invoice (read-only mode)
+        async function viewInvoice(id) {
+            try {
+                const doc = await db.collection('invoices').doc(id).get();
+                if (doc.exists) {
+                    const invoice = doc.data();
+                    
+                    // Hide auth and app containers
+                    document.getElementById('auth-container').classList.add('hidden');
+                    document.getElementById('app-container').classList.add('hidden');
+                    
+                    // Create a simple view container
+                    const viewContainer = document.createElement('div');
+                    viewContainer.className = 'container';
+                    viewContainer.innerHTML = `
+                        <header>
+                            <div class="header-content">
+                                <div class="logo">
+                                    <i class="fas fa-file-invoice"></i>
+                                    <h1>Invoice #${invoice.invoiceNumber}</h1>
+                                </div>
+                                <button onclick="window.print()" class="btn btn-primary">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                            </div>
+                        </header>
+                        <div class="invoice-preview" id="view-invoice">
+                            <!-- Invoice content will be inserted here -->
+                        </div>
+                        <div class="action-buttons" style="margin: 20px 0; justify-content: center;">
+                            <button onclick="window.location.href='${window.location.pathname}'" class="btn btn-primary">
+                                <i class="fas fa-home"></i> Back to Home
+                            </button>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(viewContainer);
+                    
+                    // Populate invoice data
+                    const invoiceElement = document.getElementById('view-invoice');
+                    invoiceElement.innerHTML = `
+                        <div class="invoice-header">
+                            <div class="invoice-company">
+                                <h2>${invoice.company.name || 'Supreme Enterprises'}</h2>
+                                <p>${invoice.company.address || '123 Business Ave, Suite 100'}</p>
+                                <p>${invoice.company.city || 'New York, NY 10001'}</p>
+                                ${invoice.company.phone ? `<p>Phone: ${invoice.company.phone}</p>` : ''}
+                                ${invoice.company.email ? `<p>Email: ${invoice.company.email}</p>` : ''}
+                            </div>
+                            
+                            <div class="invoice-details">
+                                <h1 class="invoice-title">INVOICE</h1>
+                                <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
+                                <p><strong>Date:</strong> ${new Date(invoice.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="invoice-client">
+                            <h3>Bill To:</h3>
+                            <p>${invoice.client.name || 'Client Name'}</p>
+                            <p>${invoice.client.address || '123 Client Street'}</p>
+                            <p>${invoice.client.city || 'Client City, ST 12345'}</p>
+                            ${invoice.client.phone ? `<p>Phone: ${invoice.client.phone}</p>` : ''}
+                            ${invoice.client.email ? `<p>Email: ${invoice.client.email}</p>` : ''}
+                        </div>
+                        
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${invoice.items.map(item => `
+                                    <tr>
+                                        <td>${item.name || 'Unnamed Item'}</td>
+                                        <td>${item.description || ''}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>$${item.price.toFixed(2)}</td>
+                                        <td>$${(item.quantity * item.price).toFixed(2)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        
+                        <table class="invoice-totals">
+                            <tr>
+                                <td>Subtotal:</td>
+                                <td class="text-right">$${invoice.subtotal.toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td>Tax (10%):</td>
+                                <td class="text-right">$${invoice.tax.toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td>Total:</td>
+                                <td class="text-right">$${invoice.total.toFixed(2)}</td>
+                            </tr>
+                        </table>
+                        
+                        <div class="invoice-payment">
+                            <h3>Payment Information</h3>
+                            ${invoice.payment.method ? `<p><strong>Payment Method:</strong> ${invoice.payment.method}</p>` : ''}
+                            ${invoice.payment.account ? `<p><strong>Account Details:</strong> ${invoice.payment.account}</p>` : ''}
+                            ${invoice.payment.terms ? `<p><strong>Payment Terms:</strong> ${invoice.payment.terms}</p>` : ''}
+                        </div>
+                        
+                        <div class="invoice-footer">
+                            <p>Thank you for your business!</p>
+                            <p>Please make payments payable to ${invoice.company.name || 'Supreme Enterprises'}</p>
+                        </div>
+                    `;
+                } else {
+                    showToast('Invoice not found', 'error');
+                    window.location.href = window.location.pathname;
+                }
+            } catch (error) {
+                console.error("Error viewing invoice:", error);
+                showToast('Error loading invoice: ' + error.message, 'error');
+                window.location.href = window.location.pathname;
+            }
+        }
+    </script>
+</body>
+</html>
