@@ -255,6 +255,100 @@
             border-top-color: var(--secondary-color);
             animation: spin 1s ease-in-out infinite;
         }
+        /* Updated Responsive Styles */
+@media (max-width: 768px) {
+    .address-block {
+        flex-direction: column;
+    }
+    
+    .invoice-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .invoice-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .tax-details {
+        width: 100%;
+        float: none;
+    }
+    
+    .customer-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Make table scrollable horizontally */
+    .invoice-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -15px;
+        padding: 0 15px;
+    }
+    
+    .invoice-table {
+        font-size: 14px;
+    }
+    
+    .invoice-table th, 
+    .invoice-table td {
+        padding: 8px 5px;
+    }
+    
+    .page {
+        padding: 10mm;
+    }
+    
+    .company-name {
+        font-size: 20px;
+    }
+    
+    .invoice-title {
+        font-size: 18px;
+        margin: 15px 0;
+    }
+}
+
+/* For very small screens */
+@media (max-width: 480px) {
+    .page {
+        padding: 5mm;
+    }
+    
+    .invoice-table {
+        font-size: 12px;
+    }
+    
+    .address-title {
+        font-size: 14px;
+    }
+    
+    .company-name {
+        font-size: 18px;
+    }
+    
+    .invoice-title {
+        font-size: 16px;
+    }
+    
+    .amount-in-words {
+        font-size: 14px;
+    }
+}
+
+/* Table container for horizontal scrolling */
+.invoice-table-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
         
         @keyframes spin {
             to { transform: rotate(360deg); }
