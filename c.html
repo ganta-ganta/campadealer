@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Supreme Enterprises - Invoice</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -24,12 +24,13 @@
             background-color: #f5f7fa;
             color: #333;
             line-height: 1.6;
+            -webkit-text-size-adjust: 100%;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
         
         .header {
@@ -39,16 +40,19 @@
             margin-bottom: 20px;
             padding-bottom: 20px;
             border-bottom: 2px solid var(--primary-color);
+            flex-wrap: wrap;
         }
         
         .logo {
-            height: 60px;
+            height: 50px;
+            max-width: 100%;
         }
         
         .customer-view {
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
+            box-sizing: border-box;
         }
         
         .customer-actions {
@@ -60,7 +64,7 @@
         }
         
         .btn {
-            padding: 10px 15px;
+            padding: 12px 20px;
             background: var(--secondary-color);
             color: white;
             border: none;
@@ -72,6 +76,8 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            min-height: 44px;
+            will-change: transform;
         }
         
         .btn:hover {
@@ -97,7 +103,8 @@
         
         /* Invoice Styles */
         .page {
-            width: 210mm;
+            width: 100%;
+            max-width: 210mm;
             min-height: 297mm;
             margin: 0 auto;
             padding: 15mm;
@@ -113,14 +120,17 @@
             margin-bottom: 20px;
             padding-bottom: 20px;
             border-bottom: 2px solid var(--primary-color);
+            flex-wrap: wrap;
+            gap: 20px;
         }
         
         .company-info {
             flex: 1;
+            min-width: 200px;
         }
         
         .company-name {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             color: var(--primary-color);
             margin-bottom: 5px;
@@ -139,6 +149,8 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .invoice-number, .invoice-date {
@@ -149,14 +161,17 @@
             display: flex;
             margin-bottom: 20px;
             gap: 15px;
+            flex-wrap: wrap;
         }
         
         .from-address, .bill-to-address, .ship-to-address {
             flex: 1;
+            min-width: 200px;
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 5px;
             background: #f9f9f9;
+            box-sizing: border-box;
         }
         
         .address-title {
@@ -167,20 +182,31 @@
             padding-bottom: 5px;
         }
         
+        .invoice-table-container {
+            width: 100%;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
         .invoice-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            min-width: 600px;
         }
         
         .invoice-table th {
             background-color: var(--primary-color);
             color: white;
             text-align: center;
+            padding: 10px;
+            font-weight: 600;
         }
         
         .invoice-table td {
             vertical-align: top;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
         }
         
         .text-right {
@@ -208,17 +234,20 @@
             background: #f9f9f9;
             border-radius: 5px;
             border: 1px solid #ddd;
+            clear: both;
         }
         
         .signature-area {
             display: flex;
             justify-content: space-between;
             margin-top: 80px;
+            flex-wrap: wrap;
         }
         
         .signature {
             text-align: center;
             width: 200px;
+            margin-bottom: 20px;
         }
         
         .signature-line {
@@ -230,6 +259,7 @@
         .signature-image {
             height: 80px;
             margin-bottom: 10px;
+            max-width: 100%;
         }
         
         .footer {
@@ -237,6 +267,7 @@
             text-align: center;
             font-size: 12px;
             color: #777;
+            clear: both;
         }
         
         /* Loading Spinner */
@@ -255,7 +286,6 @@
             border-top-color: var(--secondary-color);
             animation: spin 1s ease-in-out infinite;
         }
-        
         
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -290,6 +320,9 @@
             .no-print {
                 display: none !important;
             }
+            .invoice-table {
+                min-width: 100%;
+            }
         }
         
         /* Responsive Styles */
@@ -298,19 +331,95 @@
                 flex-direction: column;
             }
             
+            .invoice-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .invoice-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
             .tax-details {
                 width: 100%;
                 float: none;
             }
             
-            .header {
+            .customer-actions {
                 flex-direction: column;
-                text-align: center;
+                align-items: stretch;
             }
             
-            .logo {
-                margin-bottom: 10px;
+            .btn {
+                width: 100%;
+                justify-content: center;
             }
+            
+            .invoice-table {
+                font-size: 14px;
+            }
+            
+            .invoice-table th, 
+            .invoice-table td {
+                padding: 8px 5px;
+            }
+            
+            .page {
+                padding: 10mm;
+            }
+            
+            .company-name {
+                font-size: 20px;
+            }
+            
+            .invoice-title {
+                font-size: 18px;
+                margin: 15px 0;
+            }
+        }
+        
+        /* For very small screens */
+        @media (max-width: 480px) {
+            .page {
+                padding: 5mm;
+            }
+            
+            .invoice-table {
+                font-size: 12px;
+            }
+            
+            .address-title {
+                font-size: 14px;
+            }
+            
+            .company-name {
+                font-size: 18px;
+            }
+            
+            .invoice-title {
+                font-size: 16px;
+            }
+            
+            .amount-in-words {
+                font-size: 14px;
+            }
+            
+            .signature-area {
+                flex-direction: column;
+                align-items: center;
+                margin-top: 40px;
+            }
+            
+            .signature {
+                width: 100%;
+                margin-bottom: 30px;
+            }
+        }
+        
+        /* Prevent zoom on mobile input */
+        input, select, textarea {
+            font-size: 16px;
         }
     </style>
 </head>
@@ -460,45 +569,47 @@
                 </div>
                 ` : ''}
                 
-                <table class="invoice-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Description of Goods</th>
-                            <th>HSN Code</th>
-                            <th>GST %</th>
-                            <th>Qty</th>
-                            <th>Rate</th>
-                            <th>Taxable Value</th>
-                            <th>CGST</th>
-                            <th>SGST</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${invoice.items.map((item, index) => `
+                <div class="invoice-table-container">
+                    <table class="invoice-table">
+                        <thead>
                             <tr>
-                                <td class="text-center">${index + 1}</td>
-                                <td>${item.name}</td>
-                                <td class="text-center">${item.hsn}</td>
-                                <td class="text-center">${item.gst}%</td>
-                                <td class="text-center">${item.qty}</td>
-                                <td class="text-right">${parseFloat(item.rate).toFixed(2)}</td>
-                                <td class="text-right">${item.taxable}</td>
-                                <td class="text-right">${item.cgst}</td>
-                                <td class="text-right">${item.sgst}</td>
-                                <td class="text-right">${item.amount}</td>
+                                <th>#</th>
+                                <th>Description of Goods</th>
+                                <th>HSN Code</th>
+                                <th>GST %</th>
+                                <th>Qty</th>
+                                <th>Rate</th>
+                                <th>Taxable Value</th>
+                                <th>CGST</th>
+                                <th>SGST</th>
+                                <th>Amount</th>
                             </tr>
-                        `).join('')}
-                        <tr class="total-row">
-                            <td colspan="6" class="text-right"><strong>Total</strong></td>
-                            <td class="text-right">${taxableTotal.toFixed(2)}</td>
-                            <td class="text-right">${cgstTotal.toFixed(2)}</td>
-                            <td class="text-right">${sgstTotal.toFixed(2)}</td>
-                            <td class="text-right">${amountTotal.toFixed(2)}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${invoice.items.map((item, index) => `
+                                <tr>
+                                    <td class="text-center">${index + 1}</td>
+                                    <td>${item.name}</td>
+                                    <td class="text-center">${item.hsn}</td>
+                                    <td class="text-center">${item.gst}%</td>
+                                    <td class="text-center">${item.qty}</td>
+                                    <td class="text-right">${parseFloat(item.rate).toFixed(2)}</td>
+                                    <td class="text-right">${item.taxable}</td>
+                                    <td class="text-right">${item.cgst}</td>
+                                    <td class="text-right">${item.sgst}</td>
+                                    <td class="text-right">${item.amount}</td>
+                                </tr>
+                            `).join('')}
+                            <tr class="total-row">
+                                <td colspan="6" class="text-right"><strong>Total</strong></td>
+                                <td class="text-right">${taxableTotal.toFixed(2)}</td>
+                                <td class="text-right">${cgstTotal.toFixed(2)}</td>
+                                <td class="text-right">${sgstTotal.toFixed(2)}</td>
+                                <td class="text-right">${amountTotal.toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 
                 <div class="tax-details">
                     <table>
@@ -609,7 +720,11 @@
             html2canvas(element, {
                 scale: 2,
                 logging: false,
-                useCORS: true
+                useCORS: true,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: element.scrollWidth,
+                windowHeight: element.scrollHeight
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
